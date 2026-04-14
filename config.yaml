@@ -1,0 +1,36 @@
+# 会議貢献度スコアリング設定ファイル
+
+# スコアリング重み
+weights:
+  # 主評価軸
+  issue_clarification: 1.3    # 論点整理
+  decision_progress: 1.5      # 意思決定寄与
+  risk_detection: 1.2         # リスク検知
+  actionability: 1.3          # アクション化
+  # 補助評価軸
+  groundedness: 0.8           # 根拠性
+  novelty: 0.9                # 新規性/洞察
+  summarization: 0.8          # 要約・交通整理
+
+# 減点軸（重みは1.0固定、値自体が負）
+penalties:
+  duplication: 1.0            # 重複
+  verbosity: 1.0              # 冗長
+  off_topic: 1.0              # 論点逸脱
+  unsupported_assertion: 1.0  # 根拠薄い断言
+
+# 文脈ウィンドウ設定
+context:
+  before_count: 3             # 直前の発言数
+  after_count: 3              # 直後の発言数
+
+# LLM 設定
+llm:
+  model: "gpt-5.4-mini"
+  max_tokens: 1024
+  max_retries: 3
+
+# 集計設定
+aggregation:
+  top_utterances_count: 5     # Top発言数
+  top_per_axis_count: 3       # 軸別Top発言数
