@@ -1,13 +1,12 @@
-"""開発サーバー起動スクリプト
+"""Development server launcher.
 
-使い方:
+Usage:
   python run.py
 
-環境変数:
-  OPENAI_API_KEY: OpenAI API キー (必須)
-  .env に設定しても読み込まれます。
+Environment:
+  OPENAI_API_KEY: OpenAI API key. Values in .env are loaded automatically.
 
-起動後、ブラウザで http://localhost:8000 を開いてください。
+After startup, open http://localhost:8000 in your browser.
 """
 
 from dotenv import load_dotenv

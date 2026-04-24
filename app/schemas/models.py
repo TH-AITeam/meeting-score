@@ -1,4 +1,4 @@
-"""会議貢献度スコアリング データモデル定義"""
+"""Meeting contribution scoring data models."""
 
 from __future__ import annotations
 
@@ -8,10 +8,9 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-# ---------------------------------------------------------------------------
-# 発言タイプ
-# ---------------------------------------------------------------------------
 class SpeechType(str, Enum):
+    """発言タイプ。"""
+
     ISSUE_CLARIFICATION = "論点整理"
     PROPOSAL = "提案"
     QUESTION = "質問"
@@ -23,21 +22,18 @@ class SpeechType(str, Enum):
     OFF_TOPIC = "雑談/脱線"
 
 
-# ---------------------------------------------------------------------------
-# 発言傾向ラベル
-# ---------------------------------------------------------------------------
 class StyleLabel(str, Enum):
+    """発言傾向ラベル。"""
+
     ORGANIZER = "整理型"
     PROPOSER = "提案型"
-    CAUTIOUS = "警戒型"
+    CAUTIOUS = "慎重型"
     DRIVER = "推進型"
 
 
-# ---------------------------------------------------------------------------
-# 入力モデル
-# ---------------------------------------------------------------------------
 class Utterance(BaseModel):
-    """発言1件"""
+    """発言1件。"""
+
     utterance_id: str
     speaker: str
     timestamp: str
@@ -46,13 +42,15 @@ class Utterance(BaseModel):
 
 
 class TopicTransition(BaseModel):
-    """議題遷移マーカー: この utterance_id 以降の議題を示す"""
+    """この utterance_id 以降の議題を示すマーカー。"""
+
     utterance_id: str
     topic: str
 
 
 class MeetingInput(BaseModel):
-    """会議データ入力"""
+    """会議データ入力。"""
+
     meeting_id: str
     title: str
     goal: str
@@ -62,11 +60,9 @@ class MeetingInput(BaseModel):
     utterances: list[Utterance]
 
 
-# ---------------------------------------------------------------------------
-# 評価結果モデル
-# ---------------------------------------------------------------------------
 class Scores(BaseModel):
-    """評価軸スコア (各 0-3)"""
+    """評価軸スコア。各項目は 0 から 3。"""
+
     issue_clarification: int = Field(0, ge=0, le=3)
     decision_progress: int = Field(0, ge=0, le=3)
     risk_detection: int = Field(0, ge=0, le=3)
@@ -77,7 +73,8 @@ class Scores(BaseModel):
 
 
 class Penalties(BaseModel):
-    """減点軸 (各 -3〜0)"""
+    """減点軸。各項目は -3 から 0。"""
+
     duplication: int = Field(0, ge=-3, le=0)
     verbosity: int = Field(0, ge=-3, le=0)
     off_topic: int = Field(0, ge=-3, le=0)
@@ -85,7 +82,8 @@ class Penalties(BaseModel):
 
 
 class EvaluatedUtterance(BaseModel):
-    """評価済み発言"""
+    """評価済み発言。"""
+
     utterance_id: str
     speaker: str
     timestamp: str
@@ -97,11 +95,9 @@ class EvaluatedUtterance(BaseModel):
     reason: str
 
 
-# ---------------------------------------------------------------------------
-# 集計モデル
-# ---------------------------------------------------------------------------
 class AverageScores(BaseModel):
-    """話者別の軸別平均スコア"""
+    """話者別の軸別平均スコア。"""
+
     issue_clarification: float = 0.0
     decision_progress: float = 0.0
     risk_detection: float = 0.0
@@ -112,7 +108,8 @@ class AverageScores(BaseModel):
 
 
 class SpeakerSummary(BaseModel):
-    """話者別サマリー"""
+    """話者別サマリー。"""
+
     speaker: str
     utterance_count: int
     total_contribution_score: float
@@ -123,7 +120,8 @@ class SpeakerSummary(BaseModel):
 
 
 class MeetingSummary(BaseModel):
-    """会議全体サマリー"""
+    """会議全体のサマリー。"""
+
     meeting_id: str
     title: str
     goal: str

@@ -1,15 +1,4 @@
-"""総合スコア計算モジュール
-
-重み付き総合点 =
-  論点整理 × 1.3
-  + 意思決定寄与 × 1.5
-  + リスク検知 × 1.2
-  + アクション化 × 1.3
-  + 根拠性 × 0.8
-  + 新規性 × 0.9
-  + 要約・交通整理 × 0.8
-  + 重複 + 冗長 + 論点逸脱 + 根拠薄い断言
-"""
+"""Total score calculation."""
 
 from __future__ import annotations
 
@@ -22,7 +11,7 @@ def calculate_total_score(
     penalties: Penalties,
     weights: ScoringWeights | None = None,
 ) -> float:
-    """重み付き総合スコアを計算する"""
+    """Calculate weighted total score from axis scores and penalties."""
     if weights is None:
         weights = ScoringWeights()
 

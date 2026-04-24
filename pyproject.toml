@@ -1,8 +1,8 @@
 [project]
 name = "meeting-score"
 version = "0.1.0"
-description = "会議中の各発言の会議貢献度を評価・可視化する MVP"
-readme = "README.md"
+description = "会議中の各発言が会議をどれだけ前進させたかを評価・可視化する MVP"
+readme = "Readme.md"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.110.0",
@@ -12,4 +12,9 @@ dependencies = [
     "python-multipart>=0.0.9",
     "pyyaml>=6.0.1",
     "uvicorn[standard]>=0.29.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
 ]

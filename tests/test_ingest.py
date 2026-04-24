@@ -1,10 +1,9 @@
-"""入力正規化モジュールのテスト"""
+"""Input normalization tests."""
 
 from app.ingest.loader import load_meeting_from_dict
 
 
 def test_load_basic():
-    """基本的な読み込み"""
     data = {
         "meeting_id": "m001",
         "title": "テスト会議",
@@ -26,7 +25,6 @@ def test_load_basic():
 
 
 def test_auto_fill_missing_fields():
-    """欠損フィールドの補完"""
     data = {
         "meeting_id": "m002",
         "title": "テスト",
@@ -38,15 +36,12 @@ def test_auto_fill_missing_fields():
     }
     meeting = load_meeting_from_dict(data)
     assert len(meeting.utterances) == 2
-    # 自動付番
     assert meeting.utterances[0].utterance_id == "u001"
     assert meeting.utterances[1].utterance_id == "u002"
-    # 話者補完
     assert meeting.utterances[0].speaker == "Speaker 1"
 
 
 def test_preserves_input_order():
-    """入力順（時系列）がそのまま保持される"""
     data = {
         "meeting_id": "m003",
         "title": "テスト",
@@ -58,12 +53,10 @@ def test_preserves_input_order():
         ],
     }
     meeting = load_meeting_from_dict(data)
-    # 再ソートせず入力順を維持する
     assert [u.utterance_id for u in meeting.utterances] == ["u003", "u001", "u002"]
 
 
 def test_non_padded_ids_preserve_order():
-    """ゼロパディングされていないID (u1, u10, u2) でも入力順が崩れない"""
     data = {
         "meeting_id": "m004",
         "title": "テスト",

@@ -1,15 +1,17 @@
-"""LLM による発言評価モジュール
+"""LLM による発言評価。
 
-各発言を OpenAI Responses API で評価し、
-発言タイプ・軸別スコア・減点・理由を返す。
+各発言を OpenAI Responses API で評価し、発言タイプ、軸別スコア、
+減点、理由を型付きの結果として返す。
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import json
 import logging
 from pathlib import Path
 from string import Template
+from typing import Any
 
 from app.context_builder.builder import EvaluationContext
 from app.schemas.models import Penalties, Scores, SpeechType
@@ -70,18 +72,26 @@ _RESPONSE_SCHEMA = {
 }
 
 
+@dataclass(frozen=True)
+class EvaluationResult:
+    """LLM 評価の正規化済み結果。"""
+
+    speech_type: str
+    scores: Scores
+    penalties: Penalties
+    reason: str
+    evaluation_failed: bool = False
+
+
 def _load_prompt_template() -> Template:
     text = _PROMPT_PATH.read_text(encoding="utf-8")
     return Template(text)
 
 
-def _format_utterances(utterances) -> str:
+def _format_utterances(utterances: list[Any]) -> str:
     if not utterances:
         return "(なし)"
-    lines = []
-    for u in utterances:
-        lines.append(f"[{u.timestamp}] {u.speaker}: {u.text}")
-    return "\n".join(lines)
+    return "\n".join(f"[{u.timestamp}] {u.speaker}: {u.text}" for u in utterances)
 
 
 def _build_prompt(ctx: EvaluationContext) -> str:
@@ -99,9 +109,8 @@ def _build_prompt(ctx: EvaluationContext) -> str:
     )
 
 
-def _parse_response(text: str) -> dict:
-    """LLM応答からJSONを抽出してパースする"""
-    # ```json ... ``` ブロックがあれば抽出
+def _parse_response(text: str) -> dict[str, Any]:
+    """LLM応答から JSON を抽出してパースする。"""
     if "```json" in text:
         start = text.index("```json") + len("```json")
         end = text.index("```", start)
@@ -114,12 +123,16 @@ def _parse_response(text: str) -> dict:
     return json.loads(text.strip())
 
 
-def _clamp(value: int, lo: int, hi: int) -> int:
-    return max(lo, min(hi, value))
+def _clamp(value: Any, lo: int, hi: int) -> int:
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        number = 0
+    return max(lo, min(hi, number))
 
 
 def _normalize_speech_type(value: str | None) -> str:
-    """仕様で許可された発言タイプに正規化する"""
+    """仕様で許可された発言タイプへ正規化する。"""
     if value in _SPEECH_TYPE_VALUES:
         return value
 
@@ -132,7 +145,6 @@ def _normalize_speech_type(value: str | None) -> str:
 
 
 def _load_dotenv_if_available() -> None:
-    """必要であれば .env を読み込む"""
     try:
         from dotenv import load_dotenv
     except ImportError:
@@ -141,8 +153,8 @@ def _load_dotenv_if_available() -> None:
     load_dotenv()
 
 
-def _extract_response_text(response) -> str:
-    """Responses API 応答からテキストを取り出す"""
+def _extract_response_text(response: Any) -> str:
+    """Responses API の応答からテキストを取り出す。"""
     output_text = getattr(response, "output_text", "")
     if output_text:
         return output_text
@@ -156,8 +168,8 @@ def _extract_response_text(response) -> str:
     raise ValueError("OpenAI 応答からテキストを取得できませんでした。")
 
 
-def _safe_result(parsed: dict) -> dict:
-    """パース結果を安全な範囲に正規化する"""
+def _safe_result(parsed: dict[str, Any]) -> EvaluationResult:
+    """パース結果を安全な範囲に正規化する。"""
     scores_raw = parsed.get("scores", {})
     penalties_raw = parsed.get("penalties", {})
 
@@ -178,23 +190,23 @@ def _safe_result(parsed: dict) -> dict:
         unsupported_assertion=_clamp(penalties_raw.get("unsupported_assertion", 0), -3, 0),
     )
 
-    return {
-        "speech_type": _normalize_speech_type(parsed.get("speech_type")),
-        "scores": scores,
-        "penalties": penalties,
-        "reason": parsed.get("reason", ""),
-    }
+    return EvaluationResult(
+        speech_type=_normalize_speech_type(parsed.get("speech_type")),
+        scores=scores,
+        penalties=penalties,
+        reason=str(parsed.get("reason", "")),
+    )
 
 
-def _default_result() -> dict:
-    """パース完全失敗時のデフォルト値"""
-    return {
-        "speech_type": "情報共有",
-        "scores": Scores(),
-        "penalties": Penalties(),
-        "reason": "評価を取得できませんでした。",
-        "evaluation_failed": True,
-    }
+def _default_result() -> EvaluationResult:
+    """評価に失敗した場合の安全なデフォルト値。"""
+    return EvaluationResult(
+        speech_type=SpeechType.INFO_SHARING.value,
+        scores=Scores(),
+        penalties=Penalties(),
+        reason="評価を取得できませんでした。",
+        evaluation_failed=True,
+    )
 
 
 def evaluate_utterance(
@@ -202,12 +214,8 @@ def evaluate_utterance(
     model: str = "gpt-5.4-mini",
     max_tokens: int = 1024,
     max_retries: int = 3,
-) -> dict:
-    """1発言を LLM で評価する
-
-    Returns:
-        {speech_type, scores: Scores, penalties: Penalties, reason, evaluation_failed}
-    """
+) -> EvaluationResult:
+    """1発言を LLM で評価する。"""
     for attempt in range(max_retries):
         try:
             _load_dotenv_if_available()
@@ -240,14 +248,12 @@ def evaluate_utterance(
             )
             text = _extract_response_text(response)
             parsed = _parse_response(text)
-            result = _safe_result(parsed)
-            result["evaluation_failed"] = False
-            return result
+            return _safe_result(parsed)
         except ImportError as e:
             logger.error("OpenAI SDK の読み込みに失敗しました: %s", e)
             break
         except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
-            logger.warning("LLM応答パース失敗 (attempt %d/%d): %s", attempt + 1, max_retries, e)
+            logger.warning("LLM応答のパースに失敗しました (attempt %d/%d): %s", attempt + 1, max_retries, e)
             continue
         except APIError as e:
             logger.error("OpenAI API エラー (attempt %d/%d): %s", attempt + 1, max_retries, e)
@@ -256,5 +262,5 @@ def evaluate_utterance(
             logger.error("予期しないエラー (attempt %d/%d): %s: %s", attempt + 1, max_retries, type(e).__name__, e)
             continue
 
-    logger.error("全リトライ失敗。デフォルト値を返します。")
+    logger.error("全リトライに失敗しました。デフォルト値を返します。")
     return _default_result()

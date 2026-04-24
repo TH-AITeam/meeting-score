@@ -1,7 +1,4 @@
-"""レポート整形モジュール
-
-バックエンドの集計結果をフロントエンド向け JSON に変換する。
-"""
+"""Format domain models for the UI response."""
 
 from __future__ import annotations
 
@@ -9,7 +6,7 @@ from app.schemas.models import EvaluatedUtterance, MeetingSummary, SpeakerSummar
 
 
 def format_utterance_for_ui(eu: EvaluatedUtterance) -> dict:
-    """発言1件をUI向け辞書に変換"""
+    """Convert an evaluated utterance to a UI-friendly dict."""
     return {
         "utterance_id": eu.utterance_id,
         "speaker": eu.speaker,
@@ -24,7 +21,7 @@ def format_utterance_for_ui(eu: EvaluatedUtterance) -> dict:
 
 
 def format_speaker_for_ui(ss: SpeakerSummary) -> dict:
-    """話者サマリーをUI向け辞書に変換"""
+    """Convert a speaker summary to a UI-friendly dict."""
     return {
         "speaker": ss.speaker,
         "utterance_count": ss.utterance_count,
@@ -37,7 +34,7 @@ def format_speaker_for_ui(ss: SpeakerSummary) -> dict:
 
 
 def format_meeting_summary_for_ui(ms: MeetingSummary) -> dict:
-    """会議サマリーをUI向け辞書に変換"""
+    """Convert a meeting summary to the public API response shape."""
     return {
         "meeting_id": ms.meeting_id,
         "title": ms.title,

@@ -1,4 +1,4 @@
-"""FastAPI アプリケーションメイン"""
+"""FastAPI application entrypoint."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
-from app.scoring.weights import AppConfig, load_config
+from app.scoring.weights import load_config
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +23,13 @@ load_dotenv()
 async def lifespan(app: FastAPI):
     config = load_config()
     app.state.config = config
-    logger.info("設定読み込み完了: model=%s", config.llm_model)
+    logger.info("設定を読み込みました: model=%s", config.llm_model)
     yield
 
 
 app = FastAPI(
     title="会議貢献度スコアリング",
-    description="会議の文字起こしを分析し、各発言の貢献度を評価するAPI",
+    description="会議の文字起こしを分析し、各発言の会議への実質的な貢献を評価するAPI",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -44,7 +44,6 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 
-# 静的ファイル配信 (UI)
 ui_dir = Path(__file__).resolve().parent.parent.parent / "ui"
 if ui_dir.exists():
     app.mount("/", StaticFiles(directory=str(ui_dir), html=True), name="ui")

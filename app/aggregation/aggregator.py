@@ -1,27 +1,26 @@
-"""集計モジュール
-
-話者別サマリー・会議全体のTop発言抽出を行う。
-"""
+"""Aggregation utilities for evaluated meeting utterances."""
 
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable
 
 from app.schemas.models import (
     AverageScores,
     EvaluatedUtterance,
     MeetingSummary,
     SpeakerSummary,
+    StyleLabel,
 )
 
 
 def _determine_style_label(avg: AverageScores) -> str:
-    """軸別平均から発言傾向ラベルを決定する"""
+    """軸別平均から話者の発言傾向ラベルを決める。"""
     axis_scores = {
-        "整理型": avg.issue_clarification + avg.summarization,
-        "提案型": avg.decision_progress + avg.novelty,
-        "警戒型": avg.risk_detection + avg.groundedness,
-        "推進型": avg.actionability + avg.decision_progress,
+        StyleLabel.ORGANIZER.value: avg.issue_clarification + avg.summarization,
+        StyleLabel.PROPOSER.value: avg.decision_progress + avg.novelty,
+        StyleLabel.CAUTIOUS.value: avg.risk_detection + avg.groundedness,
+        StyleLabel.DRIVER.value: avg.actionability + avg.decision_progress,
     }
     return max(axis_scores, key=axis_scores.get)
 
@@ -30,7 +29,7 @@ def aggregate_by_speaker(
     evaluated: list[EvaluatedUtterance],
     top_count: int = 2,
 ) -> list[SpeakerSummary]:
-    """話者別にサマリーを生成する"""
+    """話者別サマリーを生成する。"""
     by_speaker: dict[str, list[EvaluatedUtterance]] = defaultdict(list)
     for eu in evaluated:
         by_speaker[eu.speaker].append(eu)
@@ -51,7 +50,6 @@ def aggregate_by_speaker(
         sum_total = round(sum(u.total_score for u in utterances), 2)
         avg_total = round(sum_total / n, 2)
 
-        # Top発言を total_score 降順で取得
         sorted_utts = sorted(utterances, key=lambda u: u.total_score, reverse=True)
         top_ids = [u.utterance_id for u in sorted_utts[:top_count]]
 
@@ -74,7 +72,7 @@ def extract_top_utterances(
     evaluated: list[EvaluatedUtterance],
     top_count: int = 5,
 ) -> list[EvaluatedUtterance]:
-    """総合点上位の発言を返す"""
+    """総合スコア上位の発言を返す。"""
     return sorted(evaluated, key=lambda u: u.total_score, reverse=True)[:top_count]
 
 
@@ -83,9 +81,11 @@ def extract_top_by_axis(
     axis: str,
     top_count: int = 3,
 ) -> list[EvaluatedUtterance]:
-    """特定の評価軸で上位の発言を返す（スコア0の発言は除外）"""
+    """特定の評価軸で上位の発言を返す。スコア0の発言は除外する。"""
+
     def _get_score(eu: EvaluatedUtterance) -> int:
         return getattr(eu.scores, axis, 0)
+
     positive = [eu for eu in evaluated if _get_score(eu) > 0]
     return sorted(positive, key=_get_score, reverse=True)[:top_count]
 
@@ -98,58 +98,49 @@ def build_meeting_summary(
     top_count: int = 5,
     top_axis_count: int = 3,
 ) -> MeetingSummary:
-    """会議全体のサマリーを組み立てる"""
+    """会議全体のサマリーを組み立てる。"""
     speaker_summaries = aggregate_by_speaker(evaluated)
-    top_all = extract_top_utterances(evaluated, top_count)
-    top_issue = extract_top_by_axis(evaluated, "issue_clarification", top_axis_count)
-    top_decision = extract_top_by_axis(evaluated, "decision_progress", top_axis_count)
-    top_risk = extract_top_by_axis(evaluated, "risk_detection", top_axis_count)
-    top_action = extract_top_by_axis(evaluated, "actionability", top_axis_count)
-
-    # 改善コメントの生成
-    improvement_comments = _generate_improvement_comments(evaluated)
 
     return MeetingSummary(
         meeting_id=meeting_id,
         title=title,
         goal=goal,
-        overall_comment=_generate_overall_comment(evaluated, speaker_summaries),
-        top_utterances=top_all,
-        top_issue_clarification=top_issue,
-        top_decision_progress=top_decision,
-        top_risk_detection=top_risk,
-        top_actionability=top_action,
-        improvement_comments=improvement_comments,
+        overall_comment=_generate_overall_comment(evaluated),
+        top_utterances=extract_top_utterances(evaluated, top_count),
+        top_issue_clarification=extract_top_by_axis(evaluated, "issue_clarification", top_axis_count),
+        top_decision_progress=extract_top_by_axis(evaluated, "decision_progress", top_axis_count),
+        top_risk_detection=extract_top_by_axis(evaluated, "risk_detection", top_axis_count),
+        top_actionability=extract_top_by_axis(evaluated, "actionability", top_axis_count),
+        improvement_comments=_generate_improvement_comments(evaluated),
         speaker_summaries=speaker_summaries,
         evaluated_utterances=evaluated,
     )
 
 
-def _generate_overall_comment(
-    evaluated: list[EvaluatedUtterance],
-    speakers: list[SpeakerSummary],
-) -> str:
-    """会議全体の簡易コメントをルールベースで生成する"""
+def _generate_overall_comment(evaluated: list[EvaluatedUtterance]) -> str:
+    """会議全体への短いコメントをルールベースで生成する。"""
     if not evaluated:
         return "発言データがありません。"
 
     avg_score = sum(u.total_score for u in evaluated) / len(evaluated)
     total_penalties = sum(
-        u.penalties.duplication + u.penalties.verbosity
-        + u.penalties.off_topic + u.penalties.unsupported_assertion
+        u.penalties.duplication
+        + u.penalties.verbosity
+        + u.penalties.off_topic
+        + u.penalties.unsupported_assertion
         for u in evaluated
     )
 
     parts = []
     if avg_score >= 4.0:
-        parts.append("全体的に質の高い議論が行われました。")
+        parts.append("会議の目的に沿った貢献が多く見られました。")
     elif avg_score >= 2.0:
-        parts.append("議論は概ね目的に沿って進行しました。")
+        parts.append("議論はおおむね目的に沿って進行しています。")
     else:
-        parts.append("議論の焦点が定まりにくい場面が見られました。")
+        parts.append("議論の焦点が定まりにくい場面がありました。")
 
     if total_penalties < -5:
-        parts.append("重複や脱線が目立つ箇所がありました。")
+        parts.append("重複、冗長さ、脱線が目立つ箇所もあります。")
 
     return "".join(parts)
 
@@ -157,35 +148,33 @@ def _generate_overall_comment(
 def _generate_improvement_comments(
     evaluated: list[EvaluatedUtterance],
 ) -> list[str]:
-    """改善コメントを生成する"""
+    """改善コメントを生成する。"""
     comments = []
 
-    # 重複が多い場面の検出
-    dup_utterances = [u for u in evaluated if u.penalties.duplication <= -2]
-    if dup_utterances:
-        comments.append(
-            f"重複発言が{len(dup_utterances)}件検出されました。同じ内容の繰り返しを減らすことで会議の効率が上がります。"
-        )
+    checks: list[tuple[Callable[[EvaluatedUtterance], bool], str]] = [
+        (
+            lambda u: u.penalties.duplication <= -2,
+            "重複した発言が{count}件検出されました。同じ内容の繰り返しを減らすと、会議の進行がより滑らかになります。",
+        ),
+        (
+            lambda u: u.penalties.off_topic <= -2,
+            "議題から離れた発言が{count}件ありました。現在の論点を確認しながら進めると改善できます。",
+        ),
+        (
+            lambda u: u.penalties.verbosity <= -2,
+            "冗長な発言が{count}件ありました。結論を先に述べると、意図が伝わりやすくなります。",
+        ),
+    ]
 
-    # 脱線が多い場面の検出
-    offtopic = [u for u in evaluated if u.penalties.off_topic <= -2]
-    if offtopic:
-        comments.append(
-            f"論点から逸脱した発言が{len(offtopic)}件ありました。アジェンダに沿った進行を意識すると改善できます。"
-        )
+    for predicate, template in checks:
+        count = len([u for u in evaluated if predicate(u)])
+        if count:
+            comments.append(template.format(count=count))
 
-    # 冗長発言の検出
-    verbose = [u for u in evaluated if u.penalties.verbosity <= -2]
-    if verbose:
-        comments.append(
-            f"冗長な発言が{len(verbose)}件ありました。結論を先に述べることで議論がスムーズになります。"
-        )
-
-    # アクション化が弱い場合
     action_scores = [u.scores.actionability for u in evaluated]
     if action_scores and max(action_scores) <= 1:
         comments.append(
-            "次アクションの明確化が不足しています。会議終了前に担当・期限を確認する時間を設けると改善できます。"
+            "次の行動につながる発言が少なめです。担当者、期限、次の確認事項を明確にすると改善できます。"
         )
 
     return comments
