@@ -26,18 +26,20 @@ help:
 
 # Issue #5 §15 ベースライン評価
 eval:
-	cd backend && $(VENV_PY) -m evals.cli run \
+	cd backend && $(VENV_PY) -m evals.cli \
+		$(if $(MODEL),--model $(MODEL),) \
+		run \
 		--dataset $(DATASET) \
 		$(if $(MEETINGS_DIR),--meetings-dir $(MEETINGS_DIR),) \
-		$(if $(MODEL),--model $(MODEL),) \
 		--out $(OUT)
 
 # Issue #5 §15 安定性評価 (N=5)
 eval-stability:
-	cd backend && $(VENV_PY) -m evals.cli stability \
+	cd backend && $(VENV_PY) -m evals.cli \
+		$(if $(MODEL),--model $(MODEL),) \
+		stability \
 		--meeting $(SAMPLE) \
 		--n $(N) \
-		$(if $(MODEL),--model $(MODEL),) \
 		--out $(STABILITY_OUT)
 
 test:
