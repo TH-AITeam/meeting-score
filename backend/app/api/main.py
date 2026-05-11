@@ -9,6 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
@@ -45,6 +46,19 @@ app.add_middleware(
 app.include_router(router, prefix="/api")
 
 # 静的ファイル配信 (UI)
-ui_dir = Path(__file__).resolve().parent.parent.parent.parent / "frontend"
+ui_dir = Path(__file__).resolve().parent.parent.parent.parent / "frontend" / "dist"
 if ui_dir.exists():
     app.mount("/", StaticFiles(directory=str(ui_dir), html=True), name="ui")
+else:
+    logger.warning(
+        "frontend/dist が見つかりません。UI を配信するには `cd frontend && npm run build` を実行してください。"
+        " 開発時は Vite dev server (http://localhost:5173) を使用してください。"
+    )
+
+    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    async def root_no_ui() -> HTMLResponse:
+        return HTMLResponse(
+            "<p>UI が未ビルドです。"
+            "<code>cd frontend &amp;&amp; npm run build</code> を実行するか、"
+            "開発時は <a href='http://localhost:5173'>http://localhost:5173</a> を使用してください。</p>"
+        )

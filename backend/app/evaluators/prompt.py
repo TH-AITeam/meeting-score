@@ -59,7 +59,11 @@ RESPONSE_SCHEMA: dict = {
                 "duplication": {"type": "integer", "minimum": -3, "maximum": 0},
                 "verbosity": {"type": "integer", "minimum": -3, "maximum": 0},
                 "off_topic": {"type": "integer", "minimum": -3, "maximum": 0},
-                "unsupported_assertion": {"type": "integer", "minimum": -3, "maximum": 0},
+                "unsupported_assertion": {
+                    "type": "integer",
+                    "minimum": -3,
+                    "maximum": 0,
+                },
             },
             "required": [
                 "duplication",
