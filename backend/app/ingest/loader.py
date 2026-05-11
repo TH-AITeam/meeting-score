@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from app.schemas.models import MeetingInput, Utterance
+from app.schemas.models import MeetingInput
 
 
 def load_meeting_from_file(path: str | Path) -> MeetingInput:

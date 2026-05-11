@@ -42,7 +42,7 @@ def _extract_response_text(response: Any) -> str:
         for content in getattr(item, "content", []):
             text = getattr(content, "text", None)
             if text:
-                return text
+                return str(text)
     msg = "OpenAI 応答からテキストを取得できませんでした。"
     raise ValueError(msg)
 
@@ -119,19 +119,26 @@ class OpenAIEvaluator(Evaluator):
             except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
                 logger.warning(
                     "LLM応答パース失敗 (attempt %d/%d): %s",
-                    attempt + 1, self._max_retries, e,
+                    attempt + 1,
+                    self._max_retries,
+                    e,
                 )
                 continue
             except APIError as e:
                 logger.error(
                     "OpenAI API エラー (attempt %d/%d): %s",
-                    attempt + 1, self._max_retries, e,
+                    attempt + 1,
+                    self._max_retries,
+                    e,
                 )
                 continue
             except Exception as e:
                 logger.error(
                     "予期しないエラー (attempt %d/%d): %s: %s",
-                    attempt + 1, self._max_retries, type(e).__name__, e,
+                    attempt + 1,
+                    self._max_retries,
+                    type(e).__name__,
+                    e,
                 )
                 continue
 

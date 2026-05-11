@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
-from app.scoring.weights import AppConfig, load_config
+from app.scoring.weights import load_config
 
 logger = logging.getLogger(__name__)
 
