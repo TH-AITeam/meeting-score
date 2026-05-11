@@ -3,12 +3,12 @@
 Examples
 --------
     # ベースライン評価
-    python -m backend.evals.cli run \\
+    python -m evals.cli run \\
         --dataset data/annotations/gold/v1 \\
         --out reports/eval/v1.json
 
     # 安定性評価 (N=5, temperature は Evaluator 側で設定)
-    python -m backend.evals.cli stability \\
+    python -m evals.cli stability \\
         --meeting data/sample_meetings/sample_01.json \\
         --n 5 \\
         --out reports/eval/stability_sample_01.json
@@ -29,9 +29,9 @@ from app.evaluators.llm_evaluator import evaluate_utterance
 from app.ingest.loader import load_meeting_from_file
 from app.scoring.weights import load_config
 
-from backend.evals.protocol import EvaluationResult
-from backend.evals.runner import run_eval
-from backend.evals.stability import evaluate_stability
+from evals.protocol import EvaluationResult
+from evals.runner import run_eval
+from evals.stability import evaluate_stability
 
 if TYPE_CHECKING:
     from app.context_builder.builder import EvaluationContext

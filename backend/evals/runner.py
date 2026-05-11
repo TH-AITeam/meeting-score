@@ -22,14 +22,14 @@ from app.ingest.loader import load_meeting_from_file
 from app.schemas.models import EvaluatedUtterance
 from app.scoring.calculator import calculate_total_score
 
-from backend.evals.metrics import (
+from evals.metrics import (
     PairwiseAccuracyReport,
     kendall_tau,
     pairwise_accuracy,
     spearman,
     top_k_jaccard,
 )
-from backend.evals.schema import (
+from evals.schema import (
     PairwiseAnnotation,
     TopBottomAnnotation,
     load_pairwise_annotations,
@@ -39,7 +39,7 @@ from backend.evals.schema import (
 if TYPE_CHECKING:
     from app.scoring.weights import ScoringWeights
 
-    from backend.evals.protocol import Evaluator
+    from evals.protocol import Evaluator
 
 
 @dataclass

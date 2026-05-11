@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from backend.evals.schema import PairwiseAnnotation
+    from evals.schema import PairwiseAnnotation
 
 DEFAULT_TIE_THRESHOLD: float = 0.5
 

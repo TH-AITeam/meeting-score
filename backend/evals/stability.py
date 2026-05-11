@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.context_builder.builder import EvaluationContext
 
-    from backend.evals.protocol import Evaluator
+    from evals.protocol import Evaluator
 
 # Scores 上の 7軸
 AXES: tuple[str, ...] = (
