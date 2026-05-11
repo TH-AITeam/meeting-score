@@ -74,6 +74,23 @@ class TestCreateEvaluator:
 
 
 # ---------------------------------------------------------------------------
+# OpenAIEvaluator: クライアント生成失敗時のフォールバック
+# ---------------------------------------------------------------------------
+
+
+class _FailingOpenAIEvaluator(OpenAIEvaluator):
+    def _get_client(self):  # noqa: ANN201
+        raise RuntimeError("missing api key")
+
+
+class TestOpenAIEvaluator:
+    def test_client_creation_failure_returns_failed(self) -> None:
+        ev = _FailingOpenAIEvaluator()
+        result = ev.evaluate(_make_ctx())
+        assert result.evaluation_failed is True
+
+
+# ---------------------------------------------------------------------------
 # LocalEvaluator: モック clientで evaluate() の挙動を検証
 # ---------------------------------------------------------------------------
 

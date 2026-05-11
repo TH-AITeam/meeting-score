@@ -81,7 +81,12 @@ class OpenAIEvaluator(Evaluator):
             logger.error("OpenAI SDK の読み込みに失敗しました: %s", e)
             return EvaluationResult.failed()
 
-        client = self._get_client()
+        try:
+            client = self._get_client()
+        except Exception as e:
+            logger.error("OpenAI クライアント生成に失敗しました: %s: %s", type(e).__name__, e)
+            return EvaluationResult.failed()
+
         prompt = build_prompt(ctx)
 
         for attempt in range(self._max_retries):
