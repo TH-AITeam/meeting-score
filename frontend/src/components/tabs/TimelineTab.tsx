@@ -62,6 +62,7 @@ export default function TimelineTab({ utterances }: Props) {
 
   const [activeSpeakers, setActiveSpeakers] = useState<Set<string>>(new Set(speakers))
   const [activeTypes, setActiveTypes] = useState<Set<string>>(new Set(types))
+  const [quickFilter, setQuickFilter] = useState<'all' | 'forward' | 'penalty'>('all')
   const [selected, setSelected] = useState<string | null>(utterances[0]?.utterance_id ?? null)
   const [hovered, setHovered] = useState<string | null>(null)
 
@@ -82,11 +83,16 @@ export default function TimelineTab({ utterances }: Props) {
   }
 
   const filtered = utterances.filter(
-    (u) => activeSpeakers.has(u.speaker) && activeTypes.has(u.speech_type),
+    (u) =>
+      activeSpeakers.has(u.speaker) &&
+      activeTypes.has(u.speech_type) &&
+      (quickFilter === 'all' ||
+        (quickFilter === 'forward' && isForward(u)) ||
+        (quickFilter === 'penalty' && hasPenalty(u))),
   )
 
   const focusId = hovered ?? selected
-  const focus = utterances.find((u) => u.utterance_id === focusId) ?? utterances[0]
+  const focus = filtered.find((u) => u.utterance_id === focusId) ?? filtered[0]
 
   const penaltyEntries = focus
     ? (Object.entries(focus.penalties) as [string, number][]).filter(([, v]) => v < 0)
@@ -138,20 +144,14 @@ export default function TimelineTab({ utterances }: Props) {
           <div className="wf-label" style={{ marginBottom: 6 }}>表示</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             <span
-              className="chip accent dot clickable"
-              onClick={() => {
-                const forwardIds = new Set(utterances.filter(isForward).map((u) => u.speaker))
-                setActiveSpeakers(forwardIds.size > 0 ? forwardIds : new Set(speakers))
-              }}
+              className={`chip accent dot clickable${quickFilter === 'forward' ? ' ink' : ''}`}
+              onClick={() => setQuickFilter(quickFilter === 'forward' ? 'all' : 'forward')}
             >
               前進発言のみ
             </span>
             <span
-              className="chip red dot clickable"
-              onClick={() => {
-                const penaltyIds = new Set(utterances.filter(hasPenalty).map((u) => u.speaker))
-                setActiveSpeakers(penaltyIds.size > 0 ? penaltyIds : new Set(speakers))
-              }}
+              className={`chip red dot clickable${quickFilter === 'penalty' ? ' ink' : ''}`}
+              onClick={() => setQuickFilter(quickFilter === 'penalty' ? 'all' : 'penalty')}
             >
               減点ありのみ
             </span>
@@ -160,6 +160,7 @@ export default function TimelineTab({ utterances }: Props) {
               onClick={() => {
                 setActiveSpeakers(new Set(speakers))
                 setActiveTypes(new Set(types))
+                setQuickFilter('all')
               }}
             >
               すべて表示
