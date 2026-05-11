@@ -86,7 +86,9 @@ class OpenAIEvaluator(Evaluator):
         try:
             client = self._get_client()
         except Exception as e:
-            logger.error("OpenAI クライアント生成に失敗しました: %s: %s", type(e).__name__, e)
+            logger.error(
+                "OpenAI クライアント生成に失敗しました: %s: %s", type(e).__name__, e
+            )
             return EvaluationResult.failed()
 
         prompt = build_prompt(ctx)
@@ -119,19 +121,26 @@ class OpenAIEvaluator(Evaluator):
             except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
                 logger.warning(
                     "LLM応答パース失敗 (attempt %d/%d): %s",
-                    attempt + 1, self._max_retries, e,
+                    attempt + 1,
+                    self._max_retries,
+                    e,
                 )
                 continue
             except APIError as e:
                 logger.error(
                     "OpenAI API エラー (attempt %d/%d): %s",
-                    attempt + 1, self._max_retries, e,
+                    attempt + 1,
+                    self._max_retries,
+                    e,
                 )
                 continue
             except Exception as e:
                 logger.error(
                     "予期しないエラー (attempt %d/%d): %s: %s",
-                    attempt + 1, self._max_retries, type(e).__name__, e,
+                    attempt + 1,
+                    self._max_retries,
+                    type(e).__name__,
+                    e,
                 )
                 continue
 

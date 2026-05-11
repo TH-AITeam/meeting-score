@@ -25,7 +25,7 @@ def _bigrams(text: str) -> set[str]:
     """テキストから bigram(2文字組) の集合を生成する"""
     if len(text) < 2:
         return set()
-    return {text[i:i + 2] for i in range(len(text) - 1)}
+    return {text[i : i + 2] for i in range(len(text) - 1)}
 
 
 def _bigram_jaccard(a: str, b: str) -> float:
@@ -97,7 +97,7 @@ def apply_rule_corrections(
         dup_adj = _check_duplication(eu, prior_texts)
         verb_adj = _check_verbosity(eu)
 
-        needs_update = (dup_adj != 0 or verb_adj != 0)
+        needs_update = dup_adj != 0 or verb_adj != 0
 
         if needs_update:
             new_dup = max(eu.penalties.duplication + dup_adj, -3)
@@ -109,10 +109,12 @@ def apply_rule_corrections(
                 unsupported_assertion=eu.penalties.unsupported_assertion,
             )
             new_total = calculate_total_score(eu.scores, new_penalties, weights)
-            eu = eu.model_copy(update={
-                "penalties": new_penalties,
-                "total_score": new_total,
-            })
+            eu = eu.model_copy(
+                update={
+                    "penalties": new_penalties,
+                    "total_score": new_total,
+                }
+            )
 
         corrected.append(eu)
         prior_texts.append(eu.text)

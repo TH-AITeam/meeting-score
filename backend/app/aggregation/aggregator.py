@@ -40,9 +40,15 @@ def aggregate_by_speaker(
     for speaker, utterances in sorted(by_speaker.items()):
         n = len(utterances)
         avg = AverageScores(
-            issue_clarification=round(sum(u.scores.issue_clarification for u in utterances) / n, 2),
-            decision_progress=round(sum(u.scores.decision_progress for u in utterances) / n, 2),
-            risk_detection=round(sum(u.scores.risk_detection for u in utterances) / n, 2),
+            issue_clarification=round(
+                sum(u.scores.issue_clarification for u in utterances) / n, 2
+            ),
+            decision_progress=round(
+                sum(u.scores.decision_progress for u in utterances) / n, 2
+            ),
+            risk_detection=round(
+                sum(u.scores.risk_detection for u in utterances) / n, 2
+            ),
             actionability=round(sum(u.scores.actionability for u in utterances) / n, 2),
             groundedness=round(sum(u.scores.groundedness for u in utterances) / n, 2),
             novelty=round(sum(u.scores.novelty for u in utterances) / n, 2),
@@ -84,8 +90,10 @@ def extract_top_by_axis(
     top_count: int = 3,
 ) -> list[EvaluatedUtterance]:
     """特定の評価軸で上位の発言を返す（スコア0の発言は除外）"""
+
     def _get_score(eu: EvaluatedUtterance) -> int:
         return getattr(eu.scores, axis, 0)
+
     positive = [eu for eu in evaluated if _get_score(eu) > 0]
     return sorted(positive, key=_get_score, reverse=True)[:top_count]
 
@@ -135,8 +143,10 @@ def _generate_overall_comment(
 
     avg_score = sum(u.total_score for u in evaluated) / len(evaluated)
     total_penalties = sum(
-        u.penalties.duplication + u.penalties.verbosity
-        + u.penalties.off_topic + u.penalties.unsupported_assertion
+        u.penalties.duplication
+        + u.penalties.verbosity
+        + u.penalties.off_topic
+        + u.penalties.unsupported_assertion
         for u in evaluated
     )
 

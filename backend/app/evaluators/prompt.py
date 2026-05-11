@@ -20,7 +20,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-PROMPT_PATH = Path(__file__).resolve().parent.parent.parent / "prompts" / "utterance_eval.txt"
+PROMPT_PATH = (
+    Path(__file__).resolve().parent.parent.parent / "prompts" / "utterance_eval.txt"
+)
 
 _SPEECH_TYPE_VALUES = [s.value for s in SpeechType]
 
@@ -59,7 +61,11 @@ RESPONSE_SCHEMA: dict = {
                 "duplication": {"type": "integer", "minimum": -3, "maximum": 0},
                 "verbosity": {"type": "integer", "minimum": -3, "maximum": 0},
                 "off_topic": {"type": "integer", "minimum": -3, "maximum": 0},
-                "unsupported_assertion": {"type": "integer", "minimum": -3, "maximum": 0},
+                "unsupported_assertion": {
+                    "type": "integer",
+                    "minimum": -3,
+                    "maximum": 0,
+                },
             },
             "required": [
                 "duplication",
@@ -95,7 +101,9 @@ def build_prompt(ctx: EvaluationContext) -> str:
     return template.substitute(
         meeting_goal=ctx.meeting_goal,
         agenda="、".join(ctx.agenda) if ctx.agenda else "(なし)",
-        decision_points="、".join(ctx.decision_points) if ctx.decision_points else "(なし)",
+        decision_points="、".join(ctx.decision_points)
+        if ctx.decision_points
+        else "(なし)",
         current_topic=ctx.current_topic if ctx.current_topic else "(未設定)",
         before_utterances=_format_utterances(ctx.before_utterances),
         target_speaker=ctx.target_utterance.speaker,
@@ -157,7 +165,9 @@ def normalize_result(parsed: dict) -> EvaluationResult:
         duplication=_clamp(penalties_raw.get("duplication", 0), -3, 0),
         verbosity=_clamp(penalties_raw.get("verbosity", 0), -3, 0),
         off_topic=_clamp(penalties_raw.get("off_topic", 0), -3, 0),
-        unsupported_assertion=_clamp(penalties_raw.get("unsupported_assertion", 0), -3, 0),
+        unsupported_assertion=_clamp(
+            penalties_raw.get("unsupported_assertion", 0), -3, 0
+        ),
     )
 
     return EvaluationResult(

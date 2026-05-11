@@ -44,11 +44,19 @@ def format_meeting_summary_for_ui(ms: MeetingSummary) -> dict:
         "goal": ms.goal,
         "overall_comment": ms.overall_comment,
         "top_utterances": [format_utterance_for_ui(u) for u in ms.top_utterances],
-        "top_issue_clarification": [format_utterance_for_ui(u) for u in ms.top_issue_clarification],
-        "top_decision_progress": [format_utterance_for_ui(u) for u in ms.top_decision_progress],
-        "top_risk_detection": [format_utterance_for_ui(u) for u in ms.top_risk_detection],
+        "top_issue_clarification": [
+            format_utterance_for_ui(u) for u in ms.top_issue_clarification
+        ],
+        "top_decision_progress": [
+            format_utterance_for_ui(u) for u in ms.top_decision_progress
+        ],
+        "top_risk_detection": [
+            format_utterance_for_ui(u) for u in ms.top_risk_detection
+        ],
         "top_actionability": [format_utterance_for_ui(u) for u in ms.top_actionability],
         "improvement_comments": ms.improvement_comments,
         "speaker_summaries": [format_speaker_for_ui(s) for s in ms.speaker_summaries],
-        "evaluated_utterances": [format_utterance_for_ui(u) for u in ms.evaluated_utterances],
+        "evaluated_utterances": [
+            format_utterance_for_ui(u) for u in ms.evaluated_utterances
+        ],
     }
