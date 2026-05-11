@@ -202,6 +202,7 @@ def evaluate_utterance(
     model: str = "gpt-5.4-mini",
     max_tokens: int = 1024,
     max_retries: int = 3,
+    temperature: float | None = None,
 ) -> dict:
     """1発言を LLM で評価する
 
@@ -215,9 +216,9 @@ def evaluate_utterance(
 
             client = OpenAI()
             prompt = _build_prompt(ctx)
-            response = client.responses.create(
-                model=model,
-                input=[
+            request = {
+                "model": model,
+                "input": [
                     {
                         "role": "user",
                         "content": [
@@ -228,8 +229,8 @@ def evaluate_utterance(
                         ],
                     }
                 ],
-                max_output_tokens=max_tokens,
-                text={
+                "max_output_tokens": max_tokens,
+                "text": {
                     "format": {
                         "type": "json_schema",
                         "name": "utterance_evaluation",
@@ -237,7 +238,11 @@ def evaluate_utterance(
                         "schema": _RESPONSE_SCHEMA,
                     }
                 },
-            )
+            }
+            if temperature is not None:
+                request["temperature"] = temperature
+
+            response = client.responses.create(**request)
             text = _extract_response_text(response)
             parsed = _parse_response(text)
             result = _safe_result(parsed)

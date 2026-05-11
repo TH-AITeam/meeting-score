@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from app.context_builder.builder import EvaluationContext
 
 logger = logging.getLogger(__name__)
+STABILITY_TEMPERATURE = 0.7
 
 
 class LLMEvaluatorAdapter:
@@ -51,10 +52,12 @@ class LLMEvaluatorAdapter:
         model: str = "gpt-5.4-mini",
         max_tokens: int = 1024,
         max_retries: int = 3,
+        temperature: float | None = None,
     ) -> None:
         self.model = model
         self.max_tokens = max_tokens
         self.max_retries = max_retries
+        self.temperature = temperature
 
     def evaluate(self, ctx: EvaluationContext) -> EvaluationResult:
         raw = evaluate_utterance(
@@ -62,6 +65,7 @@ class LLMEvaluatorAdapter:
             model=self.model,
             max_tokens=self.max_tokens,
             max_retries=self.max_retries,
+            temperature=self.temperature,
         )
         return EvaluationResult(
             speech_type=raw["speech_type"],
@@ -125,6 +129,7 @@ def _cmd_stability(args: argparse.Namespace) -> int:
         model=args.model or cfg.llm_model,
         max_tokens=cfg.llm_max_tokens,
         max_retries=cfg.llm_max_retries,
+        temperature=STABILITY_TEMPERATURE,
     )
     meeting = load_meeting_from_file(Path(args.meeting))
     contexts = build_contexts(
