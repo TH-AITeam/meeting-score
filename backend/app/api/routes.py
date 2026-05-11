@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-SAMPLE_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "sample_meetings"
+SAMPLE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_meetings"
 
 
 @router.get("/samples")

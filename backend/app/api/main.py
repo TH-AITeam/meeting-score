@@ -45,6 +45,6 @@ app.add_middleware(
 app.include_router(router, prefix="/api")
 
 # 静的ファイル配信 (UI)
-ui_dir = Path(__file__).resolve().parent.parent.parent / "ui"
+ui_dir = Path(__file__).resolve().parent.parent.parent.parent / "frontend"
 if ui_dir.exists():
     app.mount("/", StaticFiles(directory=str(ui_dir), html=True), name="ui")
