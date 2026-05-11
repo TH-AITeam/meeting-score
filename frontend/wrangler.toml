@@ -1,2 +1,7 @@
 name = "meeting-score"
 pages_build_output_dir = "dist"
+
+# VITE_API_BASE_URL を Cloudflare Pages のダッシュボード（Settings > Environment variables）で
+# FastAPI バックエンドの URL（例: https://my-api.example.com）に設定してください。
+# 未設定の場合、フロントエンドは /api/* への相対パスでリクエストを送りますが、
+# Pages 上にバックエンドは存在しないため API 呼び出しが失敗します。
