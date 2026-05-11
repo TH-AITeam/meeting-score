@@ -10,7 +10,7 @@ from app.schemas.models import Penalties, Scores
 from app.scoring.weights import ScoringWeights
 
 from evals.protocol import EvaluationResult
-from evals.runner import _human_ranks_from_pairs, run_eval
+from evals.runner import _evaluate_meeting, _human_ranks_from_pairs, run_eval
 from evals.schema import PairwiseAnnotation
 
 
@@ -46,6 +46,15 @@ class _OrderedEvaluator:
         )
 
 
+class _NeutralEvaluator:
+    def evaluate(self, ctx) -> EvaluationResult:  # noqa: ARG002
+        return EvaluationResult(
+            speech_type="情報共有",
+            scores=Scores(),
+            penalties=Penalties(),
+        )
+
+
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
@@ -72,6 +81,46 @@ def test_human_ranks_from_pairs_returns_none_when_no_match():
         PairwiseAnnotation(meeting_id="m", utt_a="x1", utt_b="x2", winner="A_better"),
     ]
     assert _human_ranks_from_pairs(pairs, ["u1", "u2"]) is None
+
+
+def test_evaluate_meeting_applies_rule_corrections(tmp_path):
+    meeting_file = tmp_path / "m_dup.json"
+    meeting_file.write_text(
+        json.dumps(
+            {
+                "meeting_id": "m_dup",
+                "title": "dup",
+                "goal": "dup",
+                "utterances": [
+                    {
+                        "utterance_id": "u001",
+                        "speaker": "A",
+                        "timestamp": "00:00:01",
+                        "text": "同じ内容です。",
+                    },
+                    {
+                        "utterance_id": "u002",
+                        "speaker": "B",
+                        "timestamp": "00:00:02",
+                        "text": "同じ内容です。",
+                    },
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    meeting_id, evaluated = _evaluate_meeting(
+        meeting_file,
+        _NeutralEvaluator(),
+        ScoringWeights(),
+    )
+
+    assert meeting_id == "m_dup"
+    assert evaluated[0].penalties.duplication == 0
+    assert evaluated[1].penalties.duplication == -1
+    assert evaluated[1].total_score == -1.0
 
 
 def test_run_eval_with_real_sample_meeting(tmp_path):

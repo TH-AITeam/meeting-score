@@ -21,6 +21,7 @@ from app.context_builder.builder import build_contexts
 from app.ingest.loader import load_meeting_from_file
 from app.schemas.models import EvaluatedUtterance
 from app.scoring.calculator import calculate_total_score
+from app.scoring.rule_corrections import apply_rule_corrections
 
 from evals.metrics import (
     PairwiseAccuracyReport,
@@ -164,7 +165,7 @@ def _evaluate_meeting(
                 reason=result.reason,
             )
         )
-    return meeting.meeting_id, evaluated
+    return meeting.meeting_id, apply_rule_corrections(evaluated, weights)
 
 
 def _system_scores_dict(evaluated: list[EvaluatedUtterance]) -> dict[str, float]:
