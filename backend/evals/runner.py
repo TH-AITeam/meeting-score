@@ -37,8 +37,9 @@ from backend.evals.schema import (
 )
 
 if TYPE_CHECKING:
-    from app.evaluators.base import Evaluator
     from app.scoring.weights import ScoringWeights
+
+    from backend.evals.protocol import Evaluator
 
 
 @dataclass
