@@ -30,6 +30,7 @@ def create_evaluator(config: AppConfig) -> Evaluator:
             model=config.llm_model,
             max_tokens=config.llm_max_tokens,
             max_retries=config.llm_max_retries,
+            timeout=config.llm_timeout,
         )
     if backend == "local":
         if not config.llm_endpoint:

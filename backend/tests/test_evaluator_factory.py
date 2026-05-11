@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 
@@ -43,10 +44,15 @@ def _make_ctx() -> EvaluationContext:
 
 class TestCreateEvaluator:
     def test_openai_backend(self) -> None:
-        config = AppConfig(llm_backend="openai", llm_model="gpt-4o-mini")
+        config = AppConfig(
+            llm_backend="openai",
+            llm_model="gpt-4o-mini",
+            llm_timeout=12.5,
+        )
         ev = create_evaluator(config)
         assert isinstance(ev, OpenAIEvaluator)
         assert isinstance(ev, Evaluator)
+        assert ev._timeout == 12.5  # noqa: SLF001
 
     def test_local_backend_requires_endpoint(self) -> None:
         config = AppConfig(llm_backend="local", llm_endpoint=None)
@@ -88,6 +94,12 @@ class TestOpenAIEvaluator:
         ev = _FailingOpenAIEvaluator()
         result = ev.evaluate(_make_ctx())
         assert result.evaluation_failed is True
+
+    def test_get_client_passes_timeout(self) -> None:
+        ev = OpenAIEvaluator(timeout=12.5)
+        with patch("openai.OpenAI") as openai_cls:
+            ev._get_client()  # noqa: SLF001
+        openai_cls.assert_called_once_with(timeout=12.5)
 
 
 # ---------------------------------------------------------------------------

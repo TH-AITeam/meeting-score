@@ -59,11 +59,13 @@ class OpenAIEvaluator(Evaluator):
         model: str = "gpt-4o-mini",
         max_tokens: int = 1024,
         max_retries: int = 3,
+        timeout: float = 30.0,
         client: Any | None = None,
     ) -> None:
         self._model = model
         self._max_tokens = max_tokens
         self._max_retries = max_retries
+        self._timeout = timeout
         self._injected_client = client  # テスト用に注入可
 
     def _get_client(self) -> Any:
@@ -72,7 +74,7 @@ class OpenAIEvaluator(Evaluator):
         _load_dotenv_if_available()
         from openai import OpenAI
 
-        return OpenAI()
+        return OpenAI(timeout=self._timeout)
 
     def evaluate(self, ctx: EvaluationContext) -> EvaluationResult:
         try:
