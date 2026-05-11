@@ -11,7 +11,7 @@ from pydantic import ValidationError
 
 from app.aggregation.aggregator import build_meeting_summary
 from app.context_builder.builder import build_contexts
-from app.evaluators.llm_evaluator import evaluate_utterance
+from app.evaluators import create_evaluator
 from app.ingest.loader import load_meeting_from_dict, load_meeting_from_file
 from app.reporting.reporter import format_meeting_summary_for_ui
 from app.schemas.models import EvaluatedUtterance, MeetingInput
@@ -98,24 +98,22 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
     evaluated: list[EvaluatedUtterance] = []
     failed_count = 0
 
+    # config.llm_backend に応じて OpenAI / Local Evaluator を生成 (Issue #12)
+    evaluator = create_evaluator(config)
+
     for ctx in contexts:
         target = ctx.target_utterance
 
         # LLM 評価
-        result = evaluate_utterance(
-            ctx,
-            model=config.llm_model,
-            max_tokens=config.llm_max_tokens,
-            max_retries=config.llm_max_retries,
-        )
+        result = evaluator.evaluate(ctx)
 
-        if result.get("evaluation_failed", False):
+        if result.evaluation_failed:
             failed_count += 1
 
         # 総合スコア計算
         total = calculate_total_score(
-            result["scores"],
-            result["penalties"],
+            result.scores,
+            result.penalties,
             config.weights,
         )
 
@@ -125,11 +123,11 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
                 speaker=target.speaker,
                 timestamp=target.timestamp,
                 text=target.text,
-                speech_type=result["speech_type"],
-                scores=result["scores"],
-                penalties=result["penalties"],
+                speech_type=result.speech_type,
+                scores=result.scores,
+                penalties=result.penalties,
                 total_score=total,
-                reason=result["reason"],
+                reason=result.reason,
             )
         )
 
