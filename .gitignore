@@ -10,5 +10,6 @@ wheels/
 .venv
 .env
 
-
+# frontend
 node_modules
+.vite
