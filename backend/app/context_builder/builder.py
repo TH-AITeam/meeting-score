@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from app.schemas.models import MeetingInput, Utterance
 
@@ -13,6 +13,7 @@ from app.schemas.models import MeetingInput, Utterance
 @dataclass
 class EvaluationContext:
     """1発言の評価に使う文脈"""
+
     meeting_goal: str
     agenda: list[str]
     decision_points: list[str]
@@ -72,7 +73,11 @@ def _build_topic_map(meeting: MeetingInput) -> dict[str, str]:
 
 
 def _resolve_topic(
-    utterance, topic_map: dict[str, str], agenda: list[str], index: int, total: int,
+    utterance,
+    topic_map: dict[str, str],
+    agenda: list[str],
+    index: int,
+    total: int,
 ) -> str:
     """発言の議題を解決する。優先順位: 発言の topic > topic_transitions > 均等分割推定"""
     if utterance.topic:
@@ -98,7 +103,7 @@ def build_contexts(
         end = min(total, i + after_count + 1)
 
         before = utterances[start:i]
-        after = utterances[i + 1:end]
+        after = utterances[i + 1 : end]
 
         current_topic = _resolve_topic(target, topic_map, meeting.agenda, i, total)
 

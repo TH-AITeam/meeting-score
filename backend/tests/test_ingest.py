@@ -52,9 +52,24 @@ def test_preserves_input_order():
         "title": "テスト",
         "goal": "テスト",
         "utterances": [
-            {"utterance_id": "u003", "speaker": "C", "timestamp": "00:03:00", "text": "3"},
-            {"utterance_id": "u001", "speaker": "A", "timestamp": "00:01:00", "text": "1"},
-            {"utterance_id": "u002", "speaker": "B", "timestamp": "00:02:00", "text": "2"},
+            {
+                "utterance_id": "u003",
+                "speaker": "C",
+                "timestamp": "00:03:00",
+                "text": "3",
+            },
+            {
+                "utterance_id": "u001",
+                "speaker": "A",
+                "timestamp": "00:01:00",
+                "text": "1",
+            },
+            {
+                "utterance_id": "u002",
+                "speaker": "B",
+                "timestamp": "00:02:00",
+                "text": "2",
+            },
         ],
     }
     meeting = load_meeting_from_dict(data)
@@ -69,9 +84,24 @@ def test_non_padded_ids_preserve_order():
         "title": "テスト",
         "goal": "テスト",
         "utterances": [
-            {"utterance_id": "u1", "speaker": "A", "timestamp": "00:01:00", "text": "first"},
-            {"utterance_id": "u10", "speaker": "B", "timestamp": "00:10:00", "text": "tenth"},
-            {"utterance_id": "u2", "speaker": "C", "timestamp": "00:02:00", "text": "second"},
+            {
+                "utterance_id": "u1",
+                "speaker": "A",
+                "timestamp": "00:01:00",
+                "text": "first",
+            },
+            {
+                "utterance_id": "u10",
+                "speaker": "B",
+                "timestamp": "00:10:00",
+                "text": "tenth",
+            },
+            {
+                "utterance_id": "u2",
+                "speaker": "C",
+                "timestamp": "00:02:00",
+                "text": "second",
+            },
         ],
     }
     meeting = load_meeting_from_dict(data)

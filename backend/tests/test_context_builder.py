@@ -11,7 +11,7 @@ def _make_meeting(n: int) -> MeetingInput:
         goal="テスト目的",
         utterances=[
             Utterance(
-                utterance_id=f"u{i+1:03d}",
+                utterance_id=f"u{i + 1:03d}",
                 speaker=f"Speaker{i}",
                 timestamp=f"00:{i:02d}:00",
                 text=f"発言{i}",
@@ -80,7 +80,6 @@ def test_current_topic_empty_agenda():
 
 def test_current_topic_from_utterance_topic():
     """発言に topic が設定されていればそちらを優先する"""
-    from app.schemas.models import TopicTransition
 
     meeting = MeetingInput(
         meeting_id="m001",
@@ -88,9 +87,19 @@ def test_current_topic_from_utterance_topic():
         goal="テスト目的",
         agenda=["議題A", "議題B"],
         utterances=[
-            Utterance(utterance_id="u001", speaker="A", timestamp="00:00:00", text="発言1", topic="明示議題X"),
-            Utterance(utterance_id="u002", speaker="B", timestamp="00:01:00", text="発言2"),
-            Utterance(utterance_id="u003", speaker="A", timestamp="00:02:00", text="発言3"),
+            Utterance(
+                utterance_id="u001",
+                speaker="A",
+                timestamp="00:00:00",
+                text="発言1",
+                topic="明示議題X",
+            ),
+            Utterance(
+                utterance_id="u002", speaker="B", timestamp="00:01:00", text="発言2"
+            ),
+            Utterance(
+                utterance_id="u003", speaker="A", timestamp="00:02:00", text="発言3"
+            ),
         ],
     )
     contexts = build_contexts(meeting)
@@ -114,10 +123,18 @@ def test_current_topic_from_topic_transitions():
             TopicTransition(utterance_id="u003", topic="スケジュール確認"),
         ],
         utterances=[
-            Utterance(utterance_id="u001", speaker="A", timestamp="00:00:00", text="発言1"),
-            Utterance(utterance_id="u002", speaker="B", timestamp="00:01:00", text="発言2"),
-            Utterance(utterance_id="u003", speaker="A", timestamp="00:02:00", text="発言3"),
-            Utterance(utterance_id="u004", speaker="B", timestamp="00:03:00", text="発言4"),
+            Utterance(
+                utterance_id="u001", speaker="A", timestamp="00:00:00", text="発言1"
+            ),
+            Utterance(
+                utterance_id="u002", speaker="B", timestamp="00:01:00", text="発言2"
+            ),
+            Utterance(
+                utterance_id="u003", speaker="A", timestamp="00:02:00", text="発言3"
+            ),
+            Utterance(
+                utterance_id="u004", speaker="B", timestamp="00:03:00", text="発言4"
+            ),
         ],
     )
     contexts = build_contexts(meeting)

@@ -21,8 +21,8 @@ class EvaluationResult:
     """1発言の評価結果。"""
 
     speech_type: str = SpeechType.INFO_SHARING.value
-    scores: Scores = field(default_factory=Scores)
-    penalties: Penalties = field(default_factory=Penalties)
+    scores: Scores = field(default_factory=lambda: Scores())
+    penalties: Penalties = field(default_factory=lambda: Penalties())
     reason: str = ""
     evaluation_failed: bool = False
 

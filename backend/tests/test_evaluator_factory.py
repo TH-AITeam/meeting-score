@@ -115,9 +115,7 @@ class _FakeChatCompletions:
     def create(self, **kwargs):  # noqa: ANN001
         self.last_kwargs = kwargs
         return SimpleNamespace(
-            choices=[
-                SimpleNamespace(message=SimpleNamespace(content=self.content))
-            ]
+            choices=[SimpleNamespace(message=SimpleNamespace(content=self.content))]
         )
 
 
@@ -199,7 +197,11 @@ class TestEvaluationResultDict:
         r = EvaluationResult.failed()
         d = r.as_dict()
         assert set(d) == {
-            "speech_type", "scores", "penalties", "reason", "evaluation_failed",
+            "speech_type",
+            "scores",
+            "penalties",
+            "reason",
+            "evaluation_failed",
         }
         assert d["evaluation_failed"] is True
 

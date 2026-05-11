@@ -38,6 +38,7 @@ class StyleLabel(str, Enum):
 # ---------------------------------------------------------------------------
 class Utterance(BaseModel):
     """発言1件"""
+
     utterance_id: str
     speaker: str
     timestamp: str
@@ -47,12 +48,14 @@ class Utterance(BaseModel):
 
 class TopicTransition(BaseModel):
     """議題遷移マーカー: この utterance_id 以降の議題を示す"""
+
     utterance_id: str
     topic: str
 
 
 class MeetingInput(BaseModel):
     """会議データ入力"""
+
     meeting_id: str
     title: str
     goal: str
@@ -67,6 +70,7 @@ class MeetingInput(BaseModel):
 # ---------------------------------------------------------------------------
 class Scores(BaseModel):
     """評価軸スコア (各 0-3)"""
+
     issue_clarification: int = Field(0, ge=0, le=3)
     decision_progress: int = Field(0, ge=0, le=3)
     risk_detection: int = Field(0, ge=0, le=3)
@@ -78,6 +82,7 @@ class Scores(BaseModel):
 
 class Penalties(BaseModel):
     """減点軸 (各 -3〜0)"""
+
     duplication: int = Field(0, ge=-3, le=0)
     verbosity: int = Field(0, ge=-3, le=0)
     off_topic: int = Field(0, ge=-3, le=0)
@@ -86,6 +91,7 @@ class Penalties(BaseModel):
 
 class EvaluatedUtterance(BaseModel):
     """評価済み発言"""
+
     utterance_id: str
     speaker: str
     timestamp: str
@@ -102,6 +108,7 @@ class EvaluatedUtterance(BaseModel):
 # ---------------------------------------------------------------------------
 class AverageScores(BaseModel):
     """話者別の軸別平均スコア"""
+
     issue_clarification: float = 0.0
     decision_progress: float = 0.0
     risk_detection: float = 0.0
@@ -113,6 +120,7 @@ class AverageScores(BaseModel):
 
 class SpeakerSummary(BaseModel):
     """話者別サマリー"""
+
     speaker: str
     utterance_count: int
     total_contribution_score: float
@@ -124,6 +132,7 @@ class SpeakerSummary(BaseModel):
 
 class MeetingSummary(BaseModel):
     """会議全体サマリー"""
+
     meeting_id: str
     title: str
     goal: str
