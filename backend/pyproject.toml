@@ -20,4 +20,9 @@ dev = [
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
     "ruff>=0.15.12",
+    "types-pyyaml>=6.0.12.20260510",
 ]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = false

@@ -23,7 +23,7 @@ def _determine_style_label(avg: AverageScores) -> str:
         "警戒型": avg.risk_detection + avg.groundedness,
         "推進型": avg.actionability + avg.decision_progress,
     }
-    return max(axis_scores, key=axis_scores.get)
+    return max(axis_scores, key=lambda k: axis_scores[k])
 
 
 def aggregate_by_speaker(
