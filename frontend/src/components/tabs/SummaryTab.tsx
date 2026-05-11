@@ -49,9 +49,10 @@ export default function SummaryTab({ data }: Props) {
 
   const utterances = data.evaluated_utterances
   const totalCount = utterances.length
-  const topCount = data.top_utterances.length
-  const riskCount = data.top_risk_detection.length
-  const penaltyCount = utterances.filter((u) => u.total_score < 0).length
+  const topCount = utterances.filter((u) => u.total_score >= 4).length
+  const penaltyCount = utterances.filter(
+    (u) => u.penalties.off_topic < 0 || u.penalties.duplication < 0,
+  ).length
 
   // Average scores across all evaluated utterances
   const avgScores: Scores = (() => {
@@ -67,9 +68,9 @@ export default function SummaryTab({ data }: Props) {
     return sums
   })()
 
-  // Filter top utterances
+  // Filter top utterances — "all" shows only genuinely forward utterances (score >= 4)
   const filteredUtterances = (() => {
-    if (filter === 'all') return data.top_utterances
+    if (filter === 'all') return data.top_utterances.filter((u) => u.total_score >= 4)
     if (filter === 'issue') return data.top_issue_clarification
     if (filter === 'decision') return data.top_decision_progress
     if (filter === 'risk') return data.top_risk_detection
@@ -77,12 +78,12 @@ export default function SummaryTab({ data }: Props) {
   })()
 
   const kpiTiles = [
-    { label: '総発言',   value: String(totalCount),                    tone: '' },
-    { label: '前進発言', value: String(topCount),                       tone: 'accent' },
-    { label: '論点整理', value: String(data.top_issue_clarification.length), tone: '' },
-    { label: '意思決定', value: String(data.top_decision_progress.length),   tone: 'blue' },
-    { label: 'リスク指摘', value: String(riskCount),                    tone: 'red' },
-    { label: '脱線/重複', value: String(penaltyCount),                  tone: '' },
+    { label: '総発言',    value: String(totalCount),  tone: '' },
+    { label: '前進発言',  value: String(topCount),    tone: 'accent' },
+    { label: '論点整理',  value: String(utterances.filter((u) => u.scores.issue_clarification > 0).length), tone: '' },
+    { label: '意思決定',  value: String(utterances.filter((u) => u.scores.decision_progress > 0).length),   tone: 'blue' },
+    { label: 'リスク指摘', value: String(utterances.filter((u) => u.scores.risk_detection > 0).length),     tone: 'red' },
+    { label: '脱線/重複', value: String(penaltyCount), tone: '' },
   ]
 
   return (
