@@ -44,10 +44,10 @@ function AxisGrid({ scores }: { scores: Scores }) {
 
 function RoleBadge({ role }: { role: string }) {
   const tones: Record<string, string> = {
-    '整理役': 'accent',
-    '推進役': 'blue',
-    'リスク検知': 'red',
-    '要約役': 'green',
+    '整理型': 'accent',
+    '提案型': 'blue',
+    '警戒型': 'red',
+    '推進型': 'green',
   }
   return <span className={`chip${tones[role] ? ' ' + tones[role] : ''} dot`}>{role}</span>
 }
@@ -212,7 +212,7 @@ function FocusDetail({ summaries, utteranceMap }: { summaries: SpeakerSummary[];
                       <span className="chip accent">{u.speech_type}</span>
                       <span className="wf-mono">{u.timestamp}</span>
                       <span className="wf-mono" style={{ marginLeft: 'auto', fontWeight: 700 }}>
-                        +{u.total_score.toFixed(1)}
+                        {u.total_score >= 0 ? '+' : ''}{u.total_score.toFixed(1)}
                       </span>
                     </div>
                     <div style={{ marginTop: 4, fontSize: 13 }}>「{u.text}」</div>
