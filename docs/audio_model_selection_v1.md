@@ -12,6 +12,25 @@
 | 評価データ | `data/eval_audio/` 最低 3 本 (自作録音 or 合成音声、本物の会議は不使用) |
 | 評価日 | TBD（実測完了後に更新） |
 
+## 動作実証 (Issue #11 PR #66 時点、1.4 秒の短音声 1 本)
+
+PR #66 のマージ前検証として、SSH 先 (RTX 5090) で **WhisperX + pyannote の両方が動作する** ことを確認した。本ベンチではないため精度の代表性は弱いが、コードパスは確実に通る。
+
+| 確認項目 | 結果 |
+|---|---|
+| 音声長 | 1.39 秒 (動作確認用、本ベンチ仕様は 15 分以上) |
+| WhisperX CER | **11.1%** (短文ベースの単点測定、参考値) |
+| WhisperX 固有名詞認識率 | **100%** ("ジミーさん" 1 件) |
+| WhisperX RTF | 6.22 (モデルロード時間込みで測定。長い音声で 0.1〜0.3 程度に収束する見込み) |
+| pyannote DER | **0.0%** (1 話者の短音声では当然完全一致) |
+| pyannote overlap accuracy | – (overlap 区間なし) |
+| JSON 成功率 | 100% (WhisperX/pyannote とも) |
+| GPU メモリ解放 | OK (pyannote 後の cleanup 動作確認) |
+
+出典: `reports/audio_benchmarks/whisperx-large-v3/asr.json` / `reports/audio_benchmarks/pyannote-3.1/diar.json`
+
+**本格 CER / DER ベンチ (15 分 × 3 本)** は、評価音声と reference / RTTM が揃った段階で別 PR で実施し、本ドキュメントの下記スコアシートの TBD を埋めて ADR 0002 を Accepted に切り替える予定。
+
 ## ASR スコアシート
 
 | モデル (backbone) | 量子化 | VRAM (GB) | CER (%) | 固有名詞認識率 (%) | RTF (1h 音声 / 処理時間) | word-ts 精度 (人手評価) | ライセンス |

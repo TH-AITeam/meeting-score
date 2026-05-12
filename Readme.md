@@ -489,7 +489,8 @@ cd backend && python -m evals.cli run \
 - **連続発話結合**: 同一話者で無音 3 秒未満なら 1 発言にマージ
 - **メタ抽出**: 書き起こし全文を #18 採用 LLM (`unsloth/Qwen3.6-35B-A3B-NVFP4` 等) に投げて title / goal / agenda / decision_points を 1 コール抽出
 - 採用根拠: `docs/audio_model_candidates.md` / `docs/audio_model_selection_v1.md` / `docs/adr/0002-audio-model.md`
-- 想定品質 (CER / DER): **TBD**。SSH 先 (RTX 5090) で `scripts/run_audio_benchmark.sh --all` を回した実測値で確定
+- **動作実証**: SSH 先 (RTX 5090) で短音声 1.4 秒 × 1 本に対し CER 11.1% / 固有名詞認識率 100% / DER 0.0% / JSON 成功率 100% を確認 (PR #66、`reports/audio_benchmarks/`)
+- 想定品質 (CER / DER) の **本ベンチ (15 分 × 3 本)**: 評価音声整備後に別 PR で実施し ADR 0002 を Accepted に切替
 
 ## CLI で音声 → MeetingInput JSON
 
