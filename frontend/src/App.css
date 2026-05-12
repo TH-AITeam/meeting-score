@@ -320,6 +320,23 @@ body {
   color: var(--bg);
 }
 
+/* ===== Score badge ===== */
+.score-badge {
+  display: inline-block;
+  font-family: var(--hand);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  cursor: help;
+  white-space: nowrap;
+}
+.score-badge.score-high     { color: oklch(0.35 0.08 145); background: var(--green-soft); }
+.score-badge.score-mid      { color: oklch(0.35 0.1 50);   background: var(--accent-soft); }
+.score-badge.score-low      { color: var(--ink-2);          background: var(--bg-2); }
+.score-badge.score-negative { color: oklch(0.4 0.12 25);   background: var(--red-soft); }
+
 /* ===== Score tip tooltip ===== */
 .score-tip {
   position: fixed;
