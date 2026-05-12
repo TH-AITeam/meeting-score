@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from app.store.models import SavedMeeting, SavedMeetingMeta
@@ -24,7 +24,7 @@ def _path(meeting_id: str) -> Path:
 
 
 def generate_id() -> str:
-    now = datetime.now(tz=timezone.utc).strftime("%Y%m%d%H%M%S%f")
+    now = datetime.now(tz=UTC).strftime("%Y%m%d%H%M%S%f")
     return f"analysis_{now}"
 
 
