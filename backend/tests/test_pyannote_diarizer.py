@@ -166,6 +166,40 @@ def test_annotation_to_turns_no_overlap_when_same_speaker() -> None:
     assert all(t.overlap is False for t in turns)
 
 
+class _FakeDiarizeOutput:
+    """pyannote.audio 3.x の Pipeline 戻り値 (DiarizeOutput) を模す。"""
+
+    def __init__(self, annotation: _FakeAnnotation) -> None:
+        self.speaker_diarization = annotation
+
+
+def test_annotation_to_turns_handles_diarize_output() -> None:
+    """pyannote 3.x の DiarizeOutput (.speaker_diarization) から Annotation を取り出せる。"""
+    output = _FakeDiarizeOutput(
+        _FakeAnnotation(
+            [
+                (0.0, 5.0, "SPEAKER_00"),
+                (5.0, 10.0, "SPEAKER_01"),
+            ]
+        )
+    )
+    turns = _annotation_to_turns(output)
+    assert [t.speaker for t in turns] == ["SPEAKER_00", "SPEAKER_01"]
+
+
+class _FakeOutputAltAttr:
+    """`.diarization` プロパティ経由のバリアント (古い 3.x 系)。"""
+
+    def __init__(self, annotation: _FakeAnnotation) -> None:
+        self.diarization = annotation
+
+
+def test_annotation_to_turns_handles_diarization_attr() -> None:
+    output = _FakeOutputAltAttr(_FakeAnnotation([(0.0, 1.0, "SPEAKER_00")]))
+    turns = _annotation_to_turns(output)
+    assert turns[0].speaker == "SPEAKER_00"
+
+
 def test_diarize_load_failure_wrapped(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("HUGGINGFACE_HUB_TOKEN", "hf_dummy")
 

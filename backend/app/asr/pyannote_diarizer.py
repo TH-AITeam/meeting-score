@@ -134,9 +134,19 @@ class PyannoteDiarizer:
 def _annotation_to_turns(annotation: Any) -> list[Turn]:
     """`pyannote.core.Annotation` を `Turn` リストへ変換する。
 
+    pyannote.audio 3.x では Pipeline 呼び出し結果が `Annotation` ではなく
+    `DiarizeOutput` (新型) で返ることがある。その場合は `.speaker_diarization`
+    プロパティから `Annotation` を取り出す。
+
     annotation.itertracks(yield_label=True) は `(Segment, track_id, label)` を返す。
     overlap は同一時刻に複数 label がある場合に True。
     """
+    # pyannote 3.x DiarizeOutput → Annotation を取り出す
+    if hasattr(annotation, "speaker_diarization"):
+        annotation = annotation.speaker_diarization
+    elif hasattr(annotation, "diarization"):
+        annotation = annotation.diarization
+
     raw: list[tuple[float, float, str]] = []
     for item in annotation.itertracks(yield_label=True):
         seg, _track_id, label = item
