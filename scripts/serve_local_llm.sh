@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # vLLM OpenAI 互換サーバ起動スクリプト (Issue #12)
 #
-# 採用モデル名は Issue #17 (判断モデル選定) で決定後、
+# 採用モデル名は Issue #18 (判断モデル選定) で決定後、
 # 環境変数 MODEL を上書きする想定。
+# 比較ベンチマークを回したい場合は scripts/run_model_benchmark.sh を使う。
 #
 # 使い方:
 #   # 既定モデルで起動
@@ -24,12 +25,28 @@
 
 set -euo pipefail
 
+# venv 自動有効化
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+  for venv_path in "$REPO_ROOT/.venv" "$REPO_ROOT/backend/.venv"; do
+    if [[ -f "$venv_path/bin/activate" ]]; then
+      # shellcheck disable=SC1091
+      source "$venv_path/bin/activate"
+      break
+    fi
+  done
+fi
+PYTHON="${PYTHON:-python}"
+command -v "$PYTHON" >/dev/null 2>&1 || PYTHON="python3"
+
 MODEL="${MODEL:-Qwen/Qwen2.5-7B-Instruct}"
 PORT="${PORT:-8000}"
 HOST="${HOST:-0.0.0.0}"
 GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.85}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
-GUIDED_BACKEND="${GUIDED_BACKEND:-xgrammar}"
+# vLLM 0.20+ では --guided-decoding-backend は削除され xgrammar が既定。
+# 旧 vLLM (<0.20) を使う場合のみ GUIDED_BACKEND を指定する。
+GUIDED_BACKEND="${GUIDED_BACKEND:-}"
 SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-${MODEL}}"
 
 echo "============================================"
@@ -39,15 +56,20 @@ echo "  MODEL         : ${MODEL}"
 echo "  HOST:PORT     : ${HOST}:${PORT}"
 echo "  GPU_MEM_UTIL  : ${GPU_MEM_UTIL}"
 echo "  MAX_MODEL_LEN : ${MAX_MODEL_LEN}"
-echo "  GUIDED        : ${GUIDED_BACKEND}"
+echo "  GUIDED        : ${GUIDED_BACKEND:-default(xgrammar)}"
 echo "  Served as     : ${SERVED_MODEL_NAME}"
 echo "============================================"
 
-exec python -m vllm.entrypoints.openai.api_server \
+GUIDED_ARGS=""
+if [[ -n "${GUIDED_BACKEND}" ]]; then
+  GUIDED_ARGS="--guided-decoding-backend ${GUIDED_BACKEND}"
+fi
+# shellcheck disable=SC2086
+exec "$PYTHON" -m vllm.entrypoints.openai.api_server \
     --model "${MODEL}" \
     --host "${HOST}" \
     --port "${PORT}" \
     --gpu-memory-utilization "${GPU_MEM_UTIL}" \
     --max-model-len "${MAX_MODEL_LEN}" \
-    --guided-decoding-backend "${GUIDED_BACKEND}" \
+    ${GUIDED_ARGS} \
     --served-model-name "${SERVED_MODEL_NAME}"

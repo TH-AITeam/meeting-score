@@ -2,16 +2,20 @@
 
 Examples
 --------
-    # ベースライン評価
+    # ベースライン評価（既定の backend = OpenAI）
     python -m evals.cli run \\
         --dataset data/annotations/gold/v1 \\
         --out reports/eval/v1.json
 
-    # 安定性評価 (N=5, temperature は Evaluator 側で設定)
-    python -m evals.cli stability \\
-        --meeting data/sample_meetings/sample_01.json \\
+    # ローカル vLLM サーバを叩く（Issue #18 のベンチマーク用途）
+    python -m evals.cli \\
+        --backend local \\
+        --endpoint http://127.0.0.1:8000/v1 \\
+        --model qwen3.6-27b-bnb \\
+        stability \\
+        --meeting data/sample_meetings/sample_meeting_01.json \\
         --n 5 \\
-        --out reports/eval/stability_sample_01.json
+        --out reports/eval/stability.json
 """
 
 from __future__ import annotations
@@ -22,57 +26,37 @@ import logging
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from app.context_builder.builder import build_contexts
-from app.evaluators.llm_evaluator import evaluate_utterance
+from app.evaluators import create_evaluator
 from app.ingest.loader import load_meeting_from_file
-from app.scoring.weights import load_config
-from evals.protocol import EvaluationResult
+from app.scoring.weights import AppConfig, load_config
 from evals.runner import run_eval
 from evals.stability import evaluate_stability
 
-if TYPE_CHECKING:
-    from app.context_builder.builder import EvaluationContext
-
 logger = logging.getLogger(__name__)
-STABILITY_TEMPERATURE = 0.7
 
 
-class LLMEvaluatorAdapter:
-    """既存の `evaluate_utterance` を Evaluator プロトコルに整形するアダプタ。
+def _build_config(args: argparse.Namespace) -> AppConfig:
+    """config.yaml + CLI 上書きで AppConfig を組み立てる。
 
-    Issue #12 で Evaluator ABC が main にマージされたら、ここを差し替えるだけで
-    eval ハーネス本体は無改変で動く想定。
+    `--backend` / `--endpoint` / `--model` / `--api-key` で config.yaml の値を
+    上書きできるようにする。これにより SSH 先で vLLM サーバを順次切り替える
+    ベンチマーク (Issue #18) が config を書き換えずに走らせられる。
     """
-
-    def __init__(
-        self,
-        model: str = "gpt-5.4-mini",
-        max_tokens: int = 1024,
-        max_retries: int = 3,
-        temperature: float | None = None,
-    ) -> None:
-        self.model = model
-        self.max_tokens = max_tokens
-        self.max_retries = max_retries
-        self.temperature = temperature
-
-    def evaluate(self, ctx: EvaluationContext) -> EvaluationResult:
-        raw = evaluate_utterance(
-            ctx,
-            model=self.model,
-            max_tokens=self.max_tokens,
-            max_retries=self.max_retries,
-            temperature=self.temperature,
-        )
-        return EvaluationResult(
-            speech_type=raw["speech_type"],
-            scores=raw["scores"],
-            penalties=raw["penalties"],
-            reason=raw.get("reason", ""),
-            evaluation_failed=raw.get("evaluation_failed", False),
-        )
+    cfg = load_config(args.config) if args.config else load_config()
+    if args.backend:
+        cfg.llm_backend = args.backend
+    if args.endpoint:
+        cfg.llm_endpoint = args.endpoint
+        # endpoint を指定したなら明示しない限り local に倒す
+        if not args.backend:
+            cfg.llm_backend = "local"
+    if args.model:
+        cfg.llm_model = args.model
+    if args.api_key:
+        cfg.llm_api_key = args.api_key
+    return cfg
 
 
 def _write_json(out_path: Path, payload: dict) -> None:
@@ -82,19 +66,15 @@ def _write_json(out_path: Path, payload: dict) -> None:
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
-    cfg = load_config(args.config) if args.config else load_config()
-    evaluator = LLMEvaluatorAdapter(
-        model=args.model or cfg.llm_model,
-        max_tokens=cfg.llm_max_tokens,
-        max_retries=cfg.llm_max_retries,
-    )
+    cfg = _build_config(args)
+    evaluator = create_evaluator(cfg)
     report = run_eval(
         Path(args.dataset),
         evaluator,
         cfg.weights,
         cfg.penalty_weights,
         meetings_dir=Path(args.meetings_dir) if args.meetings_dir else None,
-        model_name=args.model or cfg.llm_model,
+        model_name=cfg.llm_model,
         context_before=cfg.context_before,
         context_after=cfg.context_after,
     )
@@ -124,13 +104,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
 
 def _cmd_stability(args: argparse.Namespace) -> int:
-    cfg = load_config(args.config) if args.config else load_config()
-    evaluator = LLMEvaluatorAdapter(
-        model=args.model or cfg.llm_model,
-        max_tokens=cfg.llm_max_tokens,
-        max_retries=cfg.llm_max_retries,
-        temperature=STABILITY_TEMPERATURE,
-    )
+    cfg = _build_config(args)
+    evaluator = create_evaluator(cfg)
     meeting = load_meeting_from_file(Path(args.meeting))
     contexts = build_contexts(
         meeting,
@@ -147,6 +122,8 @@ def _cmd_stability(args: argparse.Namespace) -> int:
     payload = {
         "meeting_id": stability.meeting_id,
         "n_samples": args.n,
+        "model": cfg.llm_model,
+        "backend": cfg.llm_backend,
         "mean_sd_per_axis": stability.mean_sd_per_axis,
         "max_sd_per_axis": stability.max_sd_per_axis,
         "utterances": [asdict(u) for u in stability.utterances],
@@ -168,7 +145,12 @@ def _cmd_stability(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="eval", description="eval ハーネス")
     parser.add_argument("--config", help="config.yaml のパス (既定: backend/config.yaml)")
+    parser.add_argument("--backend", choices=("openai", "local"), help="LLM backend 上書き")
+    parser.add_argument(
+        "--endpoint", help="OpenAI 互換エンドポイント (例: http://127.0.0.1:8000/v1)"
+    )
     parser.add_argument("--model", help="LLM モデル名 (既定: config.yaml の値)")
+    parser.add_argument("--api-key", help="OpenAI 互換 API キー上書き")
 
     sub = parser.add_subparsers(dest="command", required=True)
 
