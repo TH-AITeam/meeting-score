@@ -8,6 +8,16 @@ from pydantic import BaseModel, Field
 
 
 # ---------------------------------------------------------------------------
+# 会議タイプ
+# ---------------------------------------------------------------------------
+class MeetingType(StrEnum):
+    DECISION = "decision"
+    BRAINSTORMING = "brainstorming"
+    PROGRESS = "progress"
+    RETROSPECTIVE = "retrospective"
+
+
+# ---------------------------------------------------------------------------
 # 発言タイプ
 # ---------------------------------------------------------------------------
 class SpeechType(StrEnum):
@@ -62,6 +72,7 @@ class MeetingInput(BaseModel):
     decision_points: list[str] = Field(default_factory=list)
     topic_transitions: list[TopicTransition] = Field(default_factory=list)
     utterances: list[Utterance]
+    meeting_type: MeetingType | None = None
 
 
 # ---------------------------------------------------------------------------

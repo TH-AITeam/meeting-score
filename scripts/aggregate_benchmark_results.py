@@ -194,7 +194,9 @@ def _format_table(results: list[ModelResult]) -> str:
                 kt=_fmt(r.kendall_tau),
                 tj=_fmt(r.top5_jaccard),
                 pa=_fmt(r.pairwise_acc),
-                js=_fmt(r.json_success_rate, ".1%") if r.json_success_rate is not None else "TBD",
+                js=_fmt(r.json_success_rate, ".1%")
+                if r.json_success_rate is not None
+                else "TBD",
                 sd=_fmt(r.mean_sd_axes, ".3f"),
                 p50=_fmt(r.p50_ms, ".0f"),
                 p95=_fmt(r.p95_ms, ".0f"),
@@ -217,7 +219,9 @@ def _format_table(results: list[ModelResult]) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="ベンチマーク JSON を Markdown 表に集計する")
+    parser = argparse.ArgumentParser(
+        description="ベンチマーク JSON を Markdown 表に集計する"
+    )
     parser.add_argument(
         "--reports-dir",
         default="reports/model_benchmarks",
@@ -244,9 +248,7 @@ def main() -> int:
         f"集計時刻ベース (各モデル最新): "
         + ", ".join(f"{r.served_name}={r.timestamp}" for r in results)
         + "\n\n"
-        "## スコアシート\n\n"
-        + table
-        + "\n\n"
+        "## スコアシート\n\n" + table + "\n\n"
         "## 反映手順\n\n"
         "1. 上記表を `docs/model_selection_v1.md` の同等表に置き換える\n"
         "2. `docs/adr/0001-judgment-model.md` の Status を `Proposed` → `Accepted` に更新\n"

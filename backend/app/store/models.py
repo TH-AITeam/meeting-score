@@ -11,6 +11,7 @@ class SavedMeetingMeta(BaseModel):
     id: str
     title: str
     source_type: str  # "sample" | "upload"
+    meeting_type: str | None = None
     created_at: str
     speaker_count: int
     utterance_count: int

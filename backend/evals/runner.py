@@ -138,14 +138,24 @@ def _evaluate_meeting(
     context_before: int = 3,
     context_after: int = 3,
     penalty_weights: PenaltyWeights | None = None,
+    meeting_type_weights: dict[str, ScoringWeights] | None = None,
 ) -> tuple[str, list[EvaluatedUtterance]]:
     """1会議を Evaluator で評価し、(meeting_id, 評価済み発言リスト) を返す。"""
     meeting = load_meeting_from_file(meeting_file)
+
+    # 会議ファイルに meeting_type があればタイプ別重みを優先する
+    if meeting_type_weights is not None and meeting.meeting_type:
+        effective_weights = meeting_type_weights.get(meeting.meeting_type, weights)
+    else:
+        effective_weights = weights
+
     contexts = build_contexts(meeting, before_count=context_before, after_count=context_after)
     evaluated: list[EvaluatedUtterance] = []
     for ctx in contexts:
         result = evaluator.evaluate(ctx)
-        total = calculate_total_score(result.scores, result.penalties, weights, penalty_weights)
+        total = calculate_total_score(
+            result.scores, result.penalties, effective_weights, penalty_weights
+        )
         target = ctx.target_utterance
         evaluated.append(
             EvaluatedUtterance(
@@ -160,7 +170,7 @@ def _evaluate_meeting(
                 reason=result.reason,
             )
         )
-    return meeting.meeting_id, apply_rule_corrections(evaluated, weights, penalty_weights)
+    return meeting.meeting_id, apply_rule_corrections(evaluated, effective_weights, penalty_weights)
 
 
 def _system_scores_dict(evaluated: list[EvaluatedUtterance]) -> dict[str, float]:
@@ -216,6 +226,7 @@ def run_eval(
     model_name: str = "unknown",
     context_before: int = 3,
     context_after: int = 3,
+    meeting_type_weights: dict[str, ScoringWeights] | None = None,
 ) -> EvalReport:
     """データセット 1 つを評価する。
 
@@ -264,6 +275,7 @@ def run_eval(
             context_before,
             context_after,
             penalty_weights,
+            meeting_type_weights,
         )
         report.per_meeting.append(
             _compute_meeting_metrics(actual_id, evaluated, pairs, tb_by_meeting)

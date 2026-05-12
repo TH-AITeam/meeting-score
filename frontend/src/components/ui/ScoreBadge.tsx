@@ -1,9 +1,55 @@
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { scoreClass } from '../../utils/labels'
+
+const SCORE_TIP = '各軸スコア（0〜3）× 重み の合計から、重複・冗長・脱線などの減点を引いた値のため小数になります'
 
 interface Props {
   score: number
+  large?: boolean
+  style?: React.CSSProperties
 }
 
-export default function ScoreBadge({ score }: Props) {
-  return <span className={`score-badge ${scoreClass(score)}`}>{score}</span>
+export default function ScoreBadge({ score, large, style }: Props) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+
+  const handleMouseEnter = () => {
+    if (!ref.current) return
+    const r = ref.current.getBoundingClientRect()
+    if (large) {
+      // 左側に出す: バッジ左端・垂直中央
+      setPos({ top: r.top + r.height / 2, left: r.left - 8 })
+    } else {
+      // 上側に出す: 水平中央
+      setPos({ top: r.top - 8, left: r.left + r.width / 2 })
+    }
+  }
+
+  const className = large
+    ? 'wf-h1'
+    : `score-badge ${scoreClass(score)}`
+
+  return (
+    <>
+      <span
+        ref={ref}
+        className={className}
+        style={{ cursor: 'help', ...style }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={() => setPos(null)}
+      >
+        {large ? `${score >= 0 ? '+' : ''}${score.toFixed(1)}` : score}
+      </span>
+      {pos && createPortal(
+        <div
+          className={large ? 'score-tip score-tip-left' : 'score-tip'}
+          style={{ top: pos.top, left: pos.left }}
+        >
+          {SCORE_TIP}
+        </div>,
+        document.body,
+      )}
+    </>
+  )
 }

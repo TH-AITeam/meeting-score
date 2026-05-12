@@ -71,7 +71,7 @@ def main() -> int:
 
     durations: list[float] = []
     failures = 0
-    print(f"Warming up...")
+    print("Warming up...")
     evaluator.evaluate(ctx)  # JIT / KV cache 暖気
 
     print(f"Measuring {args.n} iterations...")
