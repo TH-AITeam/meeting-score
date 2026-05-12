@@ -362,6 +362,18 @@ body {
   border-top-color: var(--ink);
 }
 
+/* 左側に表示するバリアント */
+.score-tip.score-tip-left {
+  transform: translateX(-100%) translateX(-8px) translateY(-50%);
+}
+.score-tip.score-tip-left::after {
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  border-top-color: transparent;
+  border-left-color: var(--ink);
+}
+
 /* ===== Save button / badge ===== */
 .save-btn {
   font-family: var(--hand);

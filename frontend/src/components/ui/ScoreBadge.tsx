@@ -17,7 +17,13 @@ export default function ScoreBadge({ score, large, style }: Props) {
   const handleMouseEnter = () => {
     if (!ref.current) return
     const r = ref.current.getBoundingClientRect()
-    setPos({ top: r.top - 8, left: r.left + r.width / 2 })
+    if (large) {
+      // 左側に出す: バッジ左端・垂直中央
+      setPos({ top: r.top + r.height / 2, left: r.left - 8 })
+    } else {
+      // 上側に出す: 水平中央
+      setPos({ top: r.top - 8, left: r.left + r.width / 2 })
+    }
   }
 
   const className = large
@@ -36,7 +42,10 @@ export default function ScoreBadge({ score, large, style }: Props) {
         {large ? `${score >= 0 ? '+' : ''}${score.toFixed(1)}` : score}
       </span>
       {pos && createPortal(
-        <div className="score-tip" style={{ top: pos.top, left: pos.left }}>
+        <div
+          className={large ? 'score-tip score-tip-left' : 'score-tip'}
+          style={{ top: pos.top, left: pos.left }}
+        >
           {SCORE_TIP}
         </div>,
         document.body,
