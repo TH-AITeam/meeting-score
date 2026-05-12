@@ -114,9 +114,7 @@ def load_config(path: str | Path | None = None) -> AppConfig:
     )
 
     mtw_raw = raw.get("meeting_type_weights", {})
-    meeting_type_weights = {
-        mt: _parse_scoring_weights(w, weights) for mt, w in mtw_raw.items()
-    }
+    meeting_type_weights = {mt: _parse_scoring_weights(w, weights) for mt, w in mtw_raw.items()}
 
     ctx = raw.get("context", {})
     llm = raw.get("llm", {})
