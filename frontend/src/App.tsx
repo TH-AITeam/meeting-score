@@ -44,10 +44,12 @@ export default function App() {
 
   const handleAnalyzeJson = async (body: unknown, meetingType?: MeetingType) => {
     setState({ phase: 'loading' })
+    // UI 未選択でも body に meeting_type が埋め込まれていればそれを使う
+    const effectiveType = meetingType ?? (body as Record<string, unknown>)?.meeting_type as MeetingType | undefined
     try {
-      const data = await analyzeJson(body, meetingType)
+      const data = await analyzeJson(body, effectiveType)
       setState({ phase: 'results', data, tab: 'summary' })
-      saveMeeting('upload', body, data, meetingType)
+      saveMeeting('upload', body, data, effectiveType)
         .then(triggerHistoryRefresh)
         .catch(() => {/* 保存失敗はサイレントに無視 */})
     } catch (e) {
