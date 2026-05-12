@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 質問・議論
+    url: https://github.com/TH-AITeam/meeting-score/discussions
+    about: 質問や設計の議論はこちらへ

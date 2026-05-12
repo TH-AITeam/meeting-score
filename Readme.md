@@ -459,7 +459,13 @@ sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
 
 # 依存関係インストール
 task setup
+
+# pre-commit フックのインストール（初回のみ、リポジトリルートで実行）
+uv run --project backend pre-commit install
 ```
+
+`pre-commit install` を実行すると、以降の `git commit` 時に Ruff（lint + format）が自動実行されます。
+`pre-commit` は `backend/` の dev 依存として管理されているため、`--project backend` で呼び出します。
 
 ## よく使うコマンド
 
