@@ -146,7 +146,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="eval", description="eval ハーネス")
     parser.add_argument("--config", help="config.yaml のパス (既定: backend/config.yaml)")
     parser.add_argument("--backend", choices=("openai", "local"), help="LLM backend 上書き")
-    parser.add_argument("--endpoint", help="OpenAI 互換エンドポイント (例: http://127.0.0.1:8000/v1)")
+    parser.add_argument(
+        "--endpoint", help="OpenAI 互換エンドポイント (例: http://127.0.0.1:8000/v1)"
+    )
     parser.add_argument("--model", help="LLM モデル名 (既定: config.yaml の値)")
     parser.add_argument("--api-key", help="OpenAI 互換 API キー上書き")
 

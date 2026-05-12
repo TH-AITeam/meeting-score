@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import evals.cli as cli
 from app.context_builder.builder import EvaluationContext
-from app.schemas.models import MeetingInput, Penalties, Scores, Utterance
+from app.schemas.models import MeetingInput, Utterance
 from app.scoring.weights import AppConfig, PenaltyWeights, ScoringWeights
 
 
@@ -83,7 +83,7 @@ def test_cmd_run_passes_penalty_weights_to_runner(monkeypatch, capsys) -> None:
     cfg.llm_endpoint = "http://stub/v1"
 
     class _FakeEvaluator:
-        def evaluate(self, ctx):  # noqa: ARG002
+        def evaluate(self, ctx):
             return SimpleNamespace()
 
     class _FakeReport:
@@ -136,7 +136,7 @@ def test_cmd_stability_uses_create_evaluator(monkeypatch, capsys) -> None:
     cfg.llm_endpoint = "http://stub/v1"
 
     class _FakeEvaluator:
-        def evaluate(self, ctx):  # noqa: ARG002
+        def evaluate(self, ctx):
             return SimpleNamespace()
 
     monkeypatch.setattr(cli, "load_config", lambda *_: cfg)
