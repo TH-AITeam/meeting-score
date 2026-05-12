@@ -53,7 +53,7 @@ def _build_components(
     asr_cfg = audio_cfg.get("asr", {})
     transcriber = WhisperXTranscriber(
         WhisperXConfig(
-            model_name=asr_cfg.get("model_name", "openai/whisper-large-v3"),
+            model_name=asr_cfg.get("model_name", "large-v3"),
             device=asr_cfg.get("device", "cuda"),
             compute_type=asr_cfg.get("compute_type", "float16"),
             language=asr_cfg.get("language", "ja"),

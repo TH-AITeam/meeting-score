@@ -42,11 +42,13 @@ def test_transcribe_to_meeting_input_full_path(monkeypatch, tmp_path) -> None:
 
     audio = tmp_path / "x.wav"
     audio.write_bytes(b"")
+    captured: dict[str, Any] = {}
 
     # WhisperXTranscriber を fake に差し替え
     class _FakeTranscriber:
         def __init__(self, config) -> None:
             self.config = config
+            captured["model_name"] = config.model_name
 
         def transcribe(self, path):
             return [
@@ -82,6 +84,7 @@ def test_transcribe_to_meeting_input_full_path(monkeypatch, tmp_path) -> None:
     assert len(mi.utterances) == 1
     assert mi.utterances[0].speaker == "SPEAKER_00"
     assert mi.utterances[0].text == "こんにちは会議"
+    assert captured["model_name"] == "large-v3"
 
 
 def test_transcribe_to_meeting_input_passes_num_speakers(monkeypatch, tmp_path) -> None:
