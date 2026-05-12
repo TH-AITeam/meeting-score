@@ -8,11 +8,9 @@ from pathlib import Path
 
 from app.schemas.models import Penalties, Scores
 from app.scoring.weights import ScoringWeights
-
 from evals.protocol import EvaluationResult
 from evals.runner import _evaluate_meeting, _human_ranks_from_pairs, run_eval
 from evals.schema import PairwiseAnnotation
-
 
 SAMPLE_MEETING = (
     Path(__file__).resolve().parent.parent.parent
@@ -47,7 +45,7 @@ class _OrderedEvaluator:
 
 
 class _NeutralEvaluator:
-    def evaluate(self, ctx) -> EvaluationResult:  # noqa: ARG002
+    def evaluate(self, ctx) -> EvaluationResult:
         return EvaluationResult(
             speech_type="情報共有",
             scores=Scores(),
