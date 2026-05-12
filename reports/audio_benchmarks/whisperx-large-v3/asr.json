@@ -1,0 +1,18 @@
+{
+  "asr_id": "whisperx-large-v3",
+  "model": "large-v3",
+  "per_meeting": [
+    {
+      "meeting": "meeting_01",
+      "cer": 0.1111111111111111,
+      "named_entity_recall": 1.0,
+      "audio_sec": 1.3931875,
+      "wall_sec": 8.672448224853724
+    }
+  ],
+  "aggregate": {
+    "macro_cer": 0.1111111111111111,
+    "macro_named_entity_recall": 1.0,
+    "rtf": 6.22489666671121
+  }
+}

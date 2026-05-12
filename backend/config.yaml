@@ -84,7 +84,7 @@ aggregation:
 audio:
   asr:
     backend: "whisperx"                         # whisperx (現状唯一の候補)
-    model_name: "openai/whisper-large-v3"        # HF model id。kotoba-tech/kotoba-whisper-v2.0 で差替え可
+    model_name: "large-v3"                       # faster-whisper model id。kotoba-tech/kotoba-whisper-v2.0 で差替え可
     device: "cuda"                              # cuda / cpu
     compute_type: "float16"                     # float16 / int8_float16 / int8
     language: "ja"

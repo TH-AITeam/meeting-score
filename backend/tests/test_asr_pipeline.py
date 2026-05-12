@@ -97,7 +97,7 @@ def test_assemble_utterances_validates_volumes_length() -> None:
 
 
 def test_utterance_id_is_sequential() -> None:
-    """utterance_id が start_sec 順で u0001 から振られる。"""
+    """utterance_id が start_sec 順で u001 から振られる。"""
     words = [Word("a", 0.0, 1.0), Word("b", 2.0, 3.0), Word("c", 5.0, 6.0)]
     turns = [
         Turn(speaker="S0", start_sec=5.0, end_sec=6.0),
@@ -105,7 +105,7 @@ def test_utterance_id_is_sequential() -> None:
         Turn(speaker="S0", start_sec=2.0, end_sec=3.0),
     ]
     utts = assemble_utterances(words, turns)
-    assert [u.utterance_id for u in utts] == ["u0001", "u0002", "u0003"]
+    assert [u.utterance_id for u in utts] == ["u001", "u002", "u003"]
     assert [u.start_sec for u in utts] == [0.0, 2.0, 5.0]
 
 

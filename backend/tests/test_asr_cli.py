@@ -1,0 +1,217 @@
+"""app.asr.cli の統合テスト (Issue #11)。
+
+実 WhisperX / pyannote / LLM は呼ばない。`transcribe_to_meeting_input` の
+コンポーネント組み立てと `main()` の CLI 引数解釈を mock で検証する。
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+from app.asr.base import Turn, Word
+from app.scoring.weights import AppConfig, PenaltyWeights, ScoringWeights
+
+
+def _base_cfg() -> AppConfig:
+    return AppConfig(
+        weights=ScoringWeights(),
+        penalty_weights=PenaltyWeights(),
+        llm_backend="local",
+        llm_model="dummy-model",
+        llm_endpoint="http://stub/v1",
+        llm_max_tokens=512,
+        llm_timeout=10.0,
+    )
+
+
+def _stub_audio_cfg() -> dict[str, Any]:
+    return {
+        "asr": {"device": "cpu", "compute_type": "int8", "language": "ja", "batch_size": 4},
+        "diarization": {"device": "cpu", "hf_token_env": "HUGGINGFACE_HUB_TOKEN"},
+        "volume": {"enabled": False},  # CPU テストでは無効化
+        "pipeline": {"overlap_iou_threshold": 0.3},
+    }
+
+
+def test_transcribe_to_meeting_input_full_path(monkeypatch, tmp_path) -> None:
+    """音声ファイル → WhisperX(mock) → pyannote(mock) → segmenter → meeting_builder
+    のフルパスを mock 経由で通す。"""
+    from app.asr import cli
+
+    audio = tmp_path / "x.wav"
+    audio.write_bytes(b"")
+    captured: dict[str, Any] = {}
+
+    # WhisperXTranscriber を fake に差し替え
+    class _FakeTranscriber:
+        def __init__(self, config) -> None:
+            self.config = config
+            captured["model_name"] = config.model_name
+
+        def transcribe(self, path):
+            return [
+                Word("こんにちは", 0.0, 1.0),
+                Word("会議", 1.0, 2.0),
+            ]
+
+    class _FakeDiarizer:
+        def __init__(self, config) -> None:
+            self.config = config
+
+        def diarize(self, path, num_speakers=None):
+            return [
+                Turn(speaker="SPEAKER_00", start_sec=0.0, end_sec=2.0),
+            ]
+
+    monkeypatch.setattr(cli, "WhisperXTranscriber", _FakeTranscriber)
+    monkeypatch.setattr(cli, "PyannoteDiarizer", _FakeDiarizer)
+
+    mi = cli.transcribe_to_meeting_input(
+        audio,
+        meeting_id="m042",
+        cfg=_base_cfg(),
+        audio_cfg=_stub_audio_cfg(),
+        use_meta_extractor=False,  # LLM 呼び出しなし
+        use_volume_analyzer=False,
+        default_title="サンプル会議",
+        default_goal="目的サンプル",
+    )
+    assert mi.meeting_id == "m042"
+    assert mi.title == "サンプル会議"
+    assert mi.goal == "目的サンプル"
+    assert len(mi.utterances) == 1
+    assert mi.utterances[0].speaker == "SPEAKER_00"
+    assert mi.utterances[0].text == "こんにちは会議"
+    assert captured["model_name"] == "large-v3"
+
+
+def test_transcribe_to_meeting_input_passes_num_speakers(monkeypatch, tmp_path) -> None:
+    """num_speakers が Diarizer.diarize へ渡る。"""
+    from app.asr import cli
+
+    audio = tmp_path / "x.wav"
+    audio.write_bytes(b"")
+    captured: dict[str, Any] = {}
+
+    class _FakeTranscriber:
+        def __init__(self, config) -> None:
+            self.config = config
+
+        def transcribe(self, path):
+            return [Word("a", 0.0, 1.0)]
+
+    class _FakeDiarizer:
+        def __init__(self, config) -> None:
+            self.config = config
+
+        def diarize(self, path, num_speakers=None):
+            captured["num_speakers"] = num_speakers
+            return [Turn(speaker="S0", start_sec=0.0, end_sec=1.0)]
+
+    monkeypatch.setattr(cli, "WhisperXTranscriber", _FakeTranscriber)
+    monkeypatch.setattr(cli, "PyannoteDiarizer", _FakeDiarizer)
+
+    cli.transcribe_to_meeting_input(
+        audio,
+        meeting_id="m001",
+        cfg=_base_cfg(),
+        audio_cfg=_stub_audio_cfg(),
+        num_speakers=4,
+        use_meta_extractor=False,
+        use_volume_analyzer=False,
+    )
+    assert captured["num_speakers"] == 4
+
+
+def test_cli_main_writes_json(monkeypatch, tmp_path) -> None:
+    """python -m app.asr.cli が JSON ファイルを出力する。"""
+    from app.asr import cli
+
+    audio = tmp_path / "x.wav"
+    audio.write_bytes(b"")
+    out = tmp_path / "out.json"
+
+    class _FakeTranscriber:
+        def __init__(self, config) -> None:
+            self.config = config
+
+        def transcribe(self, path):
+            return [Word("発言", 0.0, 1.0)]
+
+    class _FakeDiarizer:
+        def __init__(self, config) -> None:
+            self.config = config
+
+        def diarize(self, path, num_speakers=None):
+            return [Turn(speaker="S0", start_sec=0.0, end_sec=1.0)]
+
+    monkeypatch.setattr(cli, "WhisperXTranscriber", _FakeTranscriber)
+    monkeypatch.setattr(cli, "PyannoteDiarizer", _FakeDiarizer)
+    monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
+    monkeypatch.setattr(cli, "_load_audio_section", lambda *_: _stub_audio_cfg())
+
+    exit_code = cli.main(
+        [
+            "--input",
+            str(audio),
+            "--output",
+            str(out),
+            "--meeting-id",
+            "m999",
+            "--no-meta-extract",
+            "--no-volume",
+            "--title",
+            "x",
+            "--goal",
+            "y",
+        ]
+    )
+    assert exit_code == 0
+    assert out.exists()
+    parsed = json.loads(out.read_text(encoding="utf-8"))
+    assert parsed["meeting_id"] == "m999"
+    assert parsed["title"] == "x"
+    assert parsed["goal"] == "y"
+    assert len(parsed["utterances"]) == 1
+
+
+def test_cli_main_returns_1_when_input_missing(monkeypatch, tmp_path, capsys) -> None:
+    from app.asr import cli
+
+    monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
+    monkeypatch.setattr(cli, "_load_audio_section", lambda *_: {})
+
+    exit_code = cli.main(
+        [
+            "--input",
+            str(tmp_path / "missing.wav"),
+            "--output",
+            str(tmp_path / "out.json"),
+            "--meeting-id",
+            "m000",
+            "--no-meta-extract",
+        ]
+    )
+    assert exit_code == 1
+
+
+def test_load_audio_section_reads_yaml(tmp_path: Path) -> None:
+    from app.asr.cli import _load_audio_section
+
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text(
+        "audio:\n  asr:\n    device: cpu\n    batch_size: 8\n",
+        encoding="utf-8",
+    )
+    sec = _load_audio_section(str(cfg))
+    assert sec["asr"]["device"] == "cpu"
+    assert sec["asr"]["batch_size"] == 8
+
+
+def test_load_audio_section_missing_file_returns_empty(tmp_path: Path) -> None:
+    from app.asr.cli import _load_audio_section
+
+    sec = _load_audio_section(str(tmp_path / "nope.yaml"))
+    assert sec == {}
