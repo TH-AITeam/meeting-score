@@ -17,5 +17,14 @@ node_modules
 # stored meeting data (may contain personal information)
 data/stored_meetings/
 # eval / benchmark の生 JSON は基本ローカル保持。
-# Issue #18 のエビデンスとしてコミットしたい場合のみ `git add -f reports/...` で明示追加する。
+# Issue #18 / #19 のエビデンスとしてコミットしたい場合のみ `git add -f reports/...` で明示追加する。
 reports/
+
+# 音声処理モデル評価データ (Issue #19)
+# data/eval_audio/{meeting_*}/ 以下の音声・参照ファイルは個人録音/合成のため
+# リポジトリには含めない。README と .gitkeep だけ commit する。
+data/eval_audio/meeting_*/
+*.wav
+*.mp3
+*.m4a
+*.flac

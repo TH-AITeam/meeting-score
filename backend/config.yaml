@@ -41,3 +41,30 @@ llm:
 aggregation:
   top_utterances_count: 5     # Top発言数
   top_per_axis_count: 3       # 軸別Top発言数
+
+# 音声処理設定 (Issue #19, Proposed)
+# 採用候補: ASR=WhisperX (whisper-large-v3) + Diar=pyannote/speaker-diarization-3.1 + 音量分析
+# 実本実装は Issue #11 で完成予定。本セクションは Issue #11 が config から読む雛形。
+audio:
+  asr:
+    backend: "whisperx"                         # whisperx (現状唯一の候補)
+    model_name: "openai/whisper-large-v3"        # HF model id。kotoba-tech/kotoba-whisper-v2.0 で差替え可
+    device: "cuda"                              # cuda / cpu
+    compute_type: "float16"                     # float16 / int8_float16 / int8
+    language: "ja"
+    batch_size: 16
+    align_model: null                           # 例: jonatasgrosman/wav2vec2-large-xlsr-53-japanese
+  diarization:
+    backend: "pyannote"                         # pyannote (現状唯一の候補)
+    model_name: "pyannote/speaker-diarization-3.1"
+    device: "cuda"
+    hf_token_env: "HUGGINGFACE_HUB_TOKEN"        # gated repo アクセス。値は環境変数に置く
+    default_num_speakers: null                  # null=自動推定、整数=固定
+    detect_overlap: true
+  volume:
+    enabled: true
+    silent_below: 0.005                         # RMS 閾値 (linear)
+    low_below: 0.02
+    high_above: 0.10
+  pipeline:
+    overlap_iou_threshold: 0.3                  # 別話者 turn との IoU がこの値以上なら overlap_with に追加
