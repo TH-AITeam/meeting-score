@@ -1,0 +1,109 @@
+# https://taskfile.dev
+version: "3"
+
+vars:
+  BACKEND_DIR: backend
+
+tasks:
+  # ---------- backend: lint ----------
+  lint:
+    desc: "ruff check（構文・スタイル検査）"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run ruff check .
+
+  format:
+    desc: "ruff format（自動整形）"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run ruff format .
+
+  format:check:
+    desc: "ruff format --check（整形チェックのみ）"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run ruff format --check .
+
+  typecheck:
+    desc: "mypy による型チェック"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run mypy app
+
+  # ---------- backend: test ----------
+  test:
+    desc: "pytest（カバレッジなし）"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run pytest
+
+  test:cov:
+    desc: "pytest + カバレッジ（term-missing 表示）"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run pytest --cov=app --cov-report=term-missing
+
+  test:ci:
+    desc: "pytest + カバレッジ（CI と同じ設定、しきい値 70%）"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run pytest --cov=app --cov-report=xml --cov-report=term --cov-fail-under=70
+
+  # ---------- frontend ----------
+  frontend:typecheck:
+    desc: "TypeScript 型チェック"
+    dir: frontend
+    cmds:
+      - npm run typecheck
+
+  frontend:lint:
+    desc: "ESLint"
+    dir: frontend
+    cmds:
+      - npm run lint
+
+  frontend:build:
+    desc: "Vite ビルド"
+    dir: frontend
+    cmds:
+      - npm run build
+    env:
+      VITE_API_BASE_URL: ""
+
+  # ---------- CI 一括 ----------
+  ci:
+    desc: "CI と同じ lint + test を一括実行（フロントエンド含む）"
+    cmds:
+      - task: frontend:typecheck
+      - task: frontend:lint
+      - task: frontend:build
+      - task: lint
+      - task: format:check
+      - task: typecheck
+      - task: test:ci
+
+  # ---------- 起動 ----------
+  dev:backend:
+    desc: "バックエンド開発サーバー起動（localhost:8000）"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run python run.py
+
+  dev:frontend:
+    desc: "フロントエンド開発サーバー起動（localhost:5173）"
+    dir: frontend
+    cmds:
+      - npm run dev
+
+  dev:
+    desc: "バックエンド + フロントエンドを同時起動"
+    deps:
+      - dev:backend
+      - dev:frontend
+
+  # ---------- セットアップ ----------
+  setup:
+    desc: "開発用依存関係のインストール"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv sync --frozen --group dev
