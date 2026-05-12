@@ -7,7 +7,7 @@
 
 | 世代 | 採用日 | 採用モデル | 量子化 | 控え | 判断軸の重点 | ADR | 廃止日 |
 |---|---|---|---|---|---|---|---|
-| v1 | 2026-05-12 (Proposed) | `Qwen/Qwen3.6-27B` | BnB NF4 (on-the-fly) | `Qwen/Qwen3-14B` | 日本語精度 + Apache 2.0 + NF4 で 32GB 適合（公式 AWQ 配布開始時に置き換え予定） | [ADR 0001](adr/0001-judgment-model.md) | – |
+| v1 | 2026-05-12 (Proposed) | `unsloth/Qwen3.6-35B-A3B-NVFP4` | NVFP4 (compressed-tensors) | `Qwen/Qwen2.5-32B-Instruct-AWQ` | Qwen3.6 MoE の動作実証済み唯一の量子化版 + Blackwell ネイティブ FP4 + Apache 2.0。本家 `Qwen3.6-35B-A3B` が vLLM 対応されたら乗り換え予定 | [ADR 0001](adr/0001-judgment-model.md) | – |
 
 > 採用日は ADR が Proposed のときの日付。**Accepted に切り替わったらここを上書きする**。
 

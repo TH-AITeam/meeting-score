@@ -32,6 +32,18 @@ from typing import Any
 # モデル名 (served_name) → ライセンス / 量子化 / 学習しやすさ の手書きメタ。
 # 候補が増えたら model_candidates.md と同期して追記する。
 MODEL_META: dict[str, dict[str, str]] = {
+    "qwen3.6-35b-nvfp4": {
+        "label": "Qwen3.6-35B-A3B (unsloth NVFP4)",
+        "quant": "NVFP4 (compressed-tensors)",
+        "license": "Apache 2.0",
+        "trainability": "★★★",
+    },
+    "qwen2.5-32b-awq": {
+        "label": "Qwen2.5-32B-Instruct-AWQ",
+        "quant": "AWQ INT4 (Marlin)",
+        "license": "Apache 2.0",
+        "trainability": "★★★",
+    },
     "qwen3.6-27b-bnb": {
         "label": "Qwen3.6-27B",
         "quant": "BnB NF4 (on-the-fly)",
@@ -41,12 +53,6 @@ MODEL_META: dict[str, dict[str, str]] = {
     "qwen3-14b-bnb": {
         "label": "Qwen3-14B",
         "quant": "BnB NF4 (on-the-fly)",
-        "license": "Apache 2.0",
-        "trainability": "★★★",
-    },
-    "qwen2.5-32b-awq": {
-        "label": "Qwen2.5-32B-Instruct-AWQ",
-        "quant": "AWQ INT4",
         "license": "Apache 2.0",
         "trainability": "★★★",
     },
@@ -163,11 +169,12 @@ def _format_table(results: list[ModelResult]) -> str:
 
     # docs/model_candidates.md の並び順に揃える
     desired_order = [
+        "qwen3.6-35b-nvfp4",
+        "qwen2.5-32b-awq",
         "qwen3.6-27b-bnb",
         "qwen3-14b-bnb",
-        "qwen2.5-32b-awq",
-        "swallow-3.1-8b-bf16",
         "phi-4-14b-bnb",
+        "swallow-3.1-8b-bf16",
     ]
     by_name = {r.served_name: r for r in results}
 

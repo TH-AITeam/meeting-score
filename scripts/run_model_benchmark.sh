@@ -101,15 +101,22 @@ mkdir -p "$LOG_DIR"
 # 27B BnB は CUDA graph のための余分なバッファすら確保できないので必須。
 # --------------------------------------------------------------------------
 CANDIDATES=(
-  # 14B 級 bf16 (28GB) は 32GB 環境では KV cache を確保できず OOM するため、
-  # 公式 AWQ がないモデルは BitsAndBytes NF4 でオンザフライ量子化する。
-  # 32GB に詰めるため 27B/14B/32B-AWQ には --enforce-eager で CUDA graph を無効化
-  # （推論は数 % 遅くなるが KV cache 領域が確保できる）。
+  # 第一採用候補: Qwen3.6-35B-A3B (NVFP4 / compressed-tensors)
+  # MoE で総 35B / アクティブ 3B、Blackwell ネイティブ FP4 量子化。
+  # unsloth が公式 NVFP4 を公開しており、`config.json` の quantization_config は
+  # `compressed-tensors` フォーマット (vLLM 0.20+ で対応)。
+  "unsloth/Qwen3.6-35B-A3B-NVFP4|qwen3.6-35b-nvfp4|--quantization compressed-tensors --enforce-eager"
+  # 控え候補: Qwen2.5-32B-Instruct-AWQ
+  # 公式 AWQ + Marlin で 32GB に余裕で乗り、レイテンシ最速級
+  "Qwen/Qwen2.5-32B-Instruct-AWQ|qwen2.5-32b-awq|--quantization awq_marlin --dtype auto --enforce-eager"
+  # 比較対象: Qwen3.6-27B (BnB) / Qwen3-14B (BnB)
+  # 公式量子化が無いため BnB オンザフライ。BnB はカーネル最適化が AWQ 比で遅い
   "Qwen/Qwen3.6-27B|qwen3.6-27b-bnb|--quantization bitsandbytes --dtype auto --enforce-eager"
   "Qwen/Qwen3-14B|qwen3-14b-bnb|--quantization bitsandbytes --dtype auto --enforce-eager"
-  "Qwen/Qwen2.5-32B-Instruct-AWQ|qwen2.5-32b-awq|--quantization awq_marlin --dtype auto --enforce-eager"
-  "tokyotech-llm/Llama-3.1-Swallow-8B-Instruct-v0.3|swallow-3.1-8b-bf16|--dtype bfloat16"
+  # 14B 別系統対照: Phi-4 (MIT)
   "microsoft/phi-4|phi-4-14b-bnb|--quantization bitsandbytes --dtype auto --enforce-eager"
+  # 8B 日本語特化対照: Swallow
+  "tokyotech-llm/Llama-3.1-Swallow-8B-Instruct-v0.3|swallow-3.1-8b-bf16|--dtype bfloat16"
 )
 
 # --------------------------------------------------------------------------

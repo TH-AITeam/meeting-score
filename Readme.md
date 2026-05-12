@@ -351,8 +351,8 @@ uv run python run.py
 
 ローカル推論基盤 (#12) + eval ハーネス (#5) を踏まえて、判断 LLM を Issue #18 で選定しました。
 
-- 第一採用: **`Qwen/Qwen3.6-27B`** (BitsAndBytes NF4 オンザフライ量子化)
-- 控え: **`Qwen/Qwen3-14B`** (bf16)
+- 第一採用: **`unsloth/Qwen3.6-35B-A3B-NVFP4`** (NVFP4 / compressed-tensors、Blackwell ネイティブ FP4)
+- 控え: **`Qwen/Qwen2.5-32B-Instruct-AWQ`** (AWQ Marlin、レイテンシ最速)
 - 採用根拠: `docs/adr/0001-judgment-model.md`
 - 候補比較: `docs/model_candidates.md` / `docs/model_selection_v1.md`
 - 世代管理: `docs/model_history.md`
@@ -371,10 +371,10 @@ uv pip install vllm
 # 全候補を順に回す
 bash scripts/run_model_benchmark.sh --all
 
-# 単発（例: Qwen3.6-27B BnB）
-MODEL="Qwen/Qwen3.6-27B" \
-SERVED_NAME="qwen3.6-27b-bnb" \
-EXTRA="--quantization bitsandbytes --dtype auto" \
+# 単発（例: 第一採用候補の NVFP4）
+MODEL="unsloth/Qwen3.6-35B-A3B-NVFP4" \
+SERVED_NAME="qwen3.6-35b-nvfp4" \
+EXTRA="--quantization compressed-tensors --enforce-eager" \
 bash scripts/run_model_benchmark.sh
 ```
 
