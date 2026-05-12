@@ -7,7 +7,7 @@
 
 | 世代 | 採用日 | 採用モデル | 量子化 | 控え | 判断軸の重点 | ADR | 廃止日 |
 |---|---|---|---|---|---|---|---|
-| v1 | 2026-05-12 (Proposed) | `Qwen/Qwen3.6-27B-Instruct-AWQ` | AWQ INT4 | `Qwen/Qwen3-14B-Instruct` | 日本語精度 + Apache 2.0 + AWQ で 32GB 適合 | [ADR 0001](adr/0001-judgment-model.md) | – |
+| v1 | 2026-05-12 (Proposed) | `Qwen/Qwen3.6-27B` | BnB NF4 (on-the-fly) | `Qwen/Qwen3-14B` | 日本語精度 + Apache 2.0 + NF4 で 32GB 適合（公式 AWQ 配布開始時に置き換え予定） | [ADR 0001](adr/0001-judgment-model.md) | – |
 
 > 採用日は ADR が Proposed のときの日付。**Accepted に切り替わったらここを上書きする**。
 

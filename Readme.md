@@ -351,8 +351,8 @@ uv run python run.py
 
 ローカル推論基盤 (#12) + eval ハーネス (#5) を踏まえて、判断 LLM を Issue #18 で選定しました。
 
-- 第一採用: **`Qwen/Qwen3.6-27B-Instruct-AWQ`** (AWQ INT4)
-- 控え: **`Qwen/Qwen3-14B-Instruct`** (bf16)
+- 第一採用: **`Qwen/Qwen3.6-27B`** (BitsAndBytes NF4 オンザフライ量子化)
+- 控え: **`Qwen/Qwen3-14B`** (bf16)
 - 採用根拠: `docs/adr/0001-judgment-model.md`
 - 候補比較: `docs/model_candidates.md` / `docs/model_selection_v1.md`
 - 世代管理: `docs/model_history.md`
@@ -371,10 +371,10 @@ uv pip install vllm
 # 全候補を順に回す
 bash scripts/run_model_benchmark.sh --all
 
-# 単発（例: Qwen3.6-27B AWQ）
-MODEL="Qwen/Qwen3.6-27B-Instruct-AWQ" \
-SERVED_NAME="qwen3.6-27b-awq" \
-EXTRA="--quantization awq_marlin --dtype auto" \
+# 単発（例: Qwen3.6-27B BnB）
+MODEL="Qwen/Qwen3.6-27B" \
+SERVED_NAME="qwen3.6-27b-bnb" \
+EXTRA="--quantization bitsandbytes --dtype auto" \
 bash scripts/run_model_benchmark.sh
 ```
 
