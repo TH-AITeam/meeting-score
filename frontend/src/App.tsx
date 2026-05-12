@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { analyzeJson, analyzeSample, saveMeeting } from './api/client'
-import type { MeetingSummary } from './types/meeting'
+import type { MeetingSummary, MeetingType } from './types/meeting'
 import InputView from './components/InputView'
 import LoadingView from './components/LoadingView'
 import SummaryTab from './components/tabs/SummaryTab'
@@ -28,12 +28,12 @@ export default function App() {
 
   const triggerHistoryRefresh = () => setHistoryVersion((v) => v + 1)
 
-  const handleAnalyzeSample = async (filename: string) => {
+  const handleAnalyzeSample = async (filename: string, meetingType?: MeetingType) => {
     setState({ phase: 'loading' })
     try {
-      const data = await analyzeSample(filename)
+      const data = await analyzeSample(filename, meetingType)
       setState({ phase: 'results', data, tab: 'summary' })
-      saveMeeting('sample', { filename }, data)
+      saveMeeting('sample', { filename }, data, meetingType)
         .then(triggerHistoryRefresh)
         .catch(() => {/* 保存失敗はサイレントに無視 */})
     } catch (e) {
@@ -42,12 +42,12 @@ export default function App() {
     }
   }
 
-  const handleAnalyzeJson = async (body: unknown) => {
+  const handleAnalyzeJson = async (body: unknown, meetingType?: MeetingType) => {
     setState({ phase: 'loading' })
     try {
-      const data = await analyzeJson(body)
+      const data = await analyzeJson(body, meetingType)
       setState({ phase: 'results', data, tab: 'summary' })
-      saveMeeting('upload', body, data)
+      saveMeeting('upload', body, data, meetingType)
         .then(triggerHistoryRefresh)
         .catch(() => {/* 保存失敗はサイレントに無視 */})
     } catch (e) {

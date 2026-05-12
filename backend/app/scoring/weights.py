@@ -45,6 +45,7 @@ class AppConfig:
 
     weights: ScoringWeights = field(default_factory=ScoringWeights)
     penalty_weights: PenaltyWeights = field(default_factory=PenaltyWeights)
+    meeting_type_weights: dict[str, ScoringWeights] = field(default_factory=dict)
     context_before: int = 3
     context_after: int = 3
     # LLM 推論バックエンド (Issue #12)
@@ -59,6 +60,39 @@ class AppConfig:
     top_per_axis_count: int = 3
 
 
+def _parse_scoring_weights(w: dict, default: ScoringWeights | None = None) -> ScoringWeights:
+    d = default or ScoringWeights()
+    return ScoringWeights(
+        issue_clarification=w.get("issue_clarification", d.issue_clarification),
+        decision_progress=w.get("decision_progress", d.decision_progress),
+        risk_detection=w.get("risk_detection", d.risk_detection),
+        actionability=w.get("actionability", d.actionability),
+        groundedness=w.get("groundedness", d.groundedness),
+        novelty=w.get("novelty", d.novelty),
+        summarization=w.get("summarization", d.summarization),
+    )
+
+
+def get_weights_for_type(config: AppConfig, meeting_type: str | None) -> ScoringWeights:
+    """会議タイプに対応する重みを返す。未指定・未定義の場合はデフォルト重みを返す。"""
+    if meeting_type and meeting_type in config.meeting_type_weights:
+        return config.meeting_type_weights[meeting_type]
+    return config.weights
+
+
+def max_total_score(weights: ScoringWeights) -> float:
+    """与えられた重みセットにおける最大総合スコアを返す（全軸 3 点満点時）。"""
+    return (
+        weights.issue_clarification
+        + weights.decision_progress
+        + weights.risk_detection
+        + weights.actionability
+        + weights.groundedness
+        + weights.novelty
+        + weights.summarization
+    ) * 3
+
+
 def load_config(path: str | Path | None = None) -> AppConfig:
     """config.yaml から設定を読み込む"""
     path = Path(path) if path else _CONFIG_PATH
@@ -69,16 +103,7 @@ def load_config(path: str | Path | None = None) -> AppConfig:
     with path.open("r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
 
-    w = raw.get("weights", {})
-    weights = ScoringWeights(
-        issue_clarification=w.get("issue_clarification", 1.3),
-        decision_progress=w.get("decision_progress", 1.5),
-        risk_detection=w.get("risk_detection", 1.2),
-        actionability=w.get("actionability", 1.3),
-        groundedness=w.get("groundedness", 0.8),
-        novelty=w.get("novelty", 0.9),
-        summarization=w.get("summarization", 0.8),
-    )
+    weights = _parse_scoring_weights(raw.get("weights", {}))
 
     p = raw.get("penalties", {})
     penalty_weights = PenaltyWeights(
@@ -88,6 +113,11 @@ def load_config(path: str | Path | None = None) -> AppConfig:
         unsupported_assertion=p.get("unsupported_assertion", 1.0),
     )
 
+    mtw_raw = raw.get("meeting_type_weights", {})
+    meeting_type_weights = {
+        mt: _parse_scoring_weights(w, weights) for mt, w in mtw_raw.items()
+    }
+
     ctx = raw.get("context", {})
     llm = raw.get("llm", {})
     agg = raw.get("aggregation", {})
@@ -95,6 +125,7 @@ def load_config(path: str | Path | None = None) -> AppConfig:
     return AppConfig(
         weights=weights,
         penalty_weights=penalty_weights,
+        meeting_type_weights=meeting_type_weights,
         context_before=ctx.get("before_count", 3),
         context_after=ctx.get("after_count", 3),
         llm_backend=llm.get("backend", "openai"),

@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { fetchSamples, listMeetings, getMeeting, deleteMeeting } from '../api/client'
-import type { SampleFile, SavedMeetingMeta, MeetingSummary } from '../types/meeting'
+import type { MeetingType, SampleFile, SavedMeetingMeta, MeetingSummary } from '../types/meeting'
+import { MEETING_TYPE_LABELS, MEETING_TYPE_AXES } from '../types/meeting'
 
 interface Props {
-  onAnalyzeSample: (filename: string) => void
-  onAnalyzeJson: (data: unknown) => void
+  onAnalyzeSample: (filename: string, meetingType?: MeetingType) => void
+  onAnalyzeJson: (data: unknown, meetingType?: MeetingType) => void
   onRestore: (data: MeetingSummary) => void
   historyVersion: number
 }
+
+const MEETING_TYPES: MeetingType[] = ['decision', 'brainstorming', 'progress', 'retrospective']
 
 type InputMode = 'none' | 'file' | 'paste'
 
@@ -43,6 +46,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
   const [mode, setMode] = useState<InputMode>('none')
   const [pasteText, setPasteText] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [meetingType, setMeetingType] = useState<MeetingType | undefined>(undefined)
 
   const [history, setHistory] = useState<SavedMeetingMeta[]>([])
   const [historyStatus, setHistoryStatus] = useState<'loading' | 'ok' | 'error'>('loading')
@@ -66,7 +70,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
     if (!file) return
     try {
       const text = await file.text()
-      onAnalyzeJson(JSON.parse(text) as unknown)
+      onAnalyzeJson(JSON.parse(text) as unknown, meetingType)
     } catch (err) {
       alert(`JSONの読み込みに失敗しました: ${String(err)}`)
     }
@@ -75,7 +79,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
 
   const handlePasteSubmit = () => {
     try {
-      onAnalyzeJson(JSON.parse(pasteText) as unknown)
+      onAnalyzeJson(JSON.parse(pasteText) as unknown, meetingType)
     } catch (err) {
       alert(`JSONのパースに失敗しました: ${String(err)}`)
     }
@@ -109,6 +113,50 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
         <div className="wf-h1" style={{ marginBottom: 4 }}>会議ログを取り込む</div>
         <div className="wf-note" style={{ marginBottom: 22 }}>
           取り込み元を選ぶか、サンプルデータで試してください
+        </div>
+
+        {/* Meeting type selector */}
+        <div style={{ marginBottom: 22 }}>
+          <div className="wf-h3" style={{ marginBottom: 8 }}>会議タイプ（任意）</div>
+          <div className="wf-note" style={{ marginBottom: 10 }}>
+            選択した会議タイプに合わせた重みで評価します。未選択時はデフォルト重みを使用します。
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+            {MEETING_TYPES.map((t) => (
+              <div
+                key={t}
+                className={`wf-box wf-pad${meetingType === t ? ' accent' : ''}`}
+                style={{ cursor: 'pointer', padding: '10px 14px' }}
+                onClick={() => setMeetingType(meetingType === t ? undefined : t)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{
+                    width: 16, height: 16,
+                    border: '1.5px solid var(--ink)',
+                    borderRadius: '50%',
+                    display: 'grid', placeItems: 'center',
+                    flexShrink: 0,
+                    background: meetingType === t ? 'var(--ink)' : 'transparent',
+                  }} />
+                  <div>
+                    <div className="wf-h3" style={{ fontSize: 13 }}>{MEETING_TYPE_LABELS[t]}</div>
+                    <div className="wf-note" style={{ fontSize: 11 }}>{MEETING_TYPE_AXES[t]}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {meetingType && (
+            <div style={{ marginTop: 8, textAlign: 'right' }}>
+              <button
+                className="btn ghost sm"
+                style={{ fontSize: 11, color: 'var(--ink-3)' }}
+                onClick={() => setMeetingType(undefined)}
+              >
+                選択を解除
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Connector cards */}
@@ -225,7 +273,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
                     <td style={{ textAlign: 'right' }}>
                       <button
                         className="btn sm"
-                        onClick={() => onAnalyzeSample(s.filename)}
+                        onClick={() => onAnalyzeSample(s.filename, meetingType)}
                       >
                         分析する →
                       </button>
@@ -263,6 +311,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
               <thead>
                 <tr>
                   <th>会議タイトル</th>
+                  <th>タイプ</th>
                   <th>日時</th>
                   <th>話者</th>
                   <th>発言数</th>
@@ -275,6 +324,9 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
                   <>
                     <tr key={m.id}>
                       <td>{m.title}</td>
+                      <td style={{ color: 'var(--ink-3)', fontSize: 11, whiteSpace: 'nowrap' }}>
+                        {m.meeting_type ? MEETING_TYPE_LABELS[m.meeting_type] : '—'}
+                      </td>
                       <td style={{ whiteSpace: 'nowrap', color: 'var(--ink-3)', fontSize: 11 }}>
                         {formatDate(m.created_at)}
                       </td>
@@ -305,7 +357,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
                     </tr>
                     {confirmId === m.id && (
                       <tr key={`${m.id}-confirm`}>
-                        <td colSpan={6}>
+                        <td colSpan={7}>
                           <div className="history-confirm">
                             <span>「{m.title}」を削除しますか？</span>
                             <button className="history-confirm-yes" onClick={() => handleDelete(m.id)}>削除する</button>

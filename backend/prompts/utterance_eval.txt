@@ -3,6 +3,7 @@
 話し方の上手さや肩書きではなく、会議目的への実質的な貢献で採点してください。
 
 ## 会議情報
+- 会議タイプ: $meeting_type
 - 会議目的: $meeting_goal
 - アジェンダ: $agenda
 - 決めるべき事項: $decision_points

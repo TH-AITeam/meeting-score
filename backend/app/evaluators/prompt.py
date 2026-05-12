@@ -93,10 +93,24 @@ def _format_utterances(utterances) -> str:
     return "\n".join(f"[{u.timestamp}] {u.speaker}: {u.text}" for u in utterances)
 
 
+_MEETING_TYPE_LABELS: dict[str, str] = {
+    "decision": "意思決定会議（重視軸：意思決定寄与・根拠性・リスク検知）",
+    "brainstorming": "ブレスト会議（重視軸：新規性・論点整理・根拠性）",
+    "progress": "進捗共有・定例（重視軸：アクション化・リスク検知・要約）",
+    "retrospective": "振り返り・レビュー（重視軸：根拠性・リスク検知・要約・論点整理）",
+}
+
+
 def build_prompt(ctx: EvaluationContext) -> str:
     """EvaluationContext からプロンプト文字列を構築する。"""
     template = _load_prompt_template()
+    meeting_type_label = (
+        _MEETING_TYPE_LABELS.get(ctx.meeting_type, ctx.meeting_type)
+        if ctx.meeting_type
+        else "(未指定)"
+    )
     return template.substitute(
+        meeting_type=meeting_type_label,
         meeting_goal=ctx.meeting_goal,
         agenda="、".join(ctx.agenda) if ctx.agenda else "(なし)",
         decision_points="、".join(ctx.decision_points) if ctx.decision_points else "(なし)",
