@@ -122,9 +122,7 @@ def top_k_jaccard(
     return len(h & s) / len(union) if union else 0.0
 
 
-def _winner_from_scores(
-    score_a: float, score_b: float, tie_threshold: float
-) -> str:
+def _winner_from_scores(score_a: float, score_b: float, tie_threshold: float) -> str:
     if abs(score_a - score_b) <= tie_threshold:
         return "tie"
     return "A_better" if score_a > score_b else "B_better"
@@ -176,9 +174,7 @@ def pairwise_accuracy(
             n_skipped += 1
             continue
         human = p.winner
-        system = _winner_from_scores(
-            system_scores[p.utt_a], system_scores[p.utt_b], tie_threshold
-        )
+        system = _winner_from_scores(system_scores[p.utt_a], system_scores[p.utt_b], tie_threshold)
         counts[human]["total_in_human"] += 1
         counts[system]["total_in_system"] += 1
         if human == system:
