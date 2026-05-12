@@ -66,21 +66,30 @@ SAMPLE="${SAMPLE:-data/sample_meetings/sample_meeting_01.json}"
 N_STABILITY="${N_STABILITY:-5}"
 N_LATENCY="${N_LATENCY:-100}"
 PORT="${PORT:-8000}"
-GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.90}"
-MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
+GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.92}"
+# 32GB VRAM 環境では既定 8K でも 27B/32B クラスは KV cache で OOM するため 4K に絞る
+MAX_MODEL_LEN="${MAX_MODEL_LEN:-4096}"
+# KV cache を fp8 にして容量を半減（精度劣化は軽微）
+KV_CACHE_DTYPE="${KV_CACHE_DTYPE:-fp8}"
+# 同時並列実行数（既定 256 だと KV cache を食いすぎる）
+MAX_NUM_SEQS="${MAX_NUM_SEQS:-16}"
 LOG_DIR="${LOG_DIR:-/tmp/meeting-score-vllm}"
 mkdir -p "$LOG_DIR"
 
 # --------------------------------------------------------------------------
 # 候補モデル一覧（--all 時に順に回す）
 # 形式: "HF_ID|SERVED_NAME|EXTRA_VLLM_ARGS"
+#
+# EXTRA に --enforce-eager を付けるとモデル本体側のメモリ削減。
+# 27B BnB は CUDA graph のための余分なバッファすら確保できないので必須。
 # --------------------------------------------------------------------------
 CANDIDATES=(
   # Qwen3.6-27B は公式に AWQ/GPTQ チェックポイントがないため、BitsAndBytes NF4 で
   # オンザフライ 4bit 量子化する。bf16 だと 54GB で 32GB に乗らない。
-  "Qwen/Qwen3.6-27B|qwen3.6-27b-bnb|--quantization bitsandbytes --dtype auto"
+  # 32GB に詰めるため --enforce-eager で CUDA graph を無効化（推論は数 % 遅くなる）。
+  "Qwen/Qwen3.6-27B|qwen3.6-27b-bnb|--quantization bitsandbytes --dtype auto --enforce-eager"
   "Qwen/Qwen3-14B|qwen3-14b-bf16|--dtype bfloat16"
-  "Qwen/Qwen2.5-32B-Instruct-AWQ|qwen2.5-32b-awq|--quantization awq_marlin --dtype auto"
+  "Qwen/Qwen2.5-32B-Instruct-AWQ|qwen2.5-32b-awq|--quantization awq_marlin --dtype auto --enforce-eager"
   "tokyotech-llm/Llama-3.1-Swallow-8B-Instruct-v0.3|swallow-3.1-8b-bf16|--dtype bfloat16"
   "microsoft/phi-4|phi-4-14b-bf16|--dtype bfloat16"
 )
@@ -120,6 +129,8 @@ benchmark_one() {
       --port "$PORT" \
       --gpu-memory-utilization "$GPU_MEM_UTIL" \
       --max-model-len "$MAX_MODEL_LEN" \
+      --kv-cache-dtype "$KV_CACHE_DTYPE" \
+      --max-num-seqs "$MAX_NUM_SEQS" \
       $guided_args \
       $extra > "$vllm_log" 2>&1 &
   local vllm_pid=$!
