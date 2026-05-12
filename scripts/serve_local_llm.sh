@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # vLLM OpenAI 互換サーバ起動スクリプト (Issue #12)
 #
-# 採用モデル名は Issue #17 (判断モデル選定) で決定後、
+# 採用モデル名は Issue #18 (判断モデル選定) で決定後、
 # 環境変数 MODEL を上書きする想定。
+# 比較ベンチマークを回したい場合は scripts/run_model_benchmark.sh を使う。
 #
 # 使い方:
 #   # 既定モデルで起動
