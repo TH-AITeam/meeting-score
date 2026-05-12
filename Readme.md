@@ -459,7 +459,12 @@ sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
 
 # 依存関係インストール
 task setup
+
+# pre-commit フックのインストール（初回のみ）
+uv run pre-commit install
 ```
+
+`pre-commit install` を実行すると、以降の `git commit` 時に Ruff（lint + format）が自動実行されます。
 
 ## よく使うコマンド
 
