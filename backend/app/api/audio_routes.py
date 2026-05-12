@@ -16,6 +16,7 @@ from pathlib import Path
 
 import yaml
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app.asr.cli import transcribe_to_meeting_input
 
@@ -78,7 +79,8 @@ async def upload_audio(
             len(content),
             mid,
         )
-        mi = transcribe_to_meeting_input(
+        mi = await run_in_threadpool(
+            transcribe_to_meeting_input,
             tmp_path,
             meeting_id=mid,
             cfg=cfg,

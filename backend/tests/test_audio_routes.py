@@ -149,6 +149,40 @@ def test_upload_audio_passes_form_fields(monkeypatch: pytest.MonkeyPatch) -> Non
     assert captured["use_meta_extractor"] is False
 
 
+def test_upload_audio_runs_processing_in_threadpool(monkeypatch: pytest.MonkeyPatch) -> None:
+    """重い音声処理本体は event loop 上ではなく threadpool 経由で呼ぶ。"""
+    captured: dict[str, Any] = {}
+
+    def _fake(audio_path, **kwargs):
+        return _dummy_meeting_input(kwargs["meeting_id"])
+
+    async def _fake_threadpool(func, *args, **kwargs):
+        captured["func"] = func
+        captured["meeting_id"] = kwargs["meeting_id"]
+        return func(*args, **kwargs)
+
+    app = FastAPI()
+    app.include_router(audio_router, prefix="/api")
+    app.state.config = AppConfig(
+        weights=ScoringWeights(),
+        penalty_weights=PenaltyWeights(),
+        llm_model="dummy",
+    )
+    monkeypatch.setattr("app.api.audio_routes.transcribe_to_meeting_input", _fake)
+    monkeypatch.setattr("app.api.audio_routes.run_in_threadpool", _fake_threadpool)
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("a.wav", BytesIO(b"x"), "audio/wav")},
+        data={"meeting_id": "m_thread"},
+    )
+
+    assert response.status_code == 200
+    assert captured["func"] is _fake
+    assert captured["meeting_id"] == "m_thread"
+
+
 def test_upload_audio_returns_500_on_processing_error(monkeypatch: pytest.MonkeyPatch) -> None:
     """transcribe が例外を投げたら 500 + 詳細メッセージ。"""
 
