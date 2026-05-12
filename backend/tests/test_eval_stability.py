@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from app.context_builder.builder import build_contexts
 from app.schemas.models import MeetingInput, Penalties, Scores, Utterance
-
 from evals.protocol import EvaluationResult
 from evals.stability import AXES, _stdev, evaluate_stability
 
@@ -16,7 +15,7 @@ def _meeting(n: int = 3) -> MeetingInput:
         goal="stab",
         utterances=[
             Utterance(
-                utterance_id=f"u{i+1:03d}",
+                utterance_id=f"u{i + 1:03d}",
                 speaker=f"s{i}",
                 timestamp=f"00:0{i}:00",
                 text=f"発言{i}",
@@ -29,7 +28,7 @@ def _meeting(n: int = 3) -> MeetingInput:
 class _DeterministicEvaluator:
     """毎回同じスコアを返す。SD は 0 になるはず。"""
 
-    def evaluate(self, ctx) -> EvaluationResult:  # noqa: ARG002
+    def evaluate(self, ctx) -> EvaluationResult:
         return EvaluationResult(
             speech_type="提案",
             scores=Scores(
@@ -52,7 +51,7 @@ class _VaryingEvaluator:
         self.calls = 0
         self._series = [0, 1, 2, 3, 3]
 
-    def evaluate(self, ctx) -> EvaluationResult:  # noqa: ARG002
+    def evaluate(self, ctx) -> EvaluationResult:
         v = self._series[self.calls % len(self._series)]
         self.calls += 1
         return EvaluationResult(
