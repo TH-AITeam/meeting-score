@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.context_builder.builder import EvaluationContext
-
     from evals.protocol import Evaluator
 
 # Scores 上の 7軸
@@ -61,10 +60,7 @@ class MeetingStability:
         """会議内の全発言について、軸ごとの最大 SD。"""
         if not self.utterances:
             return dict.fromkeys(AXES, 0.0)
-        return {
-            axis: max(u.sd_per_axis[axis] for u in self.utterances)
-            for axis in AXES
-        }
+        return {axis: max(u.sd_per_axis[axis] for u in self.utterances) for axis in AXES}
 
 
 def _stdev(values: list[float]) -> float:
@@ -76,14 +72,12 @@ def _stdev(values: list[float]) -> float:
     return (sum((v - mean) ** 2 for v in values) / n) ** 0.5
 
 
-def _scores_to_dict(scores) -> dict[str, int]:  # noqa: ANN001
+def _scores_to_dict(scores) -> dict[str, int]:
     """Scores Pydantic モデルを軸ごとの dict に変換する。"""
     return {axis: int(getattr(scores, axis)) for axis in AXES}
 
 
-def _summarize_utterance(
-    utterance_id: str, samples: list[dict[str, int]]
-) -> UtteranceStability:
+def _summarize_utterance(utterance_id: str, samples: list[dict[str, int]]) -> UtteranceStability:
     sd: dict[str, float] = {}
     rng: dict[str, int] = {}
     for axis in AXES:
@@ -115,9 +109,7 @@ def evaluate_stability(
         for _ in range(n_samples):
             result = evaluator.evaluate(ctx)
             samples.append(_scores_to_dict(result.scores))
-        meeting.utterances.append(
-            _summarize_utterance(ctx.target_utterance.utterance_id, samples)
-        )
+        meeting.utterances.append(_summarize_utterance(ctx.target_utterance.utterance_id, samples))
     return meeting
 
 
