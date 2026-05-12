@@ -479,17 +479,53 @@ cd backend && python -m evals.cli run \
 
 ---
 
-# 音声処理パイプライン (Issue #19, Proposed)
+# 音声入力パイプライン (Issue #11 + Issue #19)
 
-会議の生音声を「発言単位 + 話者ラベル + テキスト + word-level timestamp」に変換するパイプラインの構成。本実装は Issue #11 で行う。
+会議の生音声 (wav/mp3/m4a/flac/ogg) を「発言単位 + 話者ラベル + テキスト + word-level timestamp」を持つ `MeetingInput` JSON に変換するパイプライン。本実装は Issue #11 / モデル選定は Issue #19 (ADR 0002, Proposed) で扱う。
 
-- **ASR (採用候補)**: WhisperX (`openai/whisper-large-v3` を faster-whisper backend で利用)
-- **話者分離 (採用候補)**: pyannote/speaker-diarization-3.1
-- **音量分析 (補助)**: librosa による RMS energy 計算 → `silent` / `low` / `mid` / `high` を `Utterance.volume_level` に付与
-- 採用根拠と落選理由: `docs/audio_model_candidates.md` / `docs/adr/0002-audio-model.md`
-- 想定品質 (CER / DER): **TBD**。SSH 先 (RTX 5090) で `scripts/run_audio_benchmark.sh --all` を回した実測値で `docs/audio_model_selection_v1.md` を埋めた後に転記する
+- **ASR**: WhisperX (`openai/whisper-large-v3` を faster-whisper backend で利用)
+- **話者分離**: pyannote/speaker-diarization-3.1 (HF gated、要 `HUGGINGFACE_HUB_TOKEN`)
+- **音量分析 (補助)**: librosa による RMS energy → `silent` / `low` / `mid` / `high` を `Utterance.volume_level` に付与
+- **連続発話結合**: 同一話者で無音 3 秒未満なら 1 発言にマージ
+- **メタ抽出**: 書き起こし全文を #18 採用 LLM (`unsloth/Qwen3.6-35B-A3B-NVFP4` 等) に投げて title / goal / agenda / decision_points を 1 コール抽出
+- 採用根拠: `docs/audio_model_candidates.md` / `docs/audio_model_selection_v1.md` / `docs/adr/0002-audio-model.md`
+- 想定品質 (CER / DER): **TBD**。SSH 先 (RTX 5090) で `scripts/run_audio_benchmark.sh --all` を回した実測値で確定
 
-## SSH 先での実測手順
+## CLI で音声 → MeetingInput JSON
+
+```bash
+cd backend
+source .venv/bin/activate
+python -m app.asr.cli \
+    --input ../data/sample_audio/meeting.wav \
+    --output ../data/stored_meetings/m042.json \
+    --meeting-id m042
+```
+
+メタ抽出をスキップする場合 (LLM 不要、手で title/goal を埋める):
+
+```bash
+python -m app.asr.cli \
+    --input meeting.wav --output meeting.json --meeting-id m042 \
+    --no-meta-extract --title "新機能企画" --goal "リリース範囲を決める"
+```
+
+## FastAPI 経由
+
+```bash
+# サーバ起動
+cd backend && uv run uvicorn app.api.main:app --reload
+
+# 別ターミナルから
+curl -X POST http://localhost:8000/api/upload_audio \
+    -F "file=@meeting.wav" \
+    -F "meeting_id=m042" \
+    -F "title=新機能企画"
+```
+
+生成された MeetingInput JSON は `POST /api/analyze` にそのまま流せます (既存パイプラインがそのまま動く)。
+
+## SSH 先での実測ベンチ (Issue #19 の完了条件)
 
 ```bash
 cd ~/mtg-score/meeting-score
@@ -503,7 +539,7 @@ export HUGGINGFACE_HUB_TOKEN=hf_xxxxx           # pyannote の gated repo アク
 bash scripts/run_audio_benchmark.sh --all
 ```
 
-結果は `reports/audio_benchmarks/{model_id}/{asr,diar}.json` に出る。`docs/audio_model_selection_v1.md` の各表に転記。
+結果は `reports/audio_benchmarks/{model_id}/{asr,diar}.json` に出る。`docs/audio_model_selection_v1.md` の各表に転記して ADR 0002 を Accepted に切替えます。
 
 ---
 
@@ -511,8 +547,10 @@ bash scripts/run_audio_benchmark.sh --all
 
 * `AGENT.md`: 実装エージェント向けの作業指示書
 * `data/annotations/README.md`: アノテーションスキーマ
-* `data/eval_audio/README.md`: 音声処理モデル評価データの準備手順
+* `data/eval_audio/README.md`: 音声処理モデル評価データの準備手順 (Issue #19 ベンチ用)
+* `data/sample_audio/README.md`: 音声入力 CLI / API 動作確認用音声の置き方
 * `docs/audio_model_candidates.md` / `docs/audio_model_selection_v1.md` / `docs/adr/0002-audio-model.md`: 音声モデル選定
+* `backend/prompts/meta_extraction.txt`: 書き起こしから会議メタを抽出する LLM プロンプト
 * 会議貢献度スコアリング MVP 仕様書: 詳細仕様
 
 ---
