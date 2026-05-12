@@ -439,8 +439,19 @@ make test-cov    # カバレッジ付きテスト
 
 ## ローカルで CI と同じチェックを実行する
 
+**フロントエンド**
+
 ```bash
-# バックエンド
+cd frontend
+npm ci
+npm run typecheck
+npm run lint
+npm run build
+```
+
+**バックエンド**
+
+```bash
 cd backend
 
 # lint
