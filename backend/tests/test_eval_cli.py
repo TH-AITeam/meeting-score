@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import evals.cli as cli
 from app.context_builder.builder import EvaluationContext
 from app.schemas.models import MeetingInput, Penalties, Scores, Utterance
+from app.scoring.weights import PenaltyWeights, ScoringWeights
 
 
 def _make_ctx() -> EvaluationContext:
@@ -46,6 +47,66 @@ def test_llm_evaluator_adapter_passes_temperature(monkeypatch) -> None:
     adapter.evaluate(_make_ctx())
 
     assert captured["temperature"] == 0.7
+
+
+def test_cmd_run_passes_penalty_weights_to_runner(monkeypatch, capsys) -> None:
+    captured: dict = {}
+    penalty_weights = PenaltyWeights(duplication=2.0)
+
+    class _FakeAdapter:
+        def __init__(self, **kwargs) -> None:
+            captured["adapter_kwargs"] = kwargs
+
+    class _FakeReport:
+        def to_dict(self) -> dict:
+            return {
+                "macro": {
+                    "spearman": 0.0,
+                    "kendall_tau": 0.0,
+                    "top5_jaccard": 0.0,
+                    "bottom5_jaccard": 0.0,
+                    "pairwise_accuracy": 0.0,
+                },
+                "per_meeting": [],
+            }
+
+    def _fake_run_eval(dataset, evaluator, weights, passed_penalty_weights, **kwargs):
+        captured["dataset"] = dataset
+        captured["weights"] = weights
+        captured["penalty_weights"] = passed_penalty_weights
+        captured["runner_kwargs"] = kwargs
+        return _FakeReport()
+
+    monkeypatch.setattr(cli, "LLMEvaluatorAdapter", _FakeAdapter)
+    monkeypatch.setattr(cli, "run_eval", _fake_run_eval)
+    monkeypatch.setattr(
+        cli,
+        "load_config",
+        lambda: SimpleNamespace(
+            weights=ScoringWeights(),
+            penalty_weights=penalty_weights,
+            llm_model="gpt-test",
+            llm_max_tokens=10,
+            llm_max_retries=1,
+            context_before=2,
+            context_after=4,
+        ),
+    )
+
+    args = SimpleNamespace(
+        config=None,
+        model=None,
+        dataset="dataset",
+        meetings_dir=None,
+        out=None,
+    )
+
+    assert cli._cmd_run(args) == 0
+    assert captured["penalty_weights"] is penalty_weights
+    assert captured["runner_kwargs"]["context_before"] == 2
+    assert captured["runner_kwargs"]["context_after"] == 4
+
+    capsys.readouterr()
 
 
 def test_cmd_stability_uses_stability_temperature(monkeypatch, capsys) -> None:

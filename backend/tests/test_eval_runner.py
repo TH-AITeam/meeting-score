@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 
 from app.schemas.models import Penalties, Scores
-from app.scoring.weights import ScoringWeights
+from app.scoring.weights import PenaltyWeights, ScoringWeights
 from evals.protocol import EvaluationResult
 from evals.runner import _evaluate_meeting, _human_ranks_from_pairs, run_eval
 from evals.schema import PairwiseAnnotation
@@ -50,6 +50,15 @@ class _NeutralEvaluator:
             speech_type="情報共有",
             scores=Scores(),
             penalties=Penalties(),
+        )
+
+
+class _DuplicationPenaltyEvaluator:
+    def evaluate(self, ctx) -> EvaluationResult:
+        return EvaluationResult(
+            speech_type="情報共有",
+            scores=Scores(),
+            penalties=Penalties(duplication=-1),
         )
 
 
@@ -119,6 +128,48 @@ def test_evaluate_meeting_applies_rule_corrections(tmp_path):
     assert evaluated[0].penalties.duplication == 0
     assert evaluated[1].penalties.duplication == -1
     assert evaluated[1].total_score == -1.0
+
+
+def test_evaluate_meeting_applies_penalty_weights_to_totals_and_corrections(tmp_path):
+    meeting_file = tmp_path / "m_weighted_dup.json"
+    meeting_file.write_text(
+        json.dumps(
+            {
+                "meeting_id": "m_weighted_dup",
+                "title": "dup",
+                "goal": "dup",
+                "utterances": [
+                    {
+                        "utterance_id": "u001",
+                        "speaker": "A",
+                        "timestamp": "00:00:01",
+                        "text": "同じ内容です。",
+                    },
+                    {
+                        "utterance_id": "u002",
+                        "speaker": "B",
+                        "timestamp": "00:00:02",
+                        "text": "同じ内容です。",
+                    },
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    meeting_id, evaluated = _evaluate_meeting(
+        meeting_file,
+        _DuplicationPenaltyEvaluator(),
+        ScoringWeights(),
+        penalty_weights=PenaltyWeights(duplication=2.0),
+    )
+
+    assert meeting_id == "m_weighted_dup"
+    assert evaluated[0].penalties.duplication == -1
+    assert evaluated[0].total_score == -2.0
+    assert evaluated[1].penalties.duplication == -2
+    assert evaluated[1].total_score == -4.0
 
 
 def test_run_eval_with_real_sample_meeting(tmp_path):
