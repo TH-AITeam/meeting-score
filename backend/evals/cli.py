@@ -28,7 +28,6 @@ from app.context_builder.builder import build_contexts
 from app.evaluators.llm_evaluator import evaluate_utterance
 from app.ingest.loader import load_meeting_from_file
 from app.scoring.weights import load_config
-
 from evals.protocol import EvaluationResult
 from evals.runner import run_eval
 from evals.stability import evaluate_stability
@@ -159,20 +158,16 @@ def _cmd_stability(args: argparse.Namespace) -> int:
         json.dump(payload, sys.stdout, ensure_ascii=False, indent=2, default=str)
         sys.stdout.write("\n")
 
-    print(
-        "stability: mean_sd_axes={m} max_sd_axes={x}".format(
-            m={k: round(v, 3) for k, v in stability.mean_sd_per_axis.items()},
-            x={k: round(v, 3) for k, v in stability.max_sd_per_axis.items()},
-        ),
-        file=sys.stderr,
-    )
+    mean_sd = {k: round(v, 3) for k, v in stability.mean_sd_per_axis.items()}
+    max_sd = {k: round(v, 3) for k, v in stability.max_sd_per_axis.items()}
+    print(f"stability: mean_sd_axes={mean_sd} max_sd_axes={max_sd}", file=sys.stderr)
     return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="eval", description="eval ハーネス")
-    parser.add_argument("--config", help="config.yaml のパス（既定: backend/config.yaml）")
-    parser.add_argument("--model", help="LLM モデル名（既定: config.yaml の値）")
+    parser.add_argument("--config", help="config.yaml のパス (既定: backend/config.yaml)")
+    parser.add_argument("--model", help="LLM モデル名 (既定: config.yaml の値)")
 
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -184,7 +179,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     stab_p = sub.add_parser("stability", help="同一会議を N 回採点して分散を測る")
     stab_p.add_argument("--meeting", required=True, help="会議 JSON のパス")
-    stab_p.add_argument("--n", type=int, default=5, help="サンプル数（既定 5）")
+    stab_p.add_argument("--n", type=int, default=5, help="サンプル数 (既定 5)")
     stab_p.add_argument("--out", help="JSON 出力先")
     stab_p.set_defaults(func=_cmd_stability)
 
