@@ -49,10 +49,34 @@ tasks:
     cmds:
       - uv run pytest --cov=app --cov-report=xml --cov-report=term --cov-fail-under=70
 
+  # ---------- frontend ----------
+  frontend:typecheck:
+    desc: "TypeScript 型チェック"
+    dir: frontend
+    cmds:
+      - npm run typecheck
+
+  frontend:lint:
+    desc: "ESLint"
+    dir: frontend
+    cmds:
+      - npm run lint
+
+  frontend:build:
+    desc: "Vite ビルド"
+    dir: frontend
+    cmds:
+      - npm run build
+    env:
+      VITE_API_BASE_URL: ""
+
   # ---------- CI 一括 ----------
   ci:
-    desc: "CI と同じ lint + test を一括実行"
+    desc: "CI と同じ lint + test を一括実行（フロントエンド含む）"
     cmds:
+      - task: frontend:typecheck
+      - task: frontend:lint
+      - task: frontend:build
       - task: lint
       - task: format:check
       - task: typecheck
