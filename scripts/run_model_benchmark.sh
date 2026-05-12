@@ -61,6 +61,15 @@ if ! "$PYTHON" -c "import vllm" >/dev/null 2>&1; then
   exit 1
 fi
 
+# Blackwell (sm_120 / RTX 5090) では FlashInfer の JIT が "requires sm75" で落ちる。
+# vLLM の attention backend を Triton に倒して FlashInfer を経由しないようにする。
+# 他環境では VLLM_ATTENTION_BACKEND を空にして既定 (FlashInfer / FlashAttn) に戻せる。
+export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-TRITON_ATTN}"
+# FlashInfer の JIT が走るときに CUDA arch を指定しておく (念のため、Blackwell)
+export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-12.0}"
+echo "VLLM_ATTENTION_BACKEND=${VLLM_ATTENTION_BACKEND}"
+echo "TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}"
+
 DATASET="${DATASET:-data/annotations/gold/v1}"
 SAMPLE="${SAMPLE:-data/sample_meetings/sample_meeting_01.json}"
 N_STABILITY="${N_STABILITY:-5}"
