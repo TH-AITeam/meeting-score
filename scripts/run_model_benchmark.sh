@@ -76,9 +76,11 @@ mkdir -p "$LOG_DIR"
 # 形式: "HF_ID|SERVED_NAME|EXTRA_VLLM_ARGS"
 # --------------------------------------------------------------------------
 CANDIDATES=(
-  "Qwen/Qwen3.6-27B-Instruct-AWQ|qwen3.6-27b-awq|--quantization awq_marlin --dtype auto"
-  "Qwen/Qwen3-14B-Instruct|qwen3-14b-bf16|--dtype bfloat16"
-  "meta-llama/Llama-3.3-8B-Instruct|llama-3.3-8b-bf16|--dtype bfloat16"
+  # Qwen3.6-27B は公式に AWQ/GPTQ チェックポイントがないため、BitsAndBytes NF4 で
+  # オンザフライ 4bit 量子化する。bf16 だと 54GB で 32GB に乗らない。
+  "Qwen/Qwen3.6-27B|qwen3.6-27b-bnb|--quantization bitsandbytes --dtype auto"
+  "Qwen/Qwen3-14B|qwen3-14b-bf16|--dtype bfloat16"
+  "Qwen/Qwen2.5-32B-Instruct-AWQ|qwen2.5-32b-awq|--quantization awq_marlin --dtype auto"
   "tokyotech-llm/Llama-3.1-Swallow-8B-Instruct-v0.3|swallow-3.1-8b-bf16|--dtype bfloat16"
   "microsoft/phi-4|phi-4-14b-bf16|--dtype bfloat16"
 )
@@ -123,9 +125,12 @@ benchmark_one() {
   local vllm_pid=$!
   trap 'kill $vllm_pid 2>/dev/null || true' EXIT
 
-  # ヘルスチェックでロード完了を待つ（最大 600 秒）
-  echo "Waiting for vLLM to load model..."
-  for i in $(seq 1 60); do
+  # ヘルスチェックでロード完了を待つ
+  # 既定 1800 秒 = 30 分。27B BnB 等の初回ロードは長い。
+  local max_wait_sec="${VLLM_READY_TIMEOUT:-1800}"
+  local iters=$(( max_wait_sec / 10 ))
+  echo "Waiting for vLLM to load model (timeout ${max_wait_sec}s)..."
+  for i in $(seq 1 "$iters"); do
     if curl -fsS "http://127.0.0.1:${PORT}/v1/models" >/dev/null 2>&1; then
       echo "  ready after ~$((i * 10))s"
       break

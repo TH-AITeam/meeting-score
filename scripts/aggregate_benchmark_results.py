@@ -32,22 +32,22 @@ from typing import Any
 # モデル名 (served_name) → ライセンス / 量子化 / 学習しやすさ の手書きメタ。
 # 候補が増えたら model_candidates.md と同期して追記する。
 MODEL_META: dict[str, dict[str, str]] = {
-    "qwen3.6-27b-awq": {
-        "label": "Qwen3.6-27B-Instruct",
-        "quant": "AWQ INT4",
+    "qwen3.6-27b-bnb": {
+        "label": "Qwen3.6-27B",
+        "quant": "BnB NF4 (on-the-fly)",
         "license": "Apache 2.0",
         "trainability": "★★★",
     },
     "qwen3-14b-bf16": {
-        "label": "Qwen3-14B-Instruct",
+        "label": "Qwen3-14B",
         "quant": "bf16",
         "license": "Apache 2.0",
         "trainability": "★★★",
     },
-    "llama-3.3-8b-bf16": {
-        "label": "Llama-3.3-8B-Instruct",
-        "quant": "bf16",
-        "license": "Llama 3 CL",
+    "qwen2.5-32b-awq": {
+        "label": "Qwen2.5-32B-Instruct-AWQ",
+        "quant": "AWQ INT4",
+        "license": "Apache 2.0",
         "trainability": "★★★",
     },
     "swallow-3.1-8b-bf16": {
@@ -163,9 +163,9 @@ def _format_table(results: list[ModelResult]) -> str:
 
     # docs/model_candidates.md の並び順に揃える
     desired_order = [
-        "qwen3.6-27b-awq",
+        "qwen3.6-27b-bnb",
         "qwen3-14b-bf16",
-        "llama-3.3-8b-bf16",
+        "qwen2.5-32b-awq",
         "swallow-3.1-8b-bf16",
         "phi-4-14b-bf16",
     ]
