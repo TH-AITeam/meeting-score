@@ -494,7 +494,7 @@ cd backend && python -m evals.cli run \
 ```bash
 cd ~/mtg-score/meeting-score
 source backend/.venv/bin/activate
-uv sync --extra audio                          # whisperx / pyannote-audio / librosa を導入
+cd backend && uv sync --extra audio && cd ..    # whisperx / pyannote-audio / librosa を導入
 export HUGGINGFACE_HUB_TOKEN=hf_xxxxx           # pyannote の gated repo アクセス用
 
 # data/eval_audio/ に最低 3 本の評価音声と reference.txt / speakers.rttm を準備
