@@ -64,12 +64,19 @@ def _diarize_with_pyannote(
     return out_rttm_path
 
 
-def _compute_der(reference_rttm: Path, hypothesis_rttm: Path) -> dict[str, float]:
-    """`pyannote.metrics` で DER と overlap accuracy を計算する。"""
+def _compute_der(
+    reference_rttm: Path, hypothesis_rttm: Path
+) -> dict[str, float | None]:
+    """`pyannote.metrics` で DER と overlap accuracy を計算する。
+
+    NaN や Inf は JSON 標準で invalid のため、`None` に正規化して返す。
+    """
+    import math
+
     try:
         from pyannote.database.util import load_rttm
-        from pyannote.metrics.diarization import DiarizationErrorRate
         from pyannote.metrics.detection import DetectionAccuracy
+        from pyannote.metrics.diarization import DiarizationErrorRate
     except ImportError as e:
         msg = "pyannote.metrics 未導入。`uv sync --extra audio` を実行してください。"
         raise RuntimeError(msg) from e
@@ -78,17 +85,22 @@ def _compute_der(reference_rttm: Path, hypothesis_rttm: Path) -> dict[str, float
     hyp_anno = next(iter(load_rttm(str(hypothesis_rttm)).values()))
 
     der_metric = DiarizationErrorRate(collar=0.25, skip_overlap=False)
-    der = float(der_metric(ref_anno, hyp_anno))
+    der_raw = float(der_metric(ref_anno, hyp_anno))
+    der: float | None = (
+        None if (math.isnan(der_raw) or math.isinf(der_raw)) else der_raw
+    )
 
     # overlap detection accuracy: 「ref の overlap 区間」と「hyp の overlap 区間」を比較
     # pyannote の get_overlap() で overlap-only annotation を取り出して比較
+    overlap_acc: float | None
     try:
         ref_overlap = ref_anno.get_overlap()
         hyp_overlap = hyp_anno.get_overlap()
         acc_metric = DetectionAccuracy()
-        overlap_acc = float(acc_metric(ref_overlap, hyp_overlap))
+        val = float(acc_metric(ref_overlap, hyp_overlap))
+        overlap_acc = None if (math.isnan(val) or math.isinf(val)) else val
     except Exception:  # noqa: BLE001 - overlap が無い等のエッジケース
-        overlap_acc = float("nan")
+        overlap_acc = None
 
     return {"der": der, "overlap_accuracy": overlap_acc}
 
@@ -146,8 +158,11 @@ def main() -> int:
             ),
         },
     }
-    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    json.dump(payload, sys.stdout, ensure_ascii=False, indent=2)
+    out_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    json.dump(payload, sys.stdout, ensure_ascii=False, indent=2, allow_nan=False)
     sys.stdout.write("\n")
     return 0
 

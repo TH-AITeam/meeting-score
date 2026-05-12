@@ -179,8 +179,11 @@ def main() -> int:
             "rtf": rtf,
         },
     }
-    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    json.dump(payload, sys.stdout, ensure_ascii=False, indent=2)
+    out_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    json.dump(payload, sys.stdout, ensure_ascii=False, indent=2, allow_nan=False)
     sys.stdout.write("\n")
     return 0
 
