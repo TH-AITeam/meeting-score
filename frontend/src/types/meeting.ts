@@ -1,3 +1,19 @@
+export type MeetingType = 'decision' | 'brainstorming' | 'progress' | 'retrospective'
+
+export const MEETING_TYPE_LABELS: Record<MeetingType, string> = {
+  decision: '意思決定会議',
+  brainstorming: 'ブレスト会議',
+  progress: '進捗共有・定例',
+  retrospective: '振り返り・レビュー',
+}
+
+export const MEETING_TYPE_AXES: Record<MeetingType, string> = {
+  decision: '意思決定寄与・根拠性・リスク検知',
+  brainstorming: '新規性・論点整理・根拠性',
+  progress: 'アクション化・リスク検知・要約',
+  retrospective: '根拠性・リスク検知・要約・論点整理',
+}
+
 export interface Scores {
   issue_clarification: number
   decision_progress: number
@@ -63,6 +79,7 @@ export interface SavedMeetingMeta {
   id: string
   title: string
   source_type: string
+  meeting_type: MeetingType | null
   created_at: string
   speaker_count: number
   utterance_count: number

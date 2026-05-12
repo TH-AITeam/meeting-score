@@ -1,4 +1,4 @@
-import type { MeetingSummary, SampleFile, SavedMeeting, SavedMeetingMeta } from '../types/meeting'
+import type { MeetingSummary, MeetingType, SampleFile, SavedMeeting, SavedMeetingMeta } from '../types/meeting'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
   ? `${import.meta.env.VITE_API_BASE_URL}/api`
@@ -16,15 +16,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const fetchSamples = (): Promise<SampleFile[]> =>
   request('/samples')
 
-export const analyzeSample = (filename: string): Promise<MeetingSummary> =>
-  request(`/analyze/sample/${encodeURIComponent(filename)}`, { method: 'POST' })
+export const analyzeSample = (filename: string, meetingType?: MeetingType): Promise<MeetingSummary> => {
+  const params = meetingType ? `?meeting_type=${encodeURIComponent(meetingType)}` : ''
+  return request(`/analyze/sample/${encodeURIComponent(filename)}${params}`, { method: 'POST' })
+}
 
-export const analyzeJson = (data: unknown): Promise<MeetingSummary> =>
-  request('/analyze', {
+export const analyzeJson = (data: unknown, meetingType?: MeetingType): Promise<MeetingSummary> => {
+  const body = meetingType ? { ...(data as object), meeting_type: meetingType } : data
+  return request('/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(body),
   })
+}
 
 export const listMeetings = (): Promise<SavedMeetingMeta[]> =>
   request('/meetings')
@@ -36,11 +40,12 @@ export const saveMeeting = (
   sourceType: string,
   input: unknown,
   result: unknown,
+  meetingType?: MeetingType,
 ): Promise<SavedMeetingMeta> =>
   request('/meetings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ source_type: sourceType, input, result }),
+    body: JSON.stringify({ source_type: sourceType, input, result, meeting_type: meetingType ?? null }),
   })
 
 export const deleteMeeting = (id: string): Promise<void> =>

@@ -43,6 +43,42 @@ llm:
   max_retries: 3
   timeout: 60                      # 秒。MoE 35B (NVFP4) は p50 ~7s のため余裕を持たせる
 
+# 会議タイプ別重み (Issue #64)
+# 未指定時は上記 weights をフォールバックとして使用する
+meeting_type_weights:
+  decision:                      # 意思決定会議
+    issue_clarification: 1.2
+    decision_progress: 1.8
+    risk_detection: 1.4
+    actionability: 1.3
+    groundedness: 1.2
+    novelty: 0.6
+    summarization: 0.8
+  brainstorming:                 # ブレスト会議
+    issue_clarification: 1.2
+    decision_progress: 0.7
+    risk_detection: 0.7
+    actionability: 0.8
+    groundedness: 0.9
+    novelty: 1.8
+    summarization: 0.8
+  progress:                      # 進捗共有・定例
+    issue_clarification: 1.0
+    decision_progress: 1.0
+    risk_detection: 1.4
+    actionability: 1.6
+    groundedness: 1.0
+    novelty: 0.5
+    summarization: 1.3
+  retrospective:                 # 振り返り・レビュー
+    issue_clarification: 1.4
+    decision_progress: 0.8
+    risk_detection: 1.5
+    actionability: 1.2
+    groundedness: 1.4
+    novelty: 0.8
+    summarization: 1.3
+
 # 集計設定
 aggregation:
   top_utterances_count: 5     # Top発言数

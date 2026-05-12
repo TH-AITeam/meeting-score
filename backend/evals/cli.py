@@ -77,6 +77,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         model_name=cfg.llm_model,
         context_before=cfg.context_before,
         context_after=cfg.context_after,
+        meeting_type_weights=cfg.meeting_type_weights or None,
     )
     payload = report.to_dict()
 
