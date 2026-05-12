@@ -413,10 +413,10 @@ uv run python run.py
 
 ```bash
 # ベースライン評価
-make eval DATASET=data/annotations/gold/v1
+task eval DATASET=../data/annotations/gold/v1
 
 # 同一会議を 5 回採点して分散を見る
-make eval-stability SAMPLE=data/sample_meetings/sample_meeting_01.json N=5
+task eval:stability SAMPLE=../data/sample_meetings/sample_meeting_01.json N=5
 ```
 
 CLI を直接呼びたい場合:
@@ -496,55 +496,6 @@ task ci            # CI と同じ lint + test を一括実行
 
 ```bash
 task ci
-```
-
-## カバレッジ
-
-- CI でカバレッジが **70% 未満** になるとテストジョブが失敗します
-- 安定後は 80% へ引き上げる予定です
-
-## テスト内でのシークレット扱い
-
-`OPENAI_API_KEY` などの外部 API キーを CI に渡さない方針です。LLM を呼び出すテストはモックを使ってください。
-
----
-
-# CI (GitHub Actions)
-
-## ワークフロー構成
-
-`main` へのプッシュおよび `main` 向けのプルリクエスト作成時に自動で実行されます。
-
-| ジョブ | 内容 |
-|--------|------|
-| `frontend` | TypeScript 型チェック・ESLint・Vite ビルド |
-| `lint` | `ruff check` / `ruff format --check` / `mypy` |
-| `test` | `pytest` + カバレッジ計測（しきい値 70%） |
-
-## ローカルで CI と同じチェックを実行する
-
-**フロントエンド**
-
-```bash
-cd frontend
-npm ci
-npm run typecheck
-npm run lint
-npm run build
-```
-
-**バックエンド**
-
-```bash
-cd backend
-
-# lint
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy app
-
-# test（カバレッジ付き）
-uv run pytest --cov=app --cov-report=term --cov-fail-under=70
 ```
 
 ## カバレッジ
