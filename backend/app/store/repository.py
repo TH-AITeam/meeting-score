@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import UTC, datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from app.store.models import SavedMeeting, SavedMeetingMeta
 
 logger = logging.getLogger(__name__)
+
+JST = timezone(timedelta(hours=9))
 
 _STORE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "stored_meetings"
 
@@ -24,7 +26,7 @@ def _path(meeting_id: str) -> Path:
 
 
 def generate_id() -> str:
-    now = datetime.now(tz=UTC).strftime("%Y%m%d%H%M%S%f")
+    now = datetime.now(tz=JST).strftime("%Y%m%d%H%M%S%f")
     return f"analysis_{now}"
 
 

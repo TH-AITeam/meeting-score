@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import UTC, datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, UploadFile
@@ -24,6 +24,8 @@ from app.store.models import SavedMeeting
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+JST = timezone(timedelta(hours=9))
 
 SAMPLE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_meetings"
 
@@ -128,7 +130,7 @@ async def save_meeting(body: SaveMeetingRequest):
         id=repository.generate_id(),
         title=title,
         source_type=body.source_type,
-        created_at=datetime.now(tz=UTC).isoformat(),
+        created_at=datetime.now(tz=JST).isoformat(),
         speaker_count=len(speaker_summaries),
         utterance_count=len(evaluated),
         overall_score=round(overall_score, 2),
