@@ -1,0 +1,15 @@
+{
+  "diar_id": "pyannote-3.1",
+  "model": "pyannote/speaker-diarization-3.1",
+  "per_meeting": [
+    {
+      "meeting": "meeting_01",
+      "der": 0.0,
+      "overlap_accuracy": NaN
+    }
+  ],
+  "aggregate": {
+    "macro_der": 0.0,
+    "macro_overlap_accuracy": NaN
+  }
+}
