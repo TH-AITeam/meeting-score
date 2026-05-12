@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { analyzeJson, analyzeSample } from './api/client'
+import { analyzeJson, analyzeSample, saveMeeting } from './api/client'
 import type { MeetingSummary } from './types/meeting'
 import InputView from './components/InputView'
 import LoadingView from './components/LoadingView'
@@ -21,6 +21,14 @@ const RESULT_TABS: { id: ResultTab; label: string }[] = [
   { id: 'speakers', label: '話者別分析' },
 ]
 
+async function autoSave(sourceType: string, inputData: unknown, result: MeetingSummary) {
+  try {
+    await saveMeeting(sourceType, inputData, result)
+  } catch {
+    // 保存失敗はサイレントに無視（分析結果の表示は継続）
+  }
+}
+
 export default function App() {
   const [state, setState] = useState<AppState>({ phase: 'upload' })
   const [speakerMode, setSpeakerMode] = useState<SpeakerMode>('cards')
@@ -30,6 +38,7 @@ export default function App() {
     try {
       const data = await analyzeSample(filename)
       setState({ phase: 'results', data, tab: 'summary' })
+      autoSave('sample', { filename }, data)
     } catch (e) {
       alert(`分析に失敗しました: ${String(e)}`)
       setState({ phase: 'upload' })
@@ -41,10 +50,15 @@ export default function App() {
     try {
       const data = await analyzeJson(body)
       setState({ phase: 'results', data, tab: 'summary' })
+      autoSave('upload', body, data)
     } catch (e) {
       alert(`分析に失敗しました: ${String(e)}`)
       setState({ phase: 'upload' })
     }
+  }
+
+  const handleRestore = (data: MeetingSummary) => {
+    setState({ phase: 'results', data, tab: 'summary' })
   }
 
   const activeTab: string = state.phase === 'results' ? state.tab : 'upload'
@@ -112,7 +126,11 @@ export default function App() {
       {/* Screen */}
       <div className="app-screen">
         {state.phase === 'upload' && (
-          <InputView onAnalyzeSample={handleAnalyzeSample} onAnalyzeJson={handleAnalyzeJson} />
+          <InputView
+            onAnalyzeSample={handleAnalyzeSample}
+            onAnalyzeJson={handleAnalyzeJson}
+            onRestore={handleRestore}
+          />
         )}
         {state.phase === 'loading' && <LoadingView />}
         {state.phase === 'results' && (

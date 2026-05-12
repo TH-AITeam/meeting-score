@@ -58,3 +58,18 @@ export interface SampleFile {
 }
 
 export type ResultTab = 'summary' | 'timeline' | 'speakers'
+
+export interface SavedMeetingMeta {
+  id: string
+  title: string
+  source_type: string
+  created_at: string
+  speaker_count: number
+  utterance_count: number
+  overall_score: number
+}
+
+export interface SavedMeeting extends SavedMeetingMeta {
+  input: Record<string, unknown>
+  result: MeetingSummary
+}

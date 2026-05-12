@@ -13,3 +13,6 @@ wheels/
 # frontend
 node_modules
 .vite
+
+# stored meeting data (may contain personal information)
+data/stored_meetings/
