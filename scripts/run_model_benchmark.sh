@@ -29,6 +29,38 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# venv 自動有効化（uv sync は backend/.venv または ./.venv を作るので両方探す）
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+  for venv_path in "$REPO_ROOT/.venv" "$REPO_ROOT/backend/.venv"; do
+    if [[ -f "$venv_path/bin/activate" ]]; then
+      # shellcheck disable=SC1091
+      source "$venv_path/bin/activate"
+      echo "Activated venv: $venv_path"
+      break
+    fi
+  done
+fi
+
+# Python 実行コマンドは PYTHON で上書き可能。
+# 既定は `python`（venv 有効化後はそちらが使われる）。venv 未使用なら PYTHON=python3 推奨。
+PYTHON="${PYTHON:-python}"
+if ! command -v "$PYTHON" >/dev/null 2>&1; then
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON="python3"
+    echo "WARN: python が無いので python3 を使います"
+  else
+    echo "ERROR: python / python3 が見つかりません" >&2
+    exit 1
+  fi
+fi
+
+# vLLM が import できるか事前チェック
+if ! "$PYTHON" -c "import vllm" >/dev/null 2>&1; then
+  echo "ERROR: $PYTHON で vllm が import できません。" >&2
+  echo "       \`uv pip install vllm\` 済みの venv を有効化するか、PYTHON= を指定してください。" >&2
+  exit 1
+fi
+
 DATASET="${DATASET:-data/annotations/gold/v1}"
 SAMPLE="${SAMPLE:-data/sample_meetings/sample_meeting_01.json}"
 N_STABILITY="${N_STABILITY:-5}"
@@ -73,7 +105,7 @@ benchmark_one() {
   # vLLM をバックグラウンドで起動
   local vllm_log="${LOG_DIR}/${served}_${ts}.log"
   # shellcheck disable=SC2086
-  python -m vllm.entrypoints.openai.api_server \
+  "$PYTHON" -m vllm.entrypoints.openai.api_server \
       --model "$hf_id" \
       --served-model-name "$served" \
       --host 0.0.0.0 \
@@ -107,7 +139,7 @@ benchmark_one() {
   # --- 1) ベースライン評価（アノテがあれば） ---
   if [[ -d "$DATASET" && -f "$DATASET/pairs.jsonl" ]]; then
     echo "[1/3] make eval"
-    (cd backend && python -m evals.cli run \
+    (cd backend && "$PYTHON" -m evals.cli run \
         --dataset "../${DATASET}" \
         --model "$served" \
         --out "../${out_dir}/${ts}.json") || echo "WARN: eval failed"
@@ -117,7 +149,7 @@ benchmark_one() {
 
   # --- 2) 安定性（N 回採点して軸別 SD） ---
   echo "[2/3] stability N=${N_STABILITY}"
-  (cd backend && python -m evals.cli stability \
+  (cd backend && "$PYTHON" -m evals.cli stability \
       --meeting "../${SAMPLE}" \
       --n "$N_STABILITY" \
       --model "$served" \
@@ -125,7 +157,7 @@ benchmark_one() {
 
   # --- 3) レイテンシ（同一発言を N 回。同期呼び出しで p50/p95） ---
   echo "[3/3] latency N=${N_LATENCY}"
-  python scripts/measure_latency.py \
+  "$PYTHON" scripts/measure_latency.py \
       --endpoint "http://127.0.0.1:${PORT}/v1" \
       --model "$served" \
       --sample "$SAMPLE" \

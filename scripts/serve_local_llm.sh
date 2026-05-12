@@ -25,6 +25,20 @@
 
 set -euo pipefail
 
+# venv 自動有効化
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+  for venv_path in "$REPO_ROOT/.venv" "$REPO_ROOT/backend/.venv"; do
+    if [[ -f "$venv_path/bin/activate" ]]; then
+      # shellcheck disable=SC1091
+      source "$venv_path/bin/activate"
+      break
+    fi
+  done
+fi
+PYTHON="${PYTHON:-python}"
+command -v "$PYTHON" >/dev/null 2>&1 || PYTHON="python3"
+
 MODEL="${MODEL:-Qwen/Qwen2.5-7B-Instruct}"
 PORT="${PORT:-8000}"
 HOST="${HOST:-0.0.0.0}"
@@ -44,7 +58,7 @@ echo "  GUIDED        : ${GUIDED_BACKEND}"
 echo "  Served as     : ${SERVED_MODEL_NAME}"
 echo "============================================"
 
-exec python -m vllm.entrypoints.openai.api_server \
+exec "$PYTHON" -m vllm.entrypoints.openai.api_server \
     --model "${MODEL}" \
     --host "${HOST}" \
     --port "${PORT}" \
