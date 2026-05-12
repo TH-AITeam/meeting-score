@@ -58,15 +58,12 @@ jobs:
     defaults:
       run:
         working-directory: backend
-    strategy:
-      matrix:
-        python-version: ["3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv python install ${{ matrix.python-version }}
+      - run: uv python install 3.13
       - run: uv sync --frozen --group dev
       - name: pytest
         run: uv run pytest --cov=app --cov-report=xml --cov-report=term --cov-fail-under=70
