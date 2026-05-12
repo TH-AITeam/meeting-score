@@ -42,7 +42,7 @@ def _extract_response_text(response: Any) -> str:
         for content in getattr(item, "content", []):
             text = getattr(content, "text", None)
             if text:
-                return text
+                return str(text)
     msg = "OpenAI 応答からテキストを取得できませんでした。"
     raise ValueError(msg)
 
@@ -86,9 +86,7 @@ class OpenAIEvaluator(Evaluator):
         try:
             client = self._get_client()
         except Exception as e:
-            logger.error(
-                "OpenAI クライアント生成に失敗しました: %s: %s", type(e).__name__, e
-            )
+            logger.error("OpenAI クライアント生成に失敗しました: %s: %s", type(e).__name__, e)
             return EvaluationResult.failed()
 
         prompt = build_prompt(ctx)

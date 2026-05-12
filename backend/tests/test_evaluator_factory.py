@@ -52,7 +52,7 @@ class TestCreateEvaluator:
         ev = create_evaluator(config)
         assert isinstance(ev, OpenAIEvaluator)
         assert isinstance(ev, Evaluator)
-        assert ev._timeout == 12.5  # noqa: SLF001
+        assert ev._timeout == 12.5
 
     def test_local_backend_requires_endpoint(self) -> None:
         config = AppConfig(llm_backend="local", llm_endpoint=None)
@@ -85,7 +85,7 @@ class TestCreateEvaluator:
 
 
 class _FailingOpenAIEvaluator(OpenAIEvaluator):
-    def _get_client(self):  # noqa: ANN201
+    def _get_client(self):
         raise RuntimeError("missing api key")
 
 
@@ -98,7 +98,7 @@ class TestOpenAIEvaluator:
     def test_get_client_passes_timeout(self) -> None:
         ev = OpenAIEvaluator(timeout=12.5)
         with patch("openai.OpenAI") as openai_cls:
-            ev._get_client()  # noqa: SLF001
+            ev._get_client()
         openai_cls.assert_called_once_with(timeout=12.5)
 
 
@@ -112,7 +112,7 @@ class _FakeChatCompletions:
         self.content = content
         self.last_kwargs: dict | None = None
 
-    def create(self, **kwargs):  # noqa: ANN001
+    def create(self, **kwargs):
         self.last_kwargs = kwargs
         return SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content=self.content))]
@@ -184,7 +184,7 @@ class TestLocalEvaluator:
             client=_FakeClient(_VALID_JSON),
         )
         # 内部で rstrip("/") している
-        assert ev._endpoint == "http://localhost:8000/v1"  # noqa: SLF001
+        assert ev._endpoint == "http://localhost:8000/v1"
 
 
 # ---------------------------------------------------------------------------

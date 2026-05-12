@@ -7,9 +7,7 @@ from app.scoring.rule_corrections import apply_rule_corrections
 def _make_eu(
     uid: str, text: str, penalties: Penalties | None = None, **score_kwargs
 ) -> EvaluatedUtterance:
-    scores = Scores(
-        **{k: v for k, v in score_kwargs.items() if k in Scores.model_fields}
-    )
+    scores = Scores(**{k: v for k, v in score_kwargs.items() if k in Scores.model_fields})
     if penalties is None:
         penalties = Penalties()
     return EvaluatedUtterance(
@@ -28,12 +26,8 @@ def _make_eu(
 def test_duplicate_detection():
     """文字集合の重複が高い発言に追加減点される"""
     evaluated = [
-        _make_eu(
-            "u001", "社内利用を先にすべきだと思います。セキュリティ要件が高いため。"
-        ),
-        _make_eu(
-            "u002", "社内利用を先にすべきだと思います。セキュリティの要件が高いため。"
-        ),
+        _make_eu("u001", "社内利用を先にすべきだと思います。セキュリティ要件が高いため。"),
+        _make_eu("u002", "社内利用を先にすべきだと思います。セキュリティの要件が高いため。"),
     ]
     corrected = apply_rule_corrections(evaluated)
     # 2件目は重複減点が追加される
@@ -52,9 +46,7 @@ def test_verbosity_detection_long_no_value():
 def test_no_verbosity_for_high_value():
     """加点が高い発言は長くても冗長減点されない"""
     long_text = "あ" * 250
-    evaluated = [
-        _make_eu("u001", long_text, issue_clarification=3, decision_progress=2)
-    ]
+    evaluated = [_make_eu("u001", long_text, issue_clarification=3, decision_progress=2)]
     corrected = apply_rule_corrections(evaluated)
     assert corrected[0].penalties.verbosity == 0
 

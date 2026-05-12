@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, UploadFile
-import json
 from pydantic import ValidationError
 
 from app.aggregation.aggregator import build_meeting_summary
@@ -22,9 +22,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-SAMPLE_DIR = (
-    Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_meetings"
-)
+SAMPLE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_meetings"
 
 
 @router.get("/samples")
@@ -55,9 +53,7 @@ async def analyze_meeting(request: Request):
     try:
         meeting_data = load_meeting_from_dict(body)
     except ValidationError as e:
-        raise HTTPException(
-            status_code=400, detail=f"入力データのバリデーションエラー: {e}"
-        )
+        raise HTTPException(status_code=400, detail=f"入力データのバリデーションエラー: {e}") from e
     return await _run_analysis(meeting_data, request)
 
 
@@ -68,14 +64,12 @@ async def analyze_meeting_file(file: UploadFile, request: Request):
     try:
         data = json.loads(content.decode("utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        raise HTTPException(status_code=400, detail=f"JSONパースエラー: {e}")
+        raise HTTPException(status_code=400, detail=f"JSONパースエラー: {e}") from e
 
     try:
         meeting = load_meeting_from_dict(data)
     except ValidationError as e:
-        raise HTTPException(
-            status_code=400, detail=f"入力データのバリデーションエラー: {e}"
-        )
+        raise HTTPException(status_code=400, detail=f"入力データのバリデーションエラー: {e}") from e
     return await _run_analysis(meeting, request)
 
 

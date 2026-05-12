@@ -40,15 +40,9 @@ def aggregate_by_speaker(
     for speaker, utterances in sorted(by_speaker.items()):
         n = len(utterances)
         avg = AverageScores(
-            issue_clarification=round(
-                sum(u.scores.issue_clarification for u in utterances) / n, 2
-            ),
-            decision_progress=round(
-                sum(u.scores.decision_progress for u in utterances) / n, 2
-            ),
-            risk_detection=round(
-                sum(u.scores.risk_detection for u in utterances) / n, 2
-            ),
+            issue_clarification=round(sum(u.scores.issue_clarification for u in utterances) / n, 2),
+            decision_progress=round(sum(u.scores.decision_progress for u in utterances) / n, 2),
+            risk_detection=round(sum(u.scores.risk_detection for u in utterances) / n, 2),
             actionability=round(sum(u.scores.actionability for u in utterances) / n, 2),
             groundedness=round(sum(u.scores.groundedness for u in utterances) / n, 2),
             novelty=round(sum(u.scores.novelty for u in utterances) / n, 2),

@@ -14,15 +14,13 @@ class _FakeEvaluator(Evaluator):
     def __init__(self, result: EvaluationResult) -> None:
         self._result = result
 
-    def evaluate(self, ctx):  # noqa: ANN001
+    def evaluate(self, ctx):
         return self._result
 
 
 def _patch_evaluator(monkeypatch, result: EvaluationResult) -> None:
     """routes.create_evaluator をモック化して固定 Evaluator を返す。"""
-    monkeypatch.setattr(
-        routes, "create_evaluator", lambda config: _FakeEvaluator(result)
-    )
+    monkeypatch.setattr(routes, "create_evaluator", lambda config: _FakeEvaluator(result))
 
 
 def _sample_payload() -> dict:

@@ -73,7 +73,7 @@ def _build_topic_map(meeting: MeetingInput) -> dict[str, str]:
 
 
 def _resolve_topic(
-    utterance,
+    utterance: Utterance,
     topic_map: dict[str, str],
     agenda: list[str],
     index: int,

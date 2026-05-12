@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
@@ -11,7 +10,7 @@ from pydantic import BaseModel, Field
 # ---------------------------------------------------------------------------
 # 発言タイプ
 # ---------------------------------------------------------------------------
-class SpeechType(str, Enum):
+class SpeechType(StrEnum):
     ISSUE_CLARIFICATION = "論点整理"
     PROPOSAL = "提案"
     QUESTION = "質問"
@@ -26,7 +25,7 @@ class SpeechType(str, Enum):
 # ---------------------------------------------------------------------------
 # 発言傾向ラベル
 # ---------------------------------------------------------------------------
-class StyleLabel(str, Enum):
+class StyleLabel(StrEnum):
     ORGANIZER = "整理型"
     PROPOSER = "提案型"
     CAUTIOUS = "警戒型"
@@ -43,7 +42,7 @@ class Utterance(BaseModel):
     speaker: str
     timestamp: str
     text: str
-    topic: Optional[str] = None
+    topic: str | None = None
 
 
 class TopicTransition(BaseModel):

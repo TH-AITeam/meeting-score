@@ -46,7 +46,7 @@ def _extract_chat_message_content(response: Any) -> str:
     if not content:
         msg = "OpenAI 互換応答の content が空です"
         raise ValueError(msg)
-    return content
+    return str(content)
 
 
 class LocalEvaluator(Evaluator):
@@ -155,4 +155,4 @@ class LocalEvaluator(Evaluator):
         return EvaluationResult.failed()
 
 
-__all__ = ["LocalEvaluator", "DEFAULT_API_KEY_PLACEHOLDER"]
+__all__ = ["DEFAULT_API_KEY_PLACEHOLDER", "LocalEvaluator"]

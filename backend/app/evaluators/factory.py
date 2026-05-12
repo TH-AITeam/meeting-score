@@ -48,11 +48,8 @@ def create_evaluator(config: AppConfig) -> Evaluator:
             timeout=config.llm_timeout,
         )
 
-    msg = (
-        f"未対応の llm.backend: {backend!r}。"
-        f"対応バックエンド: {', '.join(SUPPORTED_BACKENDS)}"
-    )
+    msg = f"未対応の llm.backend: {backend!r}。対応バックエンド: {', '.join(SUPPORTED_BACKENDS)}"
     raise ValueError(msg)
 
 
-__all__ = ["Backend", "SUPPORTED_BACKENDS", "create_evaluator"]
+__all__ = ["SUPPORTED_BACKENDS", "Backend", "create_evaluator"]

@@ -6,16 +6,16 @@
 """
 
 from app.evaluators.base import EvaluationResult, Evaluator
-from app.evaluators.factory import Backend, SUPPORTED_BACKENDS, create_evaluator
+from app.evaluators.factory import SUPPORTED_BACKENDS, Backend, create_evaluator
 from app.evaluators.local_evaluator import LocalEvaluator
 from app.evaluators.openai_evaluator import OpenAIEvaluator
 
 __all__ = [
+    "SUPPORTED_BACKENDS",
     "Backend",
     "EvaluationResult",
     "Evaluator",
     "LocalEvaluator",
     "OpenAIEvaluator",
-    "SUPPORTED_BACKENDS",
     "create_evaluator",
 ]

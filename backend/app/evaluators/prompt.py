@@ -10,7 +10,7 @@ import json
 import logging
 from pathlib import Path
 from string import Template
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from app.evaluators.base import EvaluationResult
 from app.schemas.models import Penalties, Scores, SpeechType
@@ -20,9 +20,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-PROMPT_PATH = (
-    Path(__file__).resolve().parent.parent.parent / "prompts" / "utterance_eval.txt"
-)
+PROMPT_PATH = Path(__file__).resolve().parent.parent.parent / "prompts" / "utterance_eval.txt"
 
 _SPEECH_TYPE_VALUES = [s.value for s in SpeechType]
 
@@ -101,9 +99,7 @@ def build_prompt(ctx: EvaluationContext) -> str:
     return template.substitute(
         meeting_goal=ctx.meeting_goal,
         agenda="、".join(ctx.agenda) if ctx.agenda else "(なし)",
-        decision_points="、".join(ctx.decision_points)
-        if ctx.decision_points
-        else "(なし)",
+        decision_points="、".join(ctx.decision_points) if ctx.decision_points else "(なし)",
         current_topic=ctx.current_topic if ctx.current_topic else "(未設定)",
         before_utterances=_format_utterances(ctx.before_utterances),
         target_speaker=ctx.target_utterance.speaker,
@@ -113,7 +109,7 @@ def build_prompt(ctx: EvaluationContext) -> str:
     )
 
 
-def parse_response(text: str) -> dict:
+def parse_response(text: str) -> dict[str, object]:
     """LLM 応答テキストから JSON を抽出してパースする。
 
     ```json ... ``` で囲まれているケースにも対応する。
@@ -126,7 +122,7 @@ def parse_response(text: str) -> dict:
         start = text.index("```") + len("```")
         end = text.index("```", start)
         text = text[start:end]
-    return json.loads(text.strip())
+    return cast(dict[str, object], json.loads(text.strip()))
 
 
 def _clamp(value: int, lo: int, hi: int) -> int:
@@ -165,9 +161,7 @@ def normalize_result(parsed: dict) -> EvaluationResult:
         duplication=_clamp(penalties_raw.get("duplication", 0), -3, 0),
         verbosity=_clamp(penalties_raw.get("verbosity", 0), -3, 0),
         off_topic=_clamp(penalties_raw.get("off_topic", 0), -3, 0),
-        unsupported_assertion=_clamp(
-            penalties_raw.get("unsupported_assertion", 0), -3, 0
-        ),
+        unsupported_assertion=_clamp(penalties_raw.get("unsupported_assertion", 0), -3, 0),
     )
 
     return EvaluationResult(
