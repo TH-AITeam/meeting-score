@@ -13,3 +13,14 @@ wheels/
 # frontend
 node_modules
 .vite
+
+# 音声処理モデル評価データ (Issue #19)
+# data/eval_audio/{meeting_*}/ 以下の音声・参照ファイルは個人録音/合成のため
+# リポジトリには含めない。README と .gitkeep だけ commit する。
+data/eval_audio/meeting_*/
+*.wav
+*.mp3
+*.m4a
+*.flac
+# ベンチ結果は明示的に -f で追加するときだけ commit する
+reports/audio_benchmarks/
