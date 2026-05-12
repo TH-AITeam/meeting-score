@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, UploadFile
@@ -91,6 +91,7 @@ async def analyze_sample(filename: str, request: Request):
 # 保存済み会議 CRUD
 # ---------------------------------------------------------------------------
 
+
 class SaveMeetingRequest(BaseModel):
     source_type: str
     input: dict
@@ -116,20 +117,18 @@ async def get_meeting(meeting_id: str):
 async def save_meeting(body: SaveMeetingRequest):
     """分析結果を保存する"""
     result = body.result
-    title = result.get("title", "（タイトルなし）")
+    title = result.get("title", "(タイトルなし)")
     speaker_summaries = result.get("speaker_summaries", [])
     evaluated = result.get("evaluated_utterances", [])
     overall_score = (
-        sum(u.get("total_score", 0) for u in evaluated) / len(evaluated)
-        if evaluated
-        else 0.0
+        sum(u.get("total_score", 0) for u in evaluated) / len(evaluated) if evaluated else 0.0
     )
 
     meeting = SavedMeeting(
         id=repository.generate_id(),
         title=title,
         source_type=body.source_type,
-        created_at=datetime.now(tz=timezone.utc).isoformat(),
+        created_at=datetime.now(tz=UTC).isoformat(),
         speaker_count=len(speaker_summaries),
         utterance_count=len(evaluated),
         overall_score=round(overall_score, 2),
@@ -151,6 +150,7 @@ async def delete_meeting(meeting_id: str):
 # ---------------------------------------------------------------------------
 # 分析パイプライン
 # ---------------------------------------------------------------------------
+
 
 async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
     """共通の分析パイプライン"""
