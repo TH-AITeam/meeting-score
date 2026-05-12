@@ -67,25 +67,45 @@ def _named_entity_recall(hypothesis: str, entities: list[str]) -> float:
 
 
 def _transcribe_with_whisperx(audio_path: Path, model_name: str) -> tuple[str, float]:
-    """WhisperX で 1 ファイルを書き起こす。
+    """WhisperX で 1 ファイルを書き起こす (Issue #11 本実装)。
 
-    実装は本来 `app.asr.WhisperXTranscriber` に集約するが、現状はスケルトンの
-    ため本関数は Issue #11 で実装される本体を呼ぶ。
-    返り値: (生成テキスト, wall-clock 秒数)
+    `app.asr.WhisperXTranscriber` を再利用する。
+
+    Returns
+    -------
+    (text, audio_sec)
+        text: 全 Word を空文字結合した書き起こし全文
+        audio_sec: 音声の長さ (RTF 計算に使う)
     """
+    # 本スクリプトは scripts/ 配下なので、backend/ を sys.path に追加して app をロードする
+    repo_root = Path(__file__).resolve().parent.parent
+    backend_dir = repo_root / "backend"
+    if str(backend_dir) not in sys.path:
+        sys.path.insert(0, str(backend_dir))
+
     try:
-        import whisperx  # noqa: F401
+        import soundfile as sf
     except ImportError as e:
-        msg = "whisperx 未導入。`uv sync --extra audio` を実行してください。"
+        msg = "soundfile 未導入。`uv sync --extra audio` を実行してください。"
         raise RuntimeError(msg) from e
 
-    msg = (
-        "scripts/measure_asr_metrics.py の WhisperX 呼び出しは Issue #11 で完成予定。"
-        "現状は CLI と出力 JSON フォーマットの確定のみ。"
+    from app.asr.whisperx_transcriber import WhisperXConfig, WhisperXTranscriber
+
+    # 音声長を先に取る (RTF 計算用)
+    info = sf.info(str(audio_path))
+    audio_sec = float(info.frames) / float(info.samplerate)
+
+    transcriber = WhisperXTranscriber(
+        WhisperXConfig(
+            model_name=model_name,
+            device="cuda",
+            compute_type="float16",
+            language="ja",
+        )
     )
-    logger.error(msg)
-    _ = audio_path, model_name
-    raise NotImplementedError(msg)
+    words = transcriber.transcribe(audio_path)
+    text = "".join(w.text for w in words)
+    return text, audio_sec
 
 
 def main() -> int:
@@ -121,18 +141,13 @@ def main() -> int:
         start = time.perf_counter()
         try:
             hyp, audio_sec = _transcribe_with_whisperx(audio, args.whisper_model)
-        except NotImplementedError as e:
-            # スケルトンのため、TBD として記録
-            hyp = ""
-            audio_sec = 0.0
-            cer: float | None = None
-            ne_recall: float | None = None
-            wall_sec = 0.0
+        except Exception as e:  # noqa: BLE001 - WhisperX 失敗時は当該 meeting を skip
+            logger.exception("transcribe failed: %s", m_dir.name)
             per_meeting.append(
                 {
                     "meeting": m_dir.name,
-                    "status": "skipped (impl pending in #11)",
-                    "skip_reason": str(e),
+                    "status": "failed",
+                    "error": str(e),
                 }
             )
             continue

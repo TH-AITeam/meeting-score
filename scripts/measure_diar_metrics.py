@@ -28,38 +28,69 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-def _diarize_with_pyannote(audio_path: Path, model_name: str) -> Path:
-    """pyannote で 1 ファイルを diarize し、RTTM ファイルパスを返す。
+def _diarize_with_pyannote(
+    audio_path: Path,
+    model_name: str,
+    out_rttm_path: Path,
+) -> Path:
+    """pyannote で 1 ファイルを diarize し、RTTM 形式で書き出してパスを返す。"""
+    # scripts/ から backend/ を sys.path に
+    repo_root = Path(__file__).resolve().parent.parent
+    backend_dir = repo_root / "backend"
+    if str(backend_dir) not in sys.path:
+        sys.path.insert(0, str(backend_dir))
 
-    Issue #11 で本実装。本 PR ではスケルトン。
-    """
-    try:
-        from pyannote.audio import Pipeline  # noqa: F401
-    except ImportError as e:
-        msg = "pyannote-audio 未導入。`uv sync --extra audio` を実行してください。"
-        raise RuntimeError(msg) from e
     if not os.environ.get("HUGGINGFACE_HUB_TOKEN"):
         msg = "HUGGINGFACE_HUB_TOKEN が未設定。pyannote/speaker-diarization-3.1 は gated。"
         raise RuntimeError(msg)
-    msg = (
-        "_diarize_with_pyannote は Issue #11 で実装予定。"
-        "現状は CLI と出力 JSON のフォーマットを確定するためのスケルトン。"
+
+    from app.asr.pyannote_diarizer import PyannoteConfig, PyannoteDiarizer
+
+    diarizer = PyannoteDiarizer(
+        PyannoteConfig(model_name=model_name, device="cuda")
     )
-    _ = audio_path, model_name
-    raise NotImplementedError(msg)
+    turns = diarizer.diarize(audio_path)
+
+    # pyannote 標準 RTTM 形式で書き出す
+    out_rttm_path.parent.mkdir(parents=True, exist_ok=True)
+    file_id = audio_path.stem
+    with out_rttm_path.open("w", encoding="utf-8") as f:
+        for t in turns:
+            duration = max(0.0, t.end_sec - t.start_sec)
+            f.write(
+                f"SPEAKER {file_id} 1 {t.start_sec:.3f} {duration:.3f} "
+                f"<NA> <NA> {t.speaker} <NA> <NA>\n"
+            )
+    return out_rttm_path
 
 
 def _compute_der(reference_rttm: Path, hypothesis_rttm: Path) -> dict[str, float]:
     """`pyannote.metrics` で DER と overlap accuracy を計算する。"""
     try:
-        from pyannote.core import Annotation  # noqa: F401
-        from pyannote.metrics.diarization import DiarizationErrorRate  # noqa: F401
+        from pyannote.database.util import load_rttm
+        from pyannote.metrics.diarization import DiarizationErrorRate
+        from pyannote.metrics.detection import DetectionAccuracy
     except ImportError as e:
         msg = "pyannote.metrics 未導入。`uv sync --extra audio` を実行してください。"
         raise RuntimeError(msg) from e
-    msg = "_compute_der は Issue #11 で実装予定。"
-    _ = reference_rttm, hypothesis_rttm
-    raise NotImplementedError(msg)
+
+    ref_anno = next(iter(load_rttm(str(reference_rttm)).values()))
+    hyp_anno = next(iter(load_rttm(str(hypothesis_rttm)).values()))
+
+    der_metric = DiarizationErrorRate(collar=0.25, skip_overlap=False)
+    der = float(der_metric(ref_anno, hyp_anno))
+
+    # overlap detection accuracy: 「ref の overlap 区間」と「hyp の overlap 区間」を比較
+    # pyannote の get_overlap() で overlap-only annotation を取り出して比較
+    try:
+        ref_overlap = ref_anno.get_overlap()
+        hyp_overlap = hyp_anno.get_overlap()
+        acc_metric = DetectionAccuracy()
+        overlap_acc = float(acc_metric(ref_overlap, hyp_overlap))
+    except Exception:  # noqa: BLE001 - overlap が無い等のエッジケース
+        overlap_acc = float("nan")
+
+    return {"der": der, "overlap_accuracy": overlap_acc}
 
 
 def main() -> int:
@@ -89,14 +120,16 @@ def main() -> int:
             logger.warning("audio.wav / speakers.rttm 不足: %s", m_dir)
             continue
         try:
-            hyp_rttm = _diarize_with_pyannote(audio, args.diar_model)
+            hyp_rttm = out_path.parent / f"{m_dir.name}_hyp.rttm"
+            _diarize_with_pyannote(audio, args.diar_model, hyp_rttm)
             metrics = _compute_der(ref_rttm, hyp_rttm)
-        except NotImplementedError as e:
+        except Exception as e:  # noqa: BLE001
+            logger.exception("diar failed: %s", m_dir.name)
             per_meeting.append(
                 {
                     "meeting": m_dir.name,
-                    "status": "skipped (impl pending in #11)",
-                    "skip_reason": str(e),
+                    "status": "failed",
+                    "error": str(e),
                 }
             )
             continue
