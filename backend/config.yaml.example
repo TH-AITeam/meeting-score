@@ -1,0 +1,48 @@
+# 会議貢献度スコアリング設定ファイル（サンプル）
+# 本番値で更新したものを config.yaml にコピーして使う。
+
+# スコアリング重み
+weights:
+  # 主評価軸
+  issue_clarification: 1.3    # 論点整理
+  decision_progress: 1.5      # 意思決定寄与
+  risk_detection: 1.2         # リスク検知
+  actionability: 1.3          # アクション化
+  # 補助評価軸
+  groundedness: 0.8           # 根拠性
+  novelty: 0.9                # 新規性/洞察
+  summarization: 0.8          # 要約・交通整理
+
+# 減点軸（penalty 値は 0〜-3、重みは正の倍率として掛ける）
+penalties:
+  duplication: 1.0            # 重複
+  verbosity: 1.0              # 冗長
+  off_topic: 1.0              # 論点逸脱
+  unsupported_assertion: 1.0  # 根拠薄い断言
+
+# 文脈ウィンドウ設定
+context:
+  before_count: 3             # 直前の発言数
+  after_count: 3              # 直後の発言数
+
+# LLM 設定
+# 採用判断モデル: Qwen3.6-27B-Instruct (AWQ INT4) — Issue #18 / docs/adr/0001-judgment-model.md
+# 控え: Qwen3-14B-Instruct (bf16)
+# 推論サーバ: vLLM (`scripts/serve_local_llm.sh` or `scripts/run_model_benchmark.sh`)
+#
+# backend:
+#   - openai: OpenAI Responses API
+#   - local : OpenAI 互換エンドポイント (vLLM など)
+llm:
+  backend: "local"                 # 採用後の本番設定は local
+  model: "qwen3.6-27b-awq"          # vLLM の --served-model-name と一致させる
+  endpoint: "http://127.0.0.1:8000/v1"  # SSH 先で動かすときは適宜書き換え
+  api_key: null                    # OpenAI 互換サーバが要求する場合のみ
+  max_tokens: 1024
+  max_retries: 3
+  timeout: 60                      # 秒。27B は初回トークン生成が遅いので余裕を持たせる
+
+# 集計設定
+aggregation:
+  top_utterances_count: 5     # Top発言数
+  top_per_axis_count: 3       # 軸別Top発言数

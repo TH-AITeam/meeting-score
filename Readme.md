@@ -347,6 +347,45 @@ uv run python run.py
 
 ---
 
+# 判断モデル（採用 LLM）
+
+ローカル推論基盤 (#12) + eval ハーネス (#5) を踏まえて、判断 LLM を Issue #18 で選定しました。
+
+- 第一採用: **`Qwen/Qwen3.6-27B-Instruct-AWQ`** (AWQ INT4)
+- 控え: **`Qwen/Qwen3-14B-Instruct`** (bf16)
+- 採用根拠: `docs/adr/0001-judgment-model.md`
+- 候補比較: `docs/model_candidates.md` / `docs/model_selection_v1.md`
+- 世代管理: `docs/model_history.md`
+
+ステータスは `Proposed`。SSH 先 (RTX 5090 / 32GB) で `scripts/run_model_benchmark.sh --all` を回した実測値で確定 (Accepted) に切り替えます。
+
+## SSH 先での実測手順
+
+```bash
+# SSH 先 (RTX 5090) で:
+git clone https://github.com/TH-AITeam/meeting-score
+cd meeting-score
+uv sync
+uv pip install vllm
+
+# 全候補を順に回す
+bash scripts/run_model_benchmark.sh --all
+
+# 単発（例: Qwen3.6-27B AWQ）
+MODEL="Qwen/Qwen3.6-27B-Instruct-AWQ" \
+SERVED_NAME="qwen3.6-27b-awq" \
+EXTRA="--quantization awq_marlin --dtype auto" \
+bash scripts/run_model_benchmark.sh
+```
+
+結果は `reports/model_benchmarks/{served_name}/{ts}_*.json` に出ます。Mac に rsync で持ち帰り、`docs/model_selection_v1.md` の表に転記します。
+
+## 本番設定への切り替え
+
+採用が確定したら `backend/config.yaml.example` を `backend/config.yaml` にコピーし、`llm.endpoint` を実行環境に合わせて書き換えるだけで API が local backend に切り替わります。
+
+---
+
 # 受け入れ条件
 
 以下を満たしたら MVP 完了とみなします。
