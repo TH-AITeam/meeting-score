@@ -413,10 +413,10 @@ uv run python run.py
 
 ```bash
 # ベースライン評価
-make eval DATASET=data/annotations/gold/v1
+task eval DATASET=data/annotations/gold/v1
 
 # 同一会議を 5 回採点して分散を見る
-make eval-stability SAMPLE=data/sample_meetings/sample_meeting_01.json N=5
+task eval:stability SAMPLE=data/sample_meetings/sample_meeting_01.json N=5
 ```
 
 CLI を直接呼びたい場合:

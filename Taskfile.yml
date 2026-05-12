@@ -70,6 +70,35 @@ tasks:
     env:
       VITE_API_BASE_URL: ""
 
+  test:eval:
+    desc: "eval ハーネスのテストのみ実行"
+    dir: "{{.BACKEND_DIR}}"
+    cmds:
+      - uv run pytest tests/test_eval_metrics.py tests/test_eval_stability.py tests/test_eval_runner.py -v
+
+  # ---------- eval ハーネス ----------
+  eval:
+    desc: "ベースライン評価（DATASET / MEETINGS_DIR / MODEL / OUT を上書き可）"
+    dir: "{{.BACKEND_DIR}}"
+    vars:
+      DATASET: '{{default "../data/annotations/gold/v1" .DATASET}}'
+      MODEL_FLAG: '{{if .MODEL}}--model {{.MODEL}}{{end}}'
+      MEETINGS_FLAG: '{{if .MEETINGS_DIR}}--meetings-dir {{.MEETINGS_DIR}}{{end}}'
+      OUT_PATH: '{{if .OUT}}{{.OUT}}{{else}}../reports/eval/{{now | date "20060102_150405"}}.json{{end}}'
+    cmds:
+      - uv run python -m evals.cli {{.MODEL_FLAG}} run --dataset {{.DATASET}} {{.MEETINGS_FLAG}} --out {{.OUT_PATH}}
+
+  eval:stability:
+    desc: "同一会議を N 回採点して分散を測る（SAMPLE / N / MODEL / OUT を上書き可）"
+    dir: "{{.BACKEND_DIR}}"
+    vars:
+      SAMPLE: '{{default "../data/sample_meetings/sample_meeting_01.json" .SAMPLE}}'
+      N: '{{default "5" .N}}'
+      MODEL_FLAG: '{{if .MODEL}}--model {{.MODEL}}{{end}}'
+      OUT_PATH: '{{if .OUT}}{{.OUT}}{{else}}../reports/eval/stability_{{now | date "20060102_150405"}}.json{{end}}'
+    cmds:
+      - uv run python -m evals.cli {{.MODEL_FLAG}} stability --meeting {{.SAMPLE}} --n {{.N}} --out {{.OUT_PATH}}
+
   # ---------- CI 一括 ----------
   ci:
     desc: "CI と同じ lint + test を一括実行（フロントエンド含む）"
