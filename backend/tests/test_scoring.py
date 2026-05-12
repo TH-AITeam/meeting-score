@@ -2,7 +2,6 @@
 
 from app.schemas.models import Penalties, Scores
 from app.scoring.calculator import calculate_total_score
-from app.scoring.weights import ScoringWeights
 
 
 def test_calculate_total_score_basic():

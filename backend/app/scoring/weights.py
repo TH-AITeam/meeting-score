@@ -13,6 +13,7 @@ _CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.yaml"
 @dataclass
 class ScoringWeights:
     """評価軸の重み"""
+
     # 主評価軸
     issue_clarification: float = 1.3
     decision_progress: float = 1.5
@@ -27,12 +28,18 @@ class ScoringWeights:
 @dataclass
 class AppConfig:
     """アプリケーション全体設定"""
+
     weights: ScoringWeights = field(default_factory=ScoringWeights)
     context_before: int = 3
     context_after: int = 3
-    llm_model: str = "gpt-5.4-mini"
+    # LLM 推論バックエンド (Issue #12)
+    llm_backend: str = "openai"  # "openai" | "local"
+    llm_endpoint: str | None = None  # backend=local 時に必須
+    llm_api_key: str | None = None  # OpenAI 互換サーバが要求する場合
+    llm_model: str = "gpt-4o-mini"
     llm_max_tokens: int = 1024
     llm_max_retries: int = 3
+    llm_timeout: float = 30.0
     top_utterances_count: int = 5
     top_per_axis_count: int = 3
 
@@ -66,9 +73,13 @@ def load_config(path: str | Path | None = None) -> AppConfig:
         weights=weights,
         context_before=ctx.get("before_count", 3),
         context_after=ctx.get("after_count", 3),
-        llm_model=llm.get("model", "gpt-5.4-mini"),
+        llm_backend=llm.get("backend", "openai"),
+        llm_endpoint=llm.get("endpoint"),
+        llm_api_key=llm.get("api_key"),
+        llm_model=llm.get("model", "gpt-4o-mini"),
         llm_max_tokens=llm.get("max_tokens", 1024),
         llm_max_retries=llm.get("max_retries", 3),
+        llm_timeout=llm.get("timeout", 30.0),
         top_utterances_count=agg.get("top_utterances_count", 5),
         top_per_axis_count=agg.get("top_per_axis_count", 3),
     )

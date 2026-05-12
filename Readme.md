@@ -446,6 +446,27 @@ cd backend && python -m evals.cli run \
 
 ---
 
+# 開発手順
+
+## セットアップ
+
+```bash
+cd backend
+uv sync --group dev
+```
+
+## よく使うコマンド
+
+```bash
+make lint        # ruff による静的解析
+make format      # ruff による自動整形
+make typecheck   # mypy による型チェック
+make test        # pytest でテスト実行
+make test-cov    # カバレッジ付きテスト
+```
+
+---
+
 # 次にやると良いこと
 
 * サンプル会議ログを追加する

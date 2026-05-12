@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import evals.cli as cli
 from app.context_builder.builder import EvaluationContext
 from app.schemas.models import MeetingInput, Penalties, Scores, Utterance
-
-import evals.cli as cli
 
 
 def _make_ctx() -> EvaluationContext:
@@ -31,7 +30,7 @@ def _make_ctx() -> EvaluationContext:
 def test_llm_evaluator_adapter_passes_temperature(monkeypatch) -> None:
     captured: dict = {}
 
-    def _fake_evaluate_utterance(ctx, **kwargs):  # noqa: ANN001, ARG001, ANN202
+    def _fake_evaluate_utterance(ctx, **kwargs):
         captured.update(kwargs)
         return {
             "speech_type": "情報共有",
@@ -53,7 +52,7 @@ def test_cmd_stability_uses_stability_temperature(monkeypatch, capsys) -> None:
     captured: dict = {}
 
     class _FakeAdapter:
-        def __init__(self, **kwargs) -> None:  # noqa: ANN003
+        def __init__(self, **kwargs) -> None:
             captured.update(kwargs)
 
     monkeypatch.setattr(cli, "LLMEvaluatorAdapter", _FakeAdapter)
@@ -98,7 +97,7 @@ def test_cmd_stability_uses_stability_temperature(monkeypatch, capsys) -> None:
         out=None,
     )
 
-    assert cli._cmd_stability(args) == 0  # noqa: SLF001
+    assert cli._cmd_stability(args) == 0
     assert captured["temperature"] == cli.STABILITY_TEMPERATURE
 
     capsys.readouterr()

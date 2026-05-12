@@ -3,7 +3,7 @@ name = "meeting-score"
 version = "0.1.0"
 description = "会議中の各発言の会議貢献度を評価・可視化する MVP"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.110.0",
     "openai>=1.0.0",
@@ -13,3 +13,55 @@ dependencies = [
     "pyyaml>=6.0.1",
     "uvicorn[standard]>=0.29.0",
 ]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.0.0",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.12",
+    "types-pyyaml>=6.0.12.20260510",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+exclude = ["data", "checkpoints", ".venv"]
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort
+  "B",    # flake8-bugbear
+  "UP",   # pyupgrade
+  "SIM",  # flake8-simplify
+  "RUF",  # ruff-specific
+  "N",    # pep8-naming
+]
+ignore = [
+  "E501",   # line too long (formatter が処理)
+  "RUF002", # 日本語ドキュメント文字列の全角記号は意図的
+  "RUF003", # 日本語コメントの全角記号は意図的
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["N802", "N803"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.13"
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = false
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+strict_equality = true
+exclude = ["data/", "checkpoints/"]

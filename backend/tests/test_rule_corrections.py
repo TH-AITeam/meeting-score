@@ -4,7 +4,9 @@ from app.schemas.models import EvaluatedUtterance, Penalties, Scores
 from app.scoring.rule_corrections import apply_rule_corrections
 
 
-def _make_eu(uid: str, text: str, penalties: Penalties | None = None, **score_kwargs) -> EvaluatedUtterance:
+def _make_eu(
+    uid: str, text: str, penalties: Penalties | None = None, **score_kwargs
+) -> EvaluatedUtterance:
     scores = Scores(**{k: v for k, v in score_kwargs.items() if k in Scores.model_fields})
     if penalties is None:
         penalties = Penalties()
