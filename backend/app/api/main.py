@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.audio_routes import router as audio_router
 from app.api.routes import router
 from app.scoring.weights import load_config
 
@@ -44,6 +45,7 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
+app.include_router(audio_router, prefix="/api")
 
 # 静的ファイル配信 (UI)
 ui_dir = Path(__file__).resolve().parent.parent.parent.parent / "frontend" / "dist"
