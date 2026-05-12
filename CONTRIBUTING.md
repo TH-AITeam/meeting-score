@@ -13,7 +13,7 @@
 | `infra/` | CI/CD・インフラ設定 | `infra/github-actions` |
 | `decision/` | 技術選定・ADR | `decision/llm-model` |
 
-Issue 番号がある場合は `feat/issue-番号-短い説明` 形式を推奨。
+Issue 番号がある場合は `<type>/issue-番号-短い説明` 形式を推奨。例: `fix/issue-15-score-bug`、`chore/issue-22-branch-protection`。
 
 ## コミット規約
 
@@ -52,7 +52,7 @@ fix(scoring): 重み設定が config.yaml から読まれない問題を修正
 1. `main` から最新を取得してブランチを切る
    ```bash
    git checkout main && git pull
-   git checkout -b feat/issue-XX-your-feature
+   git checkout -b <type>/issue-XX-short-description
    ```
 2. 作業・コミット
 3. ローカルで CI 相当を実行して確認
@@ -80,11 +80,12 @@ PR 本文に以下を含めることを推奨:
 
 ## 緊急ホットフィックス手順
 
-通常は PR フロー必須だが、緊急時は以下の手順でバイパスできる:
+通常は PR フロー必須だが、緊急時は以下の手順でバイパスできる。
+詳細な設定変更手順は [docs/branch_protection.md](docs/branch_protection.md#緊急バイパス手順) を参照。
 
-1. GitHub の `Settings → Branches` でブランチ保護の **Bypass** を一時的に自分に付与
+1. `Settings → Branches → Branch protection rules → main → Edit` で **Do not allow bypassing the above settings** を一時的に **OFF**
 2. 修正を直接 `main` に push またはブランチなしで対応
-3. 対応後すぐにバイパスを外す
+3. 対応後すぐに **Do not allow bypassing** を **ON** に戻す
 4. 事後に PR を作って変更内容を記録する
 
 この手順は **障害対応・本番緊急修正のみ** を想定。通常の開発では使わない。
@@ -101,5 +102,7 @@ task ci
 task lint          # ruff check
 task format:check  # ruff format --check
 task typecheck     # mypy
-task test          # pytest
+task test:ci       # pytest + カバレッジ（CI と同条件: --cov-fail-under=70）
 ```
+
+> `task test` はカバレッジなしの pytest のみ。CI と同条件で確認するには `task test:ci` を使うこと。

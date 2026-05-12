@@ -4,7 +4,24 @@
 
 ## ブランチ保護ルール（`main`）
 
-以下の設定を GitHub API で適用済み（2026-05-12）。
+以下の設定を GitHub API で適用済み（2026-05-12）。API での確認方法:
+
+```bash
+gh api repos/TH-AITeam/meeting-score/branches/main/protection
+```
+
+**適用確認済み設定（2026-05-12 実行結果）:**
+
+```
+required_status_checks.strict: True
+contexts: ['lint', 'test', 'Frontend (typecheck + lint + build)']
+enforce_admins: True
+required_linear_history: True
+allow_force_pushes: False
+allow_deletions: False
+required_conversation_resolution: True
+required_approving_review_count: 0
+```
 
 | 設定 | 値 |
 |---|---|
