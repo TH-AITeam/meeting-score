@@ -50,3 +50,9 @@ export const saveMeeting = (
 
 export const deleteMeeting = (id: string): Promise<void> =>
   request(`/meetings/${encodeURIComponent(id)}`, { method: 'DELETE' })
+
+export const uploadAudio = (file: File): Promise<unknown> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request('/upload_audio', { method: 'POST', body: formData })
+}
