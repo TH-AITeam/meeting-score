@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { scoreClass } from '../../utils/labels'
 
 const SCORE_TIP = '各軸スコア（0〜3 の整数）× 重み（例: 1.3, 0.8）の合計のため小数になります'
@@ -27,10 +28,11 @@ export default function ScoreBadge({ score }: Props) {
       >
         {score}
       </span>
-      {pos && (
+      {pos && createPortal(
         <div className="score-tip" style={{ top: pos.top, left: pos.left }}>
           {SCORE_TIP}
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )
