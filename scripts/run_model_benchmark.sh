@@ -101,14 +101,15 @@ mkdir -p "$LOG_DIR"
 # 27B BnB は CUDA graph のための余分なバッファすら確保できないので必須。
 # --------------------------------------------------------------------------
 CANDIDATES=(
-  # Qwen3.6-27B は公式に AWQ/GPTQ チェックポイントがないため、BitsAndBytes NF4 で
-  # オンザフライ 4bit 量子化する。bf16 だと 54GB で 32GB に乗らない。
-  # 32GB に詰めるため --enforce-eager で CUDA graph を無効化（推論は数 % 遅くなる）。
+  # 14B 級 bf16 (28GB) は 32GB 環境では KV cache を確保できず OOM するため、
+  # 公式 AWQ がないモデルは BitsAndBytes NF4 でオンザフライ量子化する。
+  # 32GB に詰めるため 27B/14B/32B-AWQ には --enforce-eager で CUDA graph を無効化
+  # （推論は数 % 遅くなるが KV cache 領域が確保できる）。
   "Qwen/Qwen3.6-27B|qwen3.6-27b-bnb|--quantization bitsandbytes --dtype auto --enforce-eager"
-  "Qwen/Qwen3-14B|qwen3-14b-bf16|--dtype bfloat16"
+  "Qwen/Qwen3-14B|qwen3-14b-bnb|--quantization bitsandbytes --dtype auto --enforce-eager"
   "Qwen/Qwen2.5-32B-Instruct-AWQ|qwen2.5-32b-awq|--quantization awq_marlin --dtype auto --enforce-eager"
   "tokyotech-llm/Llama-3.1-Swallow-8B-Instruct-v0.3|swallow-3.1-8b-bf16|--dtype bfloat16"
-  "microsoft/phi-4|phi-4-14b-bf16|--dtype bfloat16"
+  "microsoft/phi-4|phi-4-14b-bnb|--quantization bitsandbytes --dtype auto --enforce-eager"
 )
 
 # --------------------------------------------------------------------------
@@ -200,9 +201,35 @@ benchmark_one() {
       --n "$N_LATENCY" \
       --out "${out_dir}/${ts}_latency.json" || echo "WARN: latency failed"
 
-  # vLLM 終了
-  kill "$vllm_pid" 2>/dev/null || true
+  # vLLM 終了とメモリ解放 (次モデルへの residual を避ける)
+  # 1) SIGTERM、子プロセスごと
+  pkill -TERM -P "$vllm_pid" 2>/dev/null || true
+  kill -TERM "$vllm_pid" 2>/dev/null || true
+
+  # 2) 最大 30 秒待って、まだ生きてたら SIGKILL
+  for i in $(seq 1 30); do
+    kill -0 "$vllm_pid" 2>/dev/null || break
+    sleep 1
+  done
+  if kill -0 "$vllm_pid" 2>/dev/null; then
+    echo "  vLLM が SIGTERM で終わらないので SIGKILL"
+    pkill -KILL -P "$vllm_pid" 2>/dev/null || true
+    kill -KILL "$vllm_pid" 2>/dev/null || true
+  fi
   wait "$vllm_pid" 2>/dev/null || true
+
+  # 3) 残存 vLLM プロセスを掃除 (worker / engine_core 残り対策)
+  pkill -KILL -f "vllm.entrypoints.openai.api_server" 2>/dev/null || true
+  pkill -KILL -f "EngineCore" 2>/dev/null || true
+
+  # 4) GPU メモリ解放を確認 (5090 32GB なら使用量が ~500MB 以下に落ちる想定)
+  sleep 5
+  if command -v nvidia-smi >/dev/null 2>&1; then
+    local used_mb
+    used_mb=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1 | tr -d ' ')
+    echo "  GPU memory after shutdown: ${used_mb} MiB used"
+  fi
+
   trap - EXIT
   echo "Done: ${served}"
 }
@@ -216,8 +243,8 @@ if [[ "${1:-}" == "--all" ]]; then
     benchmark_one "$hf_id" "$served" "$extra"
   done
 else
-  : "${MODEL:?MODEL を指定してください（例: MODEL=Qwen/Qwen3.6-27B-Instruct-AWQ）}"
-  : "${SERVED_NAME:?SERVED_NAME を指定してください（例: SERVED_NAME=qwen3.6-27b-awq）}"
+  : "${MODEL:?MODEL を指定してください（例: MODEL=Qwen/Qwen3.6-27B）}"
+  : "${SERVED_NAME:?SERVED_NAME を指定してください（例: SERVED_NAME=qwen3.6-27b-bnb）}"
   EXTRA="${EXTRA:---dtype auto}"
   benchmark_one "$MODEL" "$SERVED_NAME" "$EXTRA"
 fi

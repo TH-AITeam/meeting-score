@@ -38,9 +38,9 @@ MODEL_META: dict[str, dict[str, str]] = {
         "license": "Apache 2.0",
         "trainability": "★★★",
     },
-    "qwen3-14b-bf16": {
+    "qwen3-14b-bnb": {
         "label": "Qwen3-14B",
-        "quant": "bf16",
+        "quant": "BnB NF4 (on-the-fly)",
         "license": "Apache 2.0",
         "trainability": "★★★",
     },
@@ -56,9 +56,9 @@ MODEL_META: dict[str, dict[str, str]] = {
         "license": "Llama 3.1 CL + Swallow",
         "trainability": "★★☆",
     },
-    "phi-4-14b-bf16": {
+    "phi-4-14b-bnb": {
         "label": "Phi-4-14B",
-        "quant": "bf16",
+        "quant": "BnB NF4 (on-the-fly)",
         "license": "MIT",
         "trainability": "★★★",
     },
@@ -164,10 +164,10 @@ def _format_table(results: list[ModelResult]) -> str:
     # docs/model_candidates.md の並び順に揃える
     desired_order = [
         "qwen3.6-27b-bnb",
-        "qwen3-14b-bf16",
+        "qwen3-14b-bnb",
         "qwen2.5-32b-awq",
         "swallow-3.1-8b-bf16",
-        "phi-4-14b-bf16",
+        "phi-4-14b-bnb",
     ]
     by_name = {r.served_name: r for r in results}
 
