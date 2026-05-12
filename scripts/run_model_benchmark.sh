@@ -165,10 +165,12 @@ benchmark_one() {
   # 既定 1800 秒 = 30 分。27B BnB 等の初回ロードは長い。
   local max_wait_sec="${VLLM_READY_TIMEOUT:-1800}"
   local iters=$(( max_wait_sec / 10 ))
+  local ready=0
   echo "Waiting for vLLM to load model (timeout ${max_wait_sec}s)..."
   for i in $(seq 1 "$iters"); do
     if curl -fsS "http://127.0.0.1:${PORT}/v1/models" >/dev/null 2>&1; then
       echo "  ready after ~$((i * 10))s"
+      ready=1
       break
     fi
     sleep 10
@@ -177,6 +179,10 @@ benchmark_one() {
       exit 1
     fi
   done
+  if [[ "$ready" -ne 1 ]]; then
+    echo "ERROR: vLLM did not become ready within ${max_wait_sec}s. See $vllm_log" >&2
+    exit 1
+  fi
 
   # eval CLI に渡す共通フラグ。--backend local + --endpoint で vLLM サーバを叩く
   local endpoint="http://127.0.0.1:${PORT}/v1"
