@@ -22,7 +22,6 @@ from app.ingest.loader import load_meeting_from_file
 from app.schemas.models import EvaluatedUtterance
 from app.scoring.calculator import calculate_total_score
 from app.scoring.rule_corrections import apply_rule_corrections
-
 from evals.metrics import (
     PairwiseAccuracyReport,
     kendall_tau,
@@ -39,7 +38,6 @@ from evals.schema import (
 
 if TYPE_CHECKING:
     from app.scoring.weights import ScoringWeights
-
     from evals.protocol import Evaluator
 
 
@@ -82,9 +80,7 @@ class EvalReport:
 
     @property
     def macro_bottom5_jaccard(self) -> float:
-        vals = [
-            m.bottom5_jaccard for m in self.per_meeting if m.bottom5_jaccard is not None
-        ]
+        vals = [m.bottom5_jaccard for m in self.per_meeting if m.bottom5_jaccard is not None]
         return sum(vals) / len(vals) if vals else 0.0
 
     @property
@@ -144,9 +140,7 @@ def _evaluate_meeting(
 ) -> tuple[str, list[EvaluatedUtterance]]:
     """1会議を Evaluator で評価し、(meeting_id, 評価済み発言リスト) を返す。"""
     meeting = load_meeting_from_file(meeting_file)
-    contexts = build_contexts(
-        meeting, before_count=context_before, after_count=context_after
-    )
+    contexts = build_contexts(meeting, before_count=context_before, after_count=context_after)
     evaluated: list[EvaluatedUtterance] = []
     for ctx in contexts:
         result = evaluator.evaluate(ctx)
@@ -246,11 +240,10 @@ def run_eval(
     meeting_ids: set[str] = set()
     meeting_ids.update(p.meeting_id for p in pairs)
     meeting_ids.update(tb_by_meeting.keys())
-    if not meeting_ids:
+    if not meeting_ids and meetings_dir.exists():
         # アノテが空でもデータセット dir 内の meeting ファイルを探す
-        if meetings_dir.exists():
-            for f in meetings_dir.glob("*.json"):
-                meeting_ids.add(f.stem)
+        for f in meetings_dir.glob("*.json"):
+            meeting_ids.add(f.stem)
 
     report = EvalReport(
         dataset=str(dataset_path),
@@ -259,9 +252,7 @@ def run_eval(
     )
 
     for meeting_id in sorted(meeting_ids):
-        meeting_file = _find_meeting_file(
-            meeting_id, meetings_dir, fallback_meetings_dir
-        )
+        meeting_file = _find_meeting_file(meeting_id, meetings_dir, fallback_meetings_dir)
         if meeting_file is None:
             continue
         actual_id, evaluated = _evaluate_meeting(
@@ -274,9 +265,7 @@ def run_eval(
     return report
 
 
-def _find_meeting_file(
-    meeting_id: str, primary: Path, fallback: Path
-) -> Path | None:
+def _find_meeting_file(meeting_id: str, primary: Path, fallback: Path) -> Path | None:
     for d in (primary, fallback):
         if not d.exists():
             continue
