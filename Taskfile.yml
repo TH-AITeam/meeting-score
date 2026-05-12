@@ -78,7 +78,7 @@ tasks:
 
   # ---------- eval ハーネス ----------
   eval:
-    desc: "ベースライン評価（DATASET / MEETINGS_DIR / MODEL / OUT を上書き可）"
+    desc: "ベースライン評価（パスは backend/ 相対。例: task eval DATASET=../data/annotations/gold/v1）"
     dir: "{{.BACKEND_DIR}}"
     vars:
       DATASET: '{{default "../data/annotations/gold/v1" .DATASET}}'
@@ -89,7 +89,7 @@ tasks:
       - uv run python -m evals.cli {{.MODEL_FLAG}} run --dataset {{.DATASET}} {{.MEETINGS_FLAG}} --out {{.OUT_PATH}}
 
   eval:stability:
-    desc: "同一会議を N 回採点して分散を測る（SAMPLE / N / MODEL / OUT を上書き可）"
+    desc: "安定性評価（パスは backend/ 相対。例: task eval:stability SAMPLE=../data/sample_meetings/sample_meeting_01.json N=5）"
     dir: "{{.BACKEND_DIR}}"
     vars:
       SAMPLE: '{{default "../data/sample_meetings/sample_meeting_01.json" .SAMPLE}}'

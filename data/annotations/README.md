@@ -106,7 +106,7 @@ eval ハーネスのメトリクスは以下のように対応する:
 実行例:
 
 ```bash
-make eval DATASET=data/annotations/gold/v1
+task eval DATASET=../data/annotations/gold/v1
 ```
 
 会議元データは `gold/v1/meetings/{meeting_id}.json` を既定として探し、
