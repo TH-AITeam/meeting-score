@@ -29,8 +29,8 @@ def _sample_result(title: str = "テスト会議") -> dict:
         "improvement_comments": [],
         "speaker_summaries": [{"speaker": "A"}, {"speaker": "B"}],
         "evaluated_utterances": [
-            {"utterance_id": "u1", "total_score": 80.0},
-            {"utterance_id": "u2", "total_score": 60.0},
+            {"utterance_id": "u1", "total_score": 16.0},
+            {"utterance_id": "u2", "total_score": 8.0},
         ],
     }
 
@@ -70,7 +70,7 @@ def test_save_and_list_meeting(client):
     assert data["title"] == "テスト会議"
     assert data["speaker_count"] == 2
     assert data["utterance_count"] == 2
-    assert data["overall_score"] == 70.0
+    assert data["overall_score"] == 51.3
     assert data["source_type"] == "upload"
     assert "id" in data
 

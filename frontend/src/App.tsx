@@ -21,24 +21,21 @@ const RESULT_TABS: { id: ResultTab; label: string }[] = [
   { id: 'speakers', label: '話者別分析' },
 ]
 
-async function autoSave(sourceType: string, inputData: unknown, result: MeetingSummary) {
-  try {
-    await saveMeeting(sourceType, inputData, result)
-  } catch {
-    // 保存失敗はサイレントに無視（分析結果の表示は継続）
-  }
-}
-
 export default function App() {
   const [state, setState] = useState<AppState>({ phase: 'upload' })
   const [speakerMode, setSpeakerMode] = useState<SpeakerMode>('cards')
+  const [historyVersion, setHistoryVersion] = useState(0)
+
+  const triggerHistoryRefresh = () => setHistoryVersion((v) => v + 1)
 
   const handleAnalyzeSample = async (filename: string) => {
     setState({ phase: 'loading' })
     try {
       const data = await analyzeSample(filename)
       setState({ phase: 'results', data, tab: 'summary' })
-      autoSave('sample', { filename }, data)
+      saveMeeting('sample', { filename }, data)
+        .then(triggerHistoryRefresh)
+        .catch(() => {/* 保存失敗はサイレントに無視 */})
     } catch (e) {
       alert(`分析に失敗しました: ${String(e)}`)
       setState({ phase: 'upload' })
@@ -50,7 +47,9 @@ export default function App() {
     try {
       const data = await analyzeJson(body)
       setState({ phase: 'results', data, tab: 'summary' })
-      autoSave('upload', body, data)
+      saveMeeting('upload', body, data)
+        .then(triggerHistoryRefresh)
+        .catch(() => {/* 保存失敗はサイレントに無視 */})
     } catch (e) {
       alert(`分析に失敗しました: ${String(e)}`)
       setState({ phase: 'upload' })
@@ -130,6 +129,7 @@ export default function App() {
             onAnalyzeSample={handleAnalyzeSample}
             onAnalyzeJson={handleAnalyzeJson}
             onRestore={handleRestore}
+            historyVersion={historyVersion}
           />
         )}
         {state.phase === 'loading' && <LoadingView />}

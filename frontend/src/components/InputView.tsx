@@ -6,6 +6,7 @@ interface Props {
   onAnalyzeSample: (filename: string) => void
   onAnalyzeJson: (data: unknown) => void
   onRestore: (data: MeetingSummary) => void
+  historyVersion: number
 }
 
 type InputMode = 'none' | 'file' | 'paste'
@@ -36,7 +37,7 @@ function formatDate(iso: string) {
   }
 }
 
-export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore }: Props) {
+export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, historyVersion }: Props) {
   const [samples, setSamples] = useState<SampleFile[]>([])
   const [samplesStatus, setSamplesStatus] = useState<'loading' | 'ok' | 'error'>('loading')
   const [mode, setMode] = useState<InputMode>('none')
@@ -52,11 +53,13 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore }:
     fetchSamples()
       .then((data) => { setSamples(data); setSamplesStatus('ok') })
       .catch(() => setSamplesStatus('error'))
+  }, [])
 
+  useEffect(() => {
     listMeetings()
       .then((data) => { setHistory(data); setHistoryStatus('ok') })
       .catch(() => setHistoryStatus('error'))
-  }, [])
+  }, [historyVersion])
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

@@ -7,6 +7,9 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, init)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    return undefined as T
+  }
   return res.json() as Promise<T>
 }
 

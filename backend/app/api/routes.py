@@ -115,6 +115,9 @@ async def get_meeting(meeting_id: str):
     return meeting.model_dump()
 
 
+_MAX_TOTAL_SCORE = (1.3 + 1.5 + 1.2 + 1.3 + 0.8 + 0.9 + 0.8) * 3  # = 23.4
+
+
 @router.post("/meetings", status_code=201)
 async def save_meeting(body: SaveMeetingRequest):
     """分析結果を保存する"""
@@ -122,9 +125,10 @@ async def save_meeting(body: SaveMeetingRequest):
     title = result.get("title", "(タイトルなし)")
     speaker_summaries = result.get("speaker_summaries", [])
     evaluated = result.get("evaluated_utterances", [])
-    overall_score = (
+    avg_score = (
         sum(u.get("total_score", 0) for u in evaluated) / len(evaluated) if evaluated else 0.0
     )
+    overall_score = round(min(avg_score / _MAX_TOTAL_SCORE * 100, 100), 1)
 
     meeting = SavedMeeting(
         id=repository.generate_id(),
@@ -133,7 +137,7 @@ async def save_meeting(body: SaveMeetingRequest):
         created_at=datetime.now(tz=JST).isoformat(),
         speaker_count=len(speaker_summaries),
         utterance_count=len(evaluated),
-        overall_score=round(overall_score, 2),
+        overall_score=overall_score,
         input=body.input,
         result=result,
     )
