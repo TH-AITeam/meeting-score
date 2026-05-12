@@ -61,14 +61,22 @@ if ! "$PYTHON" -c "import vllm" >/dev/null 2>&1; then
   exit 1
 fi
 
-# Blackwell (sm_120 / RTX 5090) では FlashInfer の JIT が "requires sm75" で落ちる。
-# vLLM の attention backend を Triton に倒して FlashInfer を経由しないようにする。
-# 他環境では VLLM_ATTENTION_BACKEND を空にして既定 (FlashInfer / FlashAttn) に戻せる。
-export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-TRITON_ATTN}"
-# FlashInfer の JIT が走るときに CUDA arch を指定しておく (念のため、Blackwell)
+# Blackwell (sm_120 / RTX 5090) では FlashInfer の JIT が "requires sm75 or higher"
+# (実態は sm_120 認識失敗) で落ちる。FlashAttention に倒す。
+# uninstall flashinfer-python が確実だが、env でも切り替えを試みる。
+# 既定値: FLASH_ATTN。Blackwell + bnb + bf16 のいずれでも v1 エンジンで動く想定。
+export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
+# JIT が起きる場合の CUDA arch (Blackwell)
 export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-12.0}"
 echo "VLLM_ATTENTION_BACKEND=${VLLM_ATTENTION_BACKEND}"
 echo "TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}"
+
+# FlashInfer が import 可能だと v1 エンジンが優先選択しがちなので、
+# pip uninstall flashinfer-python しておくと確実 (本スクリプトは uninstall は行わない)。
+if "$PYTHON" -c "import flashinfer" >/dev/null 2>&1; then
+  echo "WARN: flashinfer-python が import 可能です。Blackwell では未対応で落ちることがあります。"
+  echo "      回避するには:  uv pip uninstall flashinfer-python"
+fi
 
 DATASET="${DATASET:-data/annotations/gold/v1}"
 SAMPLE="${SAMPLE:-data/sample_meetings/sample_meeting_01.json}"
