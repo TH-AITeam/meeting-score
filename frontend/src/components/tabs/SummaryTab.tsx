@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { EvaluatedUtterance, MeetingSummary, Scores } from '../../types/meeting'
 import { AXIS_LABELS } from '../../utils/labels'
+import ScoreBadge from '../ui/ScoreBadge'
 
 interface Props {
   data: MeetingSummary
@@ -164,9 +165,11 @@ export default function SummaryTab({ data }: Props) {
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--ink-2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.text}</div>
                   </div>
-                  <div className="wf-mono" style={{ textAlign: 'right', fontWeight: 700, color: u.total_score < 0 ? 'var(--red)' : 'var(--ink)' }}>
-                    {u.total_score >= 0 ? '+' : ''}{u.total_score.toFixed(1)}
-                  </div>
+                  <ScoreBadge
+                    score={u.total_score}
+                    large
+                    style={{ fontSize: 13, color: u.total_score < 0 ? 'var(--red)' : 'var(--ink)' }}
+                  />
                 </div>
               ))}
             </div>

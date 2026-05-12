@@ -320,6 +320,60 @@ body {
   color: var(--bg);
 }
 
+/* ===== Score badge ===== */
+.score-badge {
+  display: inline-block;
+  font-family: var(--hand);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  cursor: help;
+  white-space: nowrap;
+}
+.score-badge.score-high     { color: oklch(0.35 0.08 145); background: var(--green-soft); }
+.score-badge.score-mid      { color: oklch(0.35 0.1 50);   background: var(--accent-soft); }
+.score-badge.score-low      { color: var(--ink-2);          background: var(--bg-2); }
+.score-badge.score-negative { color: oklch(0.4 0.12 25);   background: var(--red-soft); }
+
+/* ===== Score tip tooltip ===== */
+.score-tip {
+  position: fixed;
+  transform: translate(-50%, -100%) translateY(-8px);
+  width: 220px;
+  padding: 7px 10px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 11px;
+  line-height: 1.5;
+  border-radius: 6px;
+  white-space: normal;
+  z-index: 9999;
+  pointer-events: none;
+}
+.score-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+}
+
+/* 左側に表示するバリアント */
+.score-tip.score-tip-left {
+  transform: translateX(-100%) translateX(-8px) translateY(-50%);
+}
+.score-tip.score-tip-left::after {
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  border-top-color: transparent;
+  border-left-color: var(--ink);
+}
+
 /* ===== Save button / badge ===== */
 .save-btn {
   font-family: var(--hand);

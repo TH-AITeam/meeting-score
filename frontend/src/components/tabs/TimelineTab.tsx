@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { EvaluatedUtterance, Scores } from '../../types/meeting'
 import { AXIS_LABELS, AXIS_LABELS_FULL, PENALTY_LABELS } from '../../utils/labels'
+import ScoreBadge from '../ui/ScoreBadge'
 
 interface Props {
   utterances: EvaluatedUtterance[]
@@ -207,9 +208,11 @@ export default function TimelineTab({ utterances }: Props) {
                     <span className="wf-mono">{u.timestamp}</span>
                     {fwd && <span className="chip accent dot">前進</span>}
                     {pen && <span className="chip red dot">{penaltyLabel(u)}</span>}
-                    <span style={{ marginLeft: 'auto' }} className="wf-mono">
-                      {u.total_score >= 0 ? '+' : ''}{u.total_score.toFixed(1)}
-                    </span>
+                    <ScoreBadge
+                      score={u.total_score}
+                      large
+                      style={{ marginLeft: 'auto', fontSize: 13, color: u.total_score < 0 ? 'var(--red)' : 'var(--ink)' }}
+                    />
                   </div>
                   <div style={{ fontSize: 13 }}>{u.text}</div>
                 </div>
@@ -242,9 +245,11 @@ export default function TimelineTab({ utterances }: Props) {
               <div className="sep dashed" />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <span className="wf-label">総合スコア</span>
-                <span className="wf-h1" style={{ color: focus.total_score < 0 ? 'var(--red)' : 'var(--ink)' }}>
-                  {focus.total_score >= 0 ? '+' : ''}{focus.total_score.toFixed(1)}
-                </span>
+                <ScoreBadge
+                  score={focus.total_score}
+                  large
+                  style={{ color: focus.total_score < 0 ? 'var(--red)' : 'var(--ink)' }}
+                />
               </div>
 
               <div className="wf-label" style={{ marginTop: 8 }}>主評価軸</div>
