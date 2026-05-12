@@ -153,7 +153,9 @@ def _evaluate_meeting(
     evaluated: list[EvaluatedUtterance] = []
     for ctx in contexts:
         result = evaluator.evaluate(ctx)
-        total = calculate_total_score(result.scores, result.penalties, effective_weights, penalty_weights)
+        total = calculate_total_score(
+            result.scores, result.penalties, effective_weights, penalty_weights
+        )
         target = ctx.target_utterance
         evaluated.append(
             EvaluatedUtterance(
