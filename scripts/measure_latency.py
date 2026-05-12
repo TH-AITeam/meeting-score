@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
 from app.context_builder.builder import build_contexts  # noqa: E402
-from app.evaluators.openai_evaluator import OpenAIEvaluator  # noqa: E402
+from app.evaluators.local_evaluator import LocalEvaluator  # noqa: E402
 from app.ingest.loader import load_meeting_from_file  # noqa: E402
 
 
@@ -60,7 +60,7 @@ def main() -> int:
         raise SystemExit(msg)
     ctx = contexts[0]
 
-    evaluator = OpenAIEvaluator(
+    evaluator = LocalEvaluator(
         model=args.model,
         endpoint=args.endpoint,
         api_key=args.api_key,

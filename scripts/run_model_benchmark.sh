@@ -153,17 +153,15 @@ benchmark_one() {
     fi
   done
 
-  # config.yaml は環境変数で上書きするか、テスト用 config を流す
-  export MEETING_SCORE_LLM_BACKEND="local"
-  export MEETING_SCORE_LLM_ENDPOINT="http://127.0.0.1:${PORT}/v1"
-  export MEETING_SCORE_LLM_MODEL="$served"
+  # eval CLI に渡す共通フラグ。--backend local + --endpoint で vLLM サーバを叩く
+  local endpoint="http://127.0.0.1:${PORT}/v1"
+  local cli_common=(--backend local --endpoint "$endpoint" --model "$served")
 
   # --- 1) ベースライン評価（アノテがあれば） ---
   if [[ -d "$DATASET" && -f "$DATASET/pairs.jsonl" ]]; then
     echo "[1/3] make eval"
-    (cd backend && "$PYTHON" -m evals.cli run \
+    (cd backend && "$PYTHON" -m evals.cli "${cli_common[@]}" run \
         --dataset "../${DATASET}" \
-        --model "$served" \
         --out "../${out_dir}/${ts}.json") || echo "WARN: eval failed"
   else
     echo "[1/3] eval をスキップ (アノテ未整備: $DATASET)"
@@ -171,10 +169,9 @@ benchmark_one() {
 
   # --- 2) 安定性（N 回採点して軸別 SD） ---
   echo "[2/3] stability N=${N_STABILITY}"
-  (cd backend && "$PYTHON" -m evals.cli stability \
+  (cd backend && "$PYTHON" -m evals.cli "${cli_common[@]}" stability \
       --meeting "../${SAMPLE}" \
       --n "$N_STABILITY" \
-      --model "$served" \
       --out "../${out_dir}/${ts}_stability.json") || echo "WARN: stability failed"
 
   # --- 3) レイテンシ（同一発言を N 回。同期呼び出しで p50/p95） ---
