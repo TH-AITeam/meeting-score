@@ -1,0 +1,1590 @@
+{
+  "meeting_id": "m001",
+  "n_samples": 5,
+  "model": "swallow-3.1-8b-bf16",
+  "backend": "local",
+  "mean_sd_per_axis": {
+    "issue_clarification": 0.06956521739130435,
+    "decision_progress": 0.017391304347826087,
+    "risk_detection": 0.017391304347826087,
+    "actionability": 0.034782608695652174,
+    "groundedness": 0.017391304347826087,
+    "novelty": 0.034782608695652174,
+    "summarization": 0.05217391304347827
+  },
+  "max_sd_per_axis": {
+    "issue_clarification": 0.8,
+    "decision_progress": 0.39999999999999997,
+    "risk_detection": 0.4,
+    "actionability": 0.8,
+    "groundedness": 0.4,
+    "novelty": 0.4,
+    "summarization": 0.8
+  },
+  "utterances": [
+    {
+      "utterance_id": "u001",
+      "samples": [
+        {
+          "issue_clarification": 3,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 3,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 3,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 3,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 3,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u002",
+      "samples": [
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u003",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.8,
+        "decision_progress": 0.39999999999999997,
+        "risk_detection": 0.4,
+        "actionability": 0.8,
+        "groundedness": 0.4,
+        "novelty": 0.4,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 2,
+        "decision_progress": 1,
+        "risk_detection": 1,
+        "actionability": 2,
+        "groundedness": 1,
+        "novelty": 1,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u004",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u005",
+      "samples": [
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u006",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u007",
+      "samples": [
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u008",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u009",
+      "samples": [
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u010",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u011",
+      "samples": [
+        {
+          "issue_clarification": 1,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 1,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 1,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 1,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 1,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u012",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u013",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.8,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 2,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u014",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 3,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 3,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 3,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 3,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 3,
+          "actionability": 2,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u015",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 2,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u016",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 2,
+          "actionability": 0,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u017",
+      "samples": [
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 3,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 1
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 3,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 2
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 3,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 2
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 3,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 2
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 3,
+          "risk_detection": 1,
+          "actionability": 3,
+          "groundedness": 2,
+          "novelty": 1,
+          "summarization": 2
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.4,
+        "summarization": 0.4
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 1,
+        "summarization": 1
+      }
+    },
+    {
+      "utterance_id": "u018",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u019",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 2,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 1,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u020",
+      "samples": [
+        {
+          "issue_clarification": 2,
+          "decision_progress": 1,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 3
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 1,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 3
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 1,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 3
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 1,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 3
+        },
+        {
+          "issue_clarification": 2,
+          "decision_progress": 1,
+          "risk_detection": 0,
+          "actionability": 1,
+          "groundedness": 2,
+          "novelty": 0,
+          "summarization": 3
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u021",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 2
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.8
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 2
+      }
+    },
+    {
+      "utterance_id": "u022",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    },
+    {
+      "utterance_id": "u023",
+      "samples": [
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        },
+        {
+          "issue_clarification": 0,
+          "decision_progress": 0,
+          "risk_detection": 0,
+          "actionability": 0,
+          "groundedness": 0,
+          "novelty": 0,
+          "summarization": 0
+        }
+      ],
+      "sd_per_axis": {
+        "issue_clarification": 0.0,
+        "decision_progress": 0.0,
+        "risk_detection": 0.0,
+        "actionability": 0.0,
+        "groundedness": 0.0,
+        "novelty": 0.0,
+        "summarization": 0.0
+      },
+      "range_per_axis": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      }
+    }
+  ]
+}
