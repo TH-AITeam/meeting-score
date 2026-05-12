@@ -1,5 +1,7 @@
 # README
 
+[![CI](https://github.com/TH-AITeam/meeting-score/actions/workflows/ci.yml/badge.svg)](https://github.com/TH-AITeam/meeting-score/actions/workflows/ci.yml)
+
 ## 概要
 
 このプロジェクトは、会議中の各発言について「会議をどれだけ前進させたか」を複数軸で評価し、会議改善・振り返りに使える形で可視化する MVP を実装するためのものです。
@@ -420,6 +422,45 @@ make typecheck   # mypy による型チェック
 make test        # pytest でテスト実行
 make test-cov    # カバレッジ付きテスト
 ```
+
+---
+
+# CI (GitHub Actions)
+
+## ワークフロー構成
+
+`main` へのプッシュおよび `main` 向けのプルリクエスト作成時に自動で実行されます。
+
+| ジョブ | 内容 |
+|--------|------|
+| `frontend` | TypeScript 型チェック・ESLint・Vite ビルド |
+| `lint` | `ruff check` / `ruff format --check` / `mypy` |
+| `test` | `pytest` + カバレッジ計測（しきい値 70%） |
+
+## ローカルで CI と同じチェックを実行する
+
+```bash
+# バックエンド
+cd backend
+
+# lint
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy app
+
+# test（カバレッジ付き）
+uv run pytest --cov=app --cov-report=term --cov-fail-under=70
+```
+
+## カバレッジ
+
+- CI でカバレッジが **70% 未満** になるとテストジョブが失敗します
+- 安定後は 80% へ引き上げる予定です
+- カバレッジレポートは [Codecov](https://codecov.io/gh/TH-AITeam/meeting-score) で確認できます
+
+## テスト内でのシークレット扱い
+
+`OPENAI_API_KEY` などの外部 API キーを CI に渡さない方針です。LLM を呼び出すテストはモックを使ってください。
 
 ---
 
