@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any
 
 from app.asr.base import Utterance as AsrUtterance
@@ -181,3 +182,38 @@ def test_openai_meta_extractor_calls_client(monkeypatch) -> None:
     assert captured["response_format"]["type"] == "json_schema"
     # transcript がプロンプトに展開されている
     assert "これは会議書き起こしです。" in captured["messages"][0]["content"]
+
+
+def test_openai_meta_extractor_uses_placeholder_key_for_compatible_endpoint(
+    monkeypatch,
+) -> None:
+    """OpenAI 互換 endpoint 指定時は api_key 未指定でも SDK に placeholder を渡す。"""
+    captured: dict[str, Any] = {}
+
+    class _FakeOpenAI:
+        def __init__(self, **kwargs) -> None:
+            captured.update(kwargs)
+
+    monkeypatch.setitem(sys.modules, "openai", type("OpenAIModule", (), {"OpenAI": _FakeOpenAI}))
+
+    extractor = OpenAIMetaExtractor(model="dummy", endpoint="http://localhost:8000/v1")
+    extractor._get_client()
+
+    assert captured["base_url"] == "http://localhost:8000/v1"
+    assert captured["api_key"] == "EMPTY"
+
+
+def test_openai_meta_extractor_without_endpoint_keeps_sdk_default_auth(monkeypatch) -> None:
+    """公式 OpenAI 利用時は api_key 未指定なら SDK の環境変数解決に任せる。"""
+    captured: dict[str, Any] = {}
+
+    class _FakeOpenAI:
+        def __init__(self, **kwargs) -> None:
+            captured.update(kwargs)
+
+    monkeypatch.setitem(sys.modules, "openai", type("OpenAIModule", (), {"OpenAI": _FakeOpenAI}))
+
+    extractor = OpenAIMetaExtractor(model="dummy")
+    extractor._get_client()
+
+    assert captured == {"timeout": 60.0}

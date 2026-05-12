@@ -23,6 +23,7 @@ from app.schemas.models import Utterance as SchemaUtterance
 logger = logging.getLogger(__name__)
 
 _PROMPT_PATH = Path(__file__).resolve().parent.parent.parent / "prompts" / "meta_extraction.txt"
+_OPENAI_COMPAT_API_KEY_PLACEHOLDER = "EMPTY"
 
 _META_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -169,7 +170,8 @@ class OpenAIMetaExtractor:
         kwargs: dict[str, Any] = {"timeout": self.timeout}
         if self.endpoint:
             kwargs["base_url"] = self.endpoint
-        if self.api_key:
+            kwargs["api_key"] = self.api_key or _OPENAI_COMPAT_API_KEY_PLACEHOLDER
+        elif self.api_key:
             kwargs["api_key"] = self.api_key
         return OpenAI(**kwargs)
 
