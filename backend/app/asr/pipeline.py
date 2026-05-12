@@ -45,9 +45,7 @@ class AudioPipeline:
             overlap_iou_threshold=self.overlap_iou_threshold,
         )
 
-    def _compute_volumes(
-        self, audio_path: Path, turns: list[Turn]
-    ) -> list[VolumeLevel]:
+    def _compute_volumes(self, audio_path: Path, turns: list[Turn]) -> list[VolumeLevel]:
         if self.volume_analyzer is None or not turns:
             return ["mid"] * len(turns)
         spans = [(t.start_sec, t.end_sec) for t in turns]
@@ -115,9 +113,7 @@ def assemble_utterances(
             for j, t in enumerate(turns)
             if j != orig_idx
             and t.speaker != turn.speaker
-            and _interval_iou(
-                (turn.start_sec, turn.end_sec), (t.start_sec, t.end_sec)
-            )
+            and _interval_iou((turn.start_sec, turn.end_sec), (t.start_sec, t.end_sec))
             >= overlap_iou_threshold
         ]
         utterances.append(

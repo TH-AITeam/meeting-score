@@ -66,9 +66,7 @@ class PyannoteDiarizer:
         )
         raise NotImplementedError(msg)
 
-    def diarize(
-        self, audio_path: Path, num_speakers: int | None = None
-    ) -> list[Turn]:
+    def diarize(self, audio_path: Path, num_speakers: int | None = None) -> list[Turn]:
         """音声ファイルから話者交替区間を返す。
 
         Parameters

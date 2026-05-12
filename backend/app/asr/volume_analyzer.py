@@ -115,15 +115,12 @@ class LibrosaVolumeAnalyzer:
     def __init__(self, thresholds: VolumeThresholds | None = None) -> None:
         self.thresholds = thresholds or VolumeThresholds()
 
-    def classify(
-        self, audio_path: Path, spans: list[tuple[float, float]]
-    ) -> list[VolumeLevel]:
+    def classify(self, audio_path: Path, spans: list[tuple[float, float]]) -> list[VolumeLevel]:
         try:
             import librosa
         except ImportError as e:  # pragma: no cover - 依存が無い環境
             msg = (
-                "librosa が見つかりません。`uv sync --extra audio` で audio "
-                "依存を入れてください。"
+                "librosa が見つかりません。`uv sync --extra audio` で audio 依存を入れてください。"
             )
             raise ImportError(msg) from e
         samples, sr = librosa.load(str(audio_path), sr=16000, mono=True)

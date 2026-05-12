@@ -6,12 +6,23 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.110.0",
+    "numpy>=1.26",
     "openai>=1.0.0",
     "pydantic>=2.6.0",
     "python-dotenv>=1.0.1",
     "python-multipart>=0.0.9",
     "pyyaml>=6.0.1",
     "uvicorn[standard]>=0.29.0",
+]
+
+# Issue #19 の音声処理 (WhisperX + pyannote + librosa) は重い依存なので
+# 既定の uv sync では入れず、`uv sync --extra audio` で明示的に導入する。
+[project.optional-dependencies]
+audio = [
+    "librosa>=0.10",
+    "pyannote-audio>=3.1",
+    "soundfile>=0.12",
+    "whisperx>=3.1",
 ]
 
 [dependency-groups]
@@ -66,3 +77,16 @@ check_untyped_defs = true
 no_implicit_optional = true
 strict_equality = true
 exclude = ["data/", "checkpoints/"]
+
+# Issue #19 の audio extras は optional 依存。未導入環境でも型チェックが通るように
+# stub を提供しないライブラリは missing imports を許容する。
+[[tool.mypy.overrides]]
+module = [
+    "librosa",
+    "librosa.*",
+    "pyannote",
+    "pyannote.*",
+    "whisperx",
+    "whisperx.*",
+]
+ignore_missing_imports = true

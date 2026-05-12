@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Protocol
 
-
 VolumeLevel = Literal["silent", "low", "mid", "high"]
 
 
@@ -86,9 +85,7 @@ class Diarizer(Protocol):
     実装例: `app.asr.pyannote_diarizer.PyannoteDiarizer`
     """
 
-    def diarize(
-        self, audio_path: Path, num_speakers: int | None = None
-    ) -> list[Turn]: ...
+    def diarize(self, audio_path: Path, num_speakers: int | None = None) -> list[Turn]: ...
 
 
 class VolumeAnalyzer(Protocol):
@@ -97,9 +94,7 @@ class VolumeAnalyzer(Protocol):
     実装例: `app.asr.volume_analyzer.LibrosaVolumeAnalyzer`
     """
 
-    def classify(
-        self, audio_path: Path, spans: list[tuple[float, float]]
-    ) -> list[VolumeLevel]: ...
+    def classify(self, audio_path: Path, spans: list[tuple[float, float]]) -> list[VolumeLevel]: ...
 
 
 __all__ = [

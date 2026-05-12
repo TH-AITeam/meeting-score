@@ -64,7 +64,7 @@ class WhisperXTranscriber:
         )
         raise NotImplementedError(msg)
 
-    def transcribe(self, audio_path: Path) -> list[Word]:  # noqa: ARG002
+    def transcribe(self, audio_path: Path) -> list[Word]:
         """音声ファイルから word-level timestamp 付きの単語列を返す。"""
         msg = "WhisperXTranscriber.transcribe() は Issue #11 で実装予定。"
         raise NotImplementedError(msg)
