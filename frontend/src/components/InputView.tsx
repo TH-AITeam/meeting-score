@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { fetchSamples } from '../api/client'
-import type { SampleFile } from '../types/meeting'
+import { fetchSamples, listMeetings, getMeeting, deleteMeeting } from '../api/client'
+import type { SampleFile, SavedMeetingMeta, MeetingSummary } from '../types/meeting'
 
 interface Props {
   onAnalyzeSample: (filename: string) => void
   onAnalyzeJson: (data: unknown) => void
+  onRestore: (data: MeetingSummary) => void
+  historyVersion: number
 }
 
 type InputMode = 'none' | 'file' | 'paste'
@@ -24,18 +26,40 @@ const CONNECTORS = [
   },
 ]
 
-export default function InputView({ onAnalyzeSample, onAnalyzeJson }: Props) {
+function formatDate(iso: string) {
+  try {
+    return new Intl.DateTimeFormat('ja-JP', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+    }).format(new Date(iso))
+  } catch {
+    return iso
+  }
+}
+
+export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, historyVersion }: Props) {
   const [samples, setSamples] = useState<SampleFile[]>([])
   const [samplesStatus, setSamplesStatus] = useState<'loading' | 'ok' | 'error'>('loading')
   const [mode, setMode] = useState<InputMode>('none')
   const [pasteText, setPasteText] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [history, setHistory] = useState<SavedMeetingMeta[]>([])
+  const [historyStatus, setHistoryStatus] = useState<'loading' | 'ok' | 'error'>('loading')
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
   useEffect(() => {
     fetchSamples()
       .then((data) => { setSamples(data); setSamplesStatus('ok') })
       .catch(() => setSamplesStatus('error'))
   }, [])
+
+  useEffect(() => {
+    listMeetings()
+      .then((data) => { setHistory(data); setHistoryStatus('ok') })
+      .catch(() => setHistoryStatus('error'))
+  }, [historyVersion])
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -54,6 +78,28 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson }: Props) {
       onAnalyzeJson(JSON.parse(pasteText) as unknown)
     } catch (err) {
       alert(`JSONのパースに失敗しました: ${String(err)}`)
+    }
+  }
+
+  const handleRestore = async (id: string) => {
+    try {
+      const saved = await getMeeting(id)
+      onRestore(saved.result as MeetingSummary)
+    } catch {
+      alert('分析結果の読み込みに失敗しました')
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id)
+    setConfirmId(null)
+    try {
+      await deleteMeeting(id)
+      setHistory((prev) => prev.filter((m) => m.id !== id))
+    } catch {
+      alert('削除に失敗しました')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -185,6 +231,90 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson }: Props) {
                       </button>
                     </td>
                   </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Separator */}
+        <div className="sep dashed" style={{ margin: '22px 0' }} />
+
+        {/* History */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 10 }}>
+          <div className="wf-h3">保存済みの分析結果</div>
+          {historyStatus === 'ok' && history.length > 0 && (
+            <span className="wf-note">{history.length} 件</span>
+          )}
+        </div>
+
+        {historyStatus === 'loading' && (
+          <div className="wf-note">読み込み中...</div>
+        )}
+        {historyStatus === 'error' && (
+          <div className="wf-note" style={{ color: 'var(--red)' }}>履歴の取得に失敗しました</div>
+        )}
+        {historyStatus === 'ok' && history.length === 0 && (
+          <div className="wf-note">まだ保存された分析結果はありません。分析すると自動で保存されます。</div>
+        )}
+        {historyStatus === 'ok' && history.length > 0 && (
+          <div className="wf-box soft">
+            <table className="wf-table">
+              <thead>
+                <tr>
+                  <th>会議タイトル</th>
+                  <th>日時</th>
+                  <th>話者</th>
+                  <th>発言数</th>
+                  <th>スコア</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((m) => (
+                  <>
+                    <tr key={m.id}>
+                      <td>{m.title}</td>
+                      <td style={{ whiteSpace: 'nowrap', color: 'var(--ink-3)', fontSize: 11 }}>
+                        {formatDate(m.created_at)}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>{m.speaker_count}</td>
+                      <td style={{ textAlign: 'center' }}>{m.utterance_count}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`history-score${m.overall_score >= 70 ? ' high' : m.overall_score >= 50 ? ' mid' : ' low'}`}>
+                          {m.overall_score.toFixed(1)}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <button
+                          className="btn sm"
+                          style={{ marginRight: 6 }}
+                          onClick={() => handleRestore(m.id)}
+                        >
+                          再表示 →
+                        </button>
+                        <button
+                          className="btn ghost sm"
+                          style={{ color: 'var(--ink-3)' }}
+                          onClick={() => setConfirmId(confirmId === m.id ? null : m.id)}
+                          disabled={deletingId === m.id}
+                        >
+                          {deletingId === m.id ? '削除中' : '削除'}
+                        </button>
+                      </td>
+                    </tr>
+                    {confirmId === m.id && (
+                      <tr key={`${m.id}-confirm`}>
+                        <td colSpan={6}>
+                          <div className="history-confirm">
+                            <span>「{m.title}」を削除しますか？</span>
+                            <button className="history-confirm-yes" onClick={() => handleDelete(m.id)}>削除する</button>
+                            <button className="history-confirm-no" onClick={() => setConfirmId(null)}>キャンセル</button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 ))}
               </tbody>
             </table>

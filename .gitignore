@@ -14,6 +14,8 @@ wheels/
 node_modules
 .vite
 
+# stored meeting data (may contain personal information)
+data/stored_meetings/
 # eval / benchmark の生 JSON は基本ローカル保持。
 # Issue #18 / #19 のエビデンスとしてコミットしたい場合のみ `git add -f reports/...` で明示追加する。
 reports/
