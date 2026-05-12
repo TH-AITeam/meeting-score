@@ -440,10 +440,40 @@ cd backend && python -m evals.cli run \
 
 ---
 
+# 音声処理パイプライン (Issue #19, Proposed)
+
+会議の生音声を「発言単位 + 話者ラベル + テキスト + word-level timestamp」に変換するパイプラインの構成。本実装は Issue #11 で行う。
+
+- **ASR (採用候補)**: WhisperX (`openai/whisper-large-v3` を faster-whisper backend で利用)
+- **話者分離 (採用候補)**: pyannote/speaker-diarization-3.1
+- **音量分析 (補助)**: librosa による RMS energy 計算 → `silent` / `low` / `mid` / `high` を `Utterance.volume_level` に付与
+- 採用根拠と落選理由: `docs/audio_model_candidates.md` / `docs/adr/0002-audio-model.md`
+- 想定品質 (CER / DER): **TBD**。SSH 先 (RTX 5090) で `scripts/run_audio_benchmark.sh --all` を回した実測値で `docs/audio_model_selection_v1.md` を埋めた後に転記する
+
+## SSH 先での実測手順
+
+```bash
+cd ~/mtg-score/meeting-score
+source backend/.venv/bin/activate
+uv sync --extra audio                          # whisperx / pyannote-audio / librosa を導入
+export HUGGINGFACE_HUB_TOKEN=hf_xxxxx           # pyannote の gated repo アクセス用
+
+# data/eval_audio/ に最低 3 本の評価音声と reference.txt / speakers.rttm を準備
+# 詳細は data/eval_audio/README.md
+
+bash scripts/run_audio_benchmark.sh --all
+```
+
+結果は `reports/audio_benchmarks/{model_id}/{asr,diar}.json` に出る。`docs/audio_model_selection_v1.md` の各表に転記。
+
+---
+
 # 関連ドキュメント
 
 * `AGENT.md`: 実装エージェント向けの作業指示書
 * `data/annotations/README.md`: アノテーションスキーマ
+* `data/eval_audio/README.md`: 音声処理モデル評価データの準備手順
+* `docs/audio_model_candidates.md` / `docs/audio_model_selection_v1.md` / `docs/adr/0002-audio-model.md`: 音声モデル選定
 * 会議貢献度スコアリング MVP 仕様書: 詳細仕様
 
 ---
