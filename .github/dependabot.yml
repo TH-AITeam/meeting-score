@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     directory: "/backend"
     schedule:
       interval: "weekly"
@@ -13,6 +13,12 @@ updates:
     open-pull-requests-limit: 5
 
   - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "pre-commit"
     directory: "/"
     schedule:
       interval: "weekly"
