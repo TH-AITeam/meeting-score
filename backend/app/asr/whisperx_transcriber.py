@@ -1,24 +1,20 @@
-"""WhisperX ベースの Transcriber スケルトン (Issue #19)。
+"""WhisperX ベースの Transcriber 実装 (Issue #11)。
 
-本ファイルは ADR 0002 に基づく WhisperX (https://github.com/m-bain/whisperX) の
-ラッパー型骨格を提供する。実音声処理ロジックの本実装は Issue #11 で行う。
-
-Issue #11 でやること（メモ）:
-    1. `whisperx.load_model(...)` の引数 (model, device, compute_type) を config 化
-    2. `whisperx.load_align_model(language_code="ja", ...)` を初期化時に取得
-    3. `transcribe(audio_path)` で:
-        - whisperx.load_audio → faster-whisper でセグメント取得
-        - whisperx.align で word-level timestamp に整える
-        - `Word(text, start_sec, end_sec, confidence)` のリストへ変換
-    4. 失敗時は `WhisperXLoadError` を上に投げ、上流で握り潰さない
+ADR 0002 に基づく WhisperX (https://github.com/m-bain/whisperX) のラッパー。
+モデルのロードは遅延 (最初の `load()` / `transcribe()` 呼び出し時)、
+GPU メモリは `unload()` で明示開放する。
 """
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from app.asr.base import Word
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -43,31 +39,148 @@ class WhisperXLoadError(RuntimeError):
 class WhisperXTranscriber:
     """WhisperX による ASR。
 
-    Issue #19 時点ではスケルトン。`transcribe()` は `NotImplementedError` を
-    投げるので、実音声処理を必要とするテストは pytest mark でスキップする。
+    本クラスを初期化しただけでは GPU を確保せず、`load()` または `transcribe()`
+    の初回呼び出しで Whisper + アライメントモデルを GPU に載せる (遅延ロード)。
     """
 
     def __init__(self, config: WhisperXConfig | None = None) -> None:
         self.config = config or WhisperXConfig()
-        self._model = None  # 遅延ロード（Issue #11 で実装）
-        self._align_model = None
-        self._align_metadata = None
+        self._model: Any = None
+        self._align_model: Any = None
+        self._align_metadata: Any = None
+        self._whisperx: Any = None
+
+    def _import_whisperx(self) -> Any:
+        if self._whisperx is not None:
+            return self._whisperx
+        try:
+            import whisperx
+        except ImportError as e:  # pragma: no cover - 依存が無い環境
+            msg = (
+                "whisperx が見つかりません。`uv sync --extra audio` で audio 依存を入れてください。"
+            )
+            raise WhisperXLoadError(msg) from e
+        self._whisperx = whisperx
+        return whisperx
 
     def load(self) -> None:
-        """Whisper モデルと wav2vec2 アライメントモデルを遅延ロードする。
+        """Whisper モデルと wav2vec2 アライメントモデルを GPU にロードする。
 
-        Issue #11 で実装する。本クラスを初期化しただけでは GPU 確保しない。
+        多重呼び出しは安全 (二度目以降は no-op)。
         """
-        msg = (
-            "WhisperXTranscriber.load() は Issue #11 で実装予定。"
-            "現状は ADR 0002 のインタフェース定義のみ。"
-        )
-        raise NotImplementedError(msg)
+        if self._model is not None:
+            return
+        whisperx = self._import_whisperx()
+        try:
+            logger.info(
+                "Loading WhisperX model: %s (device=%s, compute_type=%s)",
+                self.config.model_name,
+                self.config.device,
+                self.config.compute_type,
+            )
+            self._model = whisperx.load_model(
+                self.config.model_name,
+                device=self.config.device,
+                compute_type=self.config.compute_type,
+                language=self.config.language,
+            )
+            align_kwargs: dict[str, Any] = {
+                "language_code": self.config.language,
+                "device": self.config.device,
+            }
+            if self.config.align_model:
+                align_kwargs["model_name"] = self.config.align_model
+            self._align_model, self._align_metadata = whisperx.load_align_model(**align_kwargs)
+        except Exception as e:
+            msg = f"WhisperX のロードに失敗しました: {e}"
+            raise WhisperXLoadError(msg) from e
 
     def transcribe(self, audio_path: Path) -> list[Word]:
-        """音声ファイルから word-level timestamp 付きの単語列を返す。"""
-        msg = "WhisperXTranscriber.transcribe() は Issue #11 で実装予定。"
-        raise NotImplementedError(msg)
+        """音声ファイルから word-level timestamp 付きの単語列を返す。
+
+        - faster-whisper backend で粗い segment を取得
+        - wav2vec2 アライメントモデルで word-level timestamp を整える
+        - 各単語を `Word(text, start_sec, end_sec, confidence)` に変換
+        """
+        self.load()
+        whisperx = self._import_whisperx()
+        try:
+            audio = whisperx.load_audio(str(audio_path))
+            result = self._model.transcribe(
+                audio, batch_size=self.config.batch_size, language=self.config.language
+            )
+            aligned = whisperx.align(
+                result["segments"],
+                self._align_model,
+                self._align_metadata,
+                audio,
+                self.config.device,
+                return_char_alignments=False,
+            )
+        except Exception as e:
+            msg = f"WhisperX 推論に失敗しました ({audio_path}): {e}"
+            raise WhisperXLoadError(msg) from e
+
+        return _extract_words(aligned.get("segments", []))
+
+    def unload(self) -> None:
+        """GPU メモリを開放する (次のモデルをロードする前など)。"""
+        self._model = None
+        self._align_model = None
+        self._align_metadata = None
+        try:
+            import gc
+
+            gc.collect()
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except ImportError:  # pragma: no cover
+            pass
 
 
-__all__ = ["WhisperXConfig", "WhisperXLoadError", "WhisperXTranscriber"]
+def _extract_words(segments: list[dict]) -> list[Word]:
+    """WhisperX の align 結果から `Word` リストを取り出す。
+
+    `segments` は `[{"words": [{"word": ..., "start": ..., "end": ..., "score": ...}, ...]}, ...]`
+    形式。timestamp が欠ける単語は前後の値で埋める (faster-whisper では端単語で起き得る)。
+    """
+    words: list[Word] = []
+    for seg in segments:
+        seg_start = seg.get("start", 0.0)
+        seg_end = seg.get("end", seg_start)
+        word_items = seg.get("words", [])
+        last_end = seg_start
+        for i, w in enumerate(word_items):
+            text = w.get("word") or w.get("text") or ""
+            if not text:
+                continue
+            start = w.get("start")
+            end = w.get("end")
+            if start is None:
+                start = last_end
+            if end is None:
+                # 次の word の start で埋める。最後なら segment 終端
+                if i + 1 < len(word_items) and word_items[i + 1].get("start") is not None:
+                    end = word_items[i + 1]["start"]
+                else:
+                    end = max(seg_end, start)
+            words.append(
+                Word(
+                    text=text,
+                    start_sec=float(start),
+                    end_sec=float(end),
+                    confidence=float(w["score"]) if w.get("score") is not None else None,
+                )
+            )
+            last_end = float(end)
+    return words
+
+
+__all__ = [
+    "WhisperXConfig",
+    "WhisperXLoadError",
+    "WhisperXTranscriber",
+    "_extract_words",
+]
