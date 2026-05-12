@@ -70,7 +70,7 @@ mkdir -p "$REPORT_DIR"
 
 # 候補リスト (ADR 0002)
 ASR_CANDIDATES=(
-  "whisperx-large-v3|large-v3"
+  "whisperx-large-v3|openai/whisper-large-v3"
   "whisperx-kotoba-v2|kotoba-tech/kotoba-whisper-v2.0"
 )
 DIAR_CANDIDATES=(
