@@ -33,7 +33,7 @@ jobs:
         env:
           VITE_API_BASE_URL: ''
 
-  backend-lint:
+  lint:
     name: Backend (ruff + mypy)
     runs-on: ubuntu-latest
     defaults:
@@ -44,7 +44,7 @@ jobs:
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv sync --frozen
+      - run: uv sync --frozen --group dev
       - name: Ruff check
         run: uv run ruff check .
       - name: Ruff format check
@@ -52,19 +52,26 @@ jobs:
       - name: mypy
         run: uv run mypy app
 
-  backend-test:
+  test:
     name: Backend (pytest + coverage)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+    strategy:
+      matrix:
+        python-version: ["3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv sync --frozen
+      - run: uv python install ${{ matrix.python-version }}
+      - run: uv sync --frozen --group dev
       - name: pytest
         run: uv run pytest --cov=app --cov-report=xml --cov-report=term --cov-fail-under=70
-        env:
-          OPENAI_API_KEY: dummy
+      - uses: codecov/codecov-action@v4
+        with:
+          files: backend/coverage.xml
+          fail_ci_if_error: false
+        if: always()
