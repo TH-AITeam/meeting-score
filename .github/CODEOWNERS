@@ -1,0 +1,21 @@
+# CODEOWNERS
+# 構文: <パターン> <オーナー>
+# 詳細: https://docs.github.com/ja/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# デフォルト: 全ファイルのオーナー
+* @wyvern623
+
+# バックエンド
+/backend/ @wyvern623
+
+# フロントエンド
+/frontend/ @wyvern623
+
+# CI/インフラ
+/.github/ @wyvern623
+
+# データ・アノテーション
+/data/ @wyvern623
+
+# ドキュメント
+/docs/ @wyvern623
