@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import evals.cli as cli
 from app.context_builder.builder import EvaluationContext
-from app.schemas.models import MeetingInput, Penalties, Scores, Utterance
-from app.scoring.weights import PenaltyWeights, ScoringWeights
+from app.schemas.models import MeetingInput, Utterance
+from app.scoring.weights import AppConfig, PenaltyWeights, ScoringWeights
 
 
 def _make_ctx() -> EvaluationContext:
@@ -28,34 +28,63 @@ def _make_ctx() -> EvaluationContext:
     )
 
 
-def test_llm_evaluator_adapter_passes_temperature(monkeypatch) -> None:
-    captured: dict = {}
+def _base_cfg() -> AppConfig:
+    return AppConfig(
+        weights=ScoringWeights(),
+        penalty_weights=PenaltyWeights(),
+        context_before=2,
+        context_after=4,
+        llm_backend="openai",
+        llm_model="gpt-test",
+        llm_max_tokens=10,
+        llm_max_retries=1,
+        llm_timeout=10.0,
+    )
 
-    def _fake_evaluate_utterance(ctx, **kwargs):
-        captured.update(kwargs)
-        return {
-            "speech_type": "情報共有",
-            "scores": Scores(),
-            "penalties": Penalties(),
-            "reason": "ok",
-            "evaluation_failed": False,
-        }
 
-    monkeypatch.setattr(cli, "evaluate_utterance", _fake_evaluate_utterance)
+def test_build_config_applies_cli_overrides(monkeypatch) -> None:
+    """--backend / --endpoint / --model / --api-key で config を上書きできる"""
+    monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
+    args = SimpleNamespace(
+        config=None,
+        backend="local",
+        endpoint="http://127.0.0.1:8000/v1",
+        model="qwen3.6-27b-bnb",
+        api_key="dummy",
+    )
+    cfg = cli._build_config(args)
+    assert cfg.llm_backend == "local"
+    assert cfg.llm_endpoint == "http://127.0.0.1:8000/v1"
+    assert cfg.llm_model == "qwen3.6-27b-bnb"
+    assert cfg.llm_api_key == "dummy"
 
-    adapter = cli.LLMEvaluatorAdapter(temperature=0.7)
-    adapter.evaluate(_make_ctx())
 
-    assert captured["temperature"] == 0.7
+def test_build_config_endpoint_only_implies_local(monkeypatch) -> None:
+    """--endpoint だけ指定したら backend は自動で local になる"""
+    monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
+    args = SimpleNamespace(
+        config=None,
+        backend=None,
+        endpoint="http://127.0.0.1:8000/v1",
+        model=None,
+        api_key=None,
+    )
+    cfg = cli._build_config(args)
+    assert cfg.llm_backend == "local"
+    assert cfg.llm_endpoint == "http://127.0.0.1:8000/v1"
 
 
 def test_cmd_run_passes_penalty_weights_to_runner(monkeypatch, capsys) -> None:
+    """_cmd_run が config の penalty_weights を runner に渡すこと"""
     captured: dict = {}
-    penalty_weights = PenaltyWeights(duplication=2.0)
+    cfg = _base_cfg()
+    cfg.penalty_weights = PenaltyWeights(duplication=2.0)
+    cfg.llm_backend = "local"
+    cfg.llm_endpoint = "http://stub/v1"
 
-    class _FakeAdapter:
-        def __init__(self, **kwargs) -> None:
-            captured["adapter_kwargs"] = kwargs
+    class _FakeEvaluator:
+        def evaluate(self, ctx):
+            return SimpleNamespace()
 
     class _FakeReport:
         def to_dict(self) -> dict:
@@ -77,57 +106,41 @@ def test_cmd_run_passes_penalty_weights_to_runner(monkeypatch, capsys) -> None:
         captured["runner_kwargs"] = kwargs
         return _FakeReport()
 
-    monkeypatch.setattr(cli, "LLMEvaluatorAdapter", _FakeAdapter)
+    monkeypatch.setattr(cli, "load_config", lambda *_: cfg)
+    monkeypatch.setattr(cli, "create_evaluator", lambda _cfg: _FakeEvaluator())
     monkeypatch.setattr(cli, "run_eval", _fake_run_eval)
-    monkeypatch.setattr(
-        cli,
-        "load_config",
-        lambda: SimpleNamespace(
-            weights=ScoringWeights(),
-            penalty_weights=penalty_weights,
-            llm_model="gpt-test",
-            llm_max_tokens=10,
-            llm_max_retries=1,
-            context_before=2,
-            context_after=4,
-        ),
-    )
 
     args = SimpleNamespace(
         config=None,
+        backend=None,
+        endpoint=None,
         model=None,
+        api_key=None,
         dataset="dataset",
         meetings_dir=None,
         out=None,
     )
 
     assert cli._cmd_run(args) == 0
-    assert captured["penalty_weights"] is penalty_weights
+    assert captured["penalty_weights"] is cfg.penalty_weights
     assert captured["runner_kwargs"]["context_before"] == 2
     assert captured["runner_kwargs"]["context_after"] == 4
 
     capsys.readouterr()
 
 
-def test_cmd_stability_uses_stability_temperature(monkeypatch, capsys) -> None:
-    captured: dict = {}
+def test_cmd_stability_uses_create_evaluator(monkeypatch, capsys) -> None:
+    """_cmd_stability が create_evaluator で Evaluator を取得し stability を回す"""
+    cfg = _base_cfg()
+    cfg.llm_backend = "local"
+    cfg.llm_endpoint = "http://stub/v1"
 
-    class _FakeAdapter:
-        def __init__(self, **kwargs) -> None:
-            captured.update(kwargs)
+    class _FakeEvaluator:
+        def evaluate(self, ctx):
+            return SimpleNamespace()
 
-    monkeypatch.setattr(cli, "LLMEvaluatorAdapter", _FakeAdapter)
-    monkeypatch.setattr(
-        cli,
-        "load_config",
-        lambda: SimpleNamespace(
-            llm_model="gpt-test",
-            llm_max_tokens=10,
-            llm_max_retries=1,
-            context_before=0,
-            context_after=0,
-        ),
-    )
+    monkeypatch.setattr(cli, "load_config", lambda *_: cfg)
+    monkeypatch.setattr(cli, "create_evaluator", lambda _cfg: _FakeEvaluator())
     monkeypatch.setattr(
         cli,
         "load_meeting_from_file",
@@ -152,13 +165,14 @@ def test_cmd_stability_uses_stability_temperature(monkeypatch, capsys) -> None:
 
     args = SimpleNamespace(
         config=None,
+        backend=None,
+        endpoint=None,
         model=None,
+        api_key=None,
         meeting="meeting.json",
         n=5,
         out=None,
     )
 
     assert cli._cmd_stability(args) == 0
-    assert captured["temperature"] == cli.STABILITY_TEMPERATURE
-
     capsys.readouterr()
