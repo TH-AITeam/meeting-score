@@ -44,7 +44,9 @@ PORT="${PORT:-8000}"
 HOST="${HOST:-0.0.0.0}"
 GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.85}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
-GUIDED_BACKEND="${GUIDED_BACKEND:-xgrammar}"
+# vLLM 0.20+ では --guided-decoding-backend は削除され xgrammar が既定。
+# 旧 vLLM (<0.20) を使う場合のみ GUIDED_BACKEND を指定する。
+GUIDED_BACKEND="${GUIDED_BACKEND:-}"
 SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-${MODEL}}"
 
 echo "============================================"
@@ -54,15 +56,20 @@ echo "  MODEL         : ${MODEL}"
 echo "  HOST:PORT     : ${HOST}:${PORT}"
 echo "  GPU_MEM_UTIL  : ${GPU_MEM_UTIL}"
 echo "  MAX_MODEL_LEN : ${MAX_MODEL_LEN}"
-echo "  GUIDED        : ${GUIDED_BACKEND}"
+echo "  GUIDED        : ${GUIDED_BACKEND:-default(xgrammar)}"
 echo "  Served as     : ${SERVED_MODEL_NAME}"
 echo "============================================"
 
+GUIDED_ARGS=""
+if [[ -n "${GUIDED_BACKEND}" ]]; then
+  GUIDED_ARGS="--guided-decoding-backend ${GUIDED_BACKEND}"
+fi
+# shellcheck disable=SC2086
 exec "$PYTHON" -m vllm.entrypoints.openai.api_server \
     --model "${MODEL}" \
     --host "${HOST}" \
     --port "${PORT}" \
     --gpu-memory-utilization "${GPU_MEM_UTIL}" \
     --max-model-len "${MAX_MODEL_LEN}" \
-    --guided-decoding-backend "${GUIDED_BACKEND}" \
+    ${GUIDED_ARGS} \
     --served-model-name "${SERVED_MODEL_NAME}"

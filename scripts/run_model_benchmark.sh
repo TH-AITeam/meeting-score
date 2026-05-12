@@ -103,7 +103,13 @@ benchmark_one() {
   echo "==================================================================="
 
   # vLLM をバックグラウンドで起動
+  # vLLM 0.20+ では guided-decoding-backend は廃止され、xgrammar が既定。
+  # 旧版の場合は GUIDED_BACKEND 環境変数で指定可。
   local vllm_log="${LOG_DIR}/${served}_${ts}.log"
+  local guided_args=""
+  if [[ -n "${GUIDED_BACKEND:-}" ]]; then
+    guided_args="--guided-decoding-backend ${GUIDED_BACKEND}"
+  fi
   # shellcheck disable=SC2086
   "$PYTHON" -m vllm.entrypoints.openai.api_server \
       --model "$hf_id" \
@@ -112,7 +118,7 @@ benchmark_one() {
       --port "$PORT" \
       --gpu-memory-utilization "$GPU_MEM_UTIL" \
       --max-model-len "$MAX_MODEL_LEN" \
-      --guided-decoding-backend xgrammar \
+      $guided_args \
       $extra > "$vllm_log" 2>&1 &
   local vllm_pid=$!
   trap 'kill $vllm_pid 2>/dev/null || true' EXIT
