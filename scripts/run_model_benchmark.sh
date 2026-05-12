@@ -122,6 +122,19 @@ CANDIDATES=(
 # --------------------------------------------------------------------------
 # 関数: 1 モデルを起動 → eval → stability → latency → 終了
 # --------------------------------------------------------------------------
+kill_process_tree() {
+  local signal="$1"
+  local root_pid="$2"
+  local child_pid
+
+  while IFS= read -r child_pid; do
+    [[ -n "$child_pid" ]] || continue
+    kill_process_tree "$signal" "$child_pid"
+  done < <(pgrep -P "$root_pid" 2>/dev/null || true)
+
+  kill "-$signal" "$root_pid" 2>/dev/null || true
+}
+
 benchmark_one() {
   local hf_id="$1"
   local served="$2"
@@ -146,20 +159,53 @@ benchmark_one() {
   if [[ -n "${GUIDED_BACKEND:-}" ]]; then
     guided_args="--guided-decoding-backend ${GUIDED_BACKEND}"
   fi
-  # shellcheck disable=SC2086
-  "$PYTHON" -m vllm.entrypoints.openai.api_server \
-      --model "$hf_id" \
-      --served-model-name "$served" \
-      --host 0.0.0.0 \
-      --port "$PORT" \
-      --gpu-memory-utilization "$GPU_MEM_UTIL" \
-      --max-model-len "$MAX_MODEL_LEN" \
-      --kv-cache-dtype "$KV_CACHE_DTYPE" \
-      --max-num-seqs "$MAX_NUM_SEQS" \
-      $guided_args \
-      $extra > "$vllm_log" 2>&1 &
+  local vllm_process_group=0
+  if command -v setsid >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    setsid "$PYTHON" -m vllm.entrypoints.openai.api_server \
+        --model "$hf_id" \
+        --served-model-name "$served" \
+        --host 0.0.0.0 \
+        --port "$PORT" \
+        --gpu-memory-utilization "$GPU_MEM_UTIL" \
+        --max-model-len "$MAX_MODEL_LEN" \
+        --kv-cache-dtype "$KV_CACHE_DTYPE" \
+        --max-num-seqs "$MAX_NUM_SEQS" \
+        $guided_args \
+        $extra > "$vllm_log" 2>&1 &
+    vllm_process_group=1
+  else
+    # shellcheck disable=SC2086
+    "$PYTHON" -m vllm.entrypoints.openai.api_server \
+        --model "$hf_id" \
+        --served-model-name "$served" \
+        --host 0.0.0.0 \
+        --port "$PORT" \
+        --gpu-memory-utilization "$GPU_MEM_UTIL" \
+        --max-model-len "$MAX_MODEL_LEN" \
+        --kv-cache-dtype "$KV_CACHE_DTYPE" \
+        --max-num-seqs "$MAX_NUM_SEQS" \
+        $guided_args \
+        $extra > "$vllm_log" 2>&1 &
+  fi
   local vllm_pid=$!
-  trap 'kill $vllm_pid 2>/dev/null || true' EXIT
+  terminate_vllm() {
+    local signal="$1"
+
+    if [[ "$vllm_process_group" -eq 1 ]]; then
+      kill "-$signal" -- "-$vllm_pid" 2>/dev/null || true
+    else
+      kill_process_tree "$signal" "$vllm_pid"
+    fi
+  }
+  vllm_is_running() {
+    if [[ "$vllm_process_group" -eq 1 ]]; then
+      kill -0 -- "-$vllm_pid" 2>/dev/null
+    else
+      kill -0 "$vllm_pid" 2>/dev/null
+    fi
+  }
+  trap 'terminate_vllm TERM' EXIT
 
   # ヘルスチェックでロード完了を待つ
   # 既定 1800 秒 = 30 分。27B BnB 等の初回ロードは長い。
@@ -215,27 +261,21 @@ benchmark_one() {
       --out "${out_dir}/${ts}_latency.json" || echo "WARN: latency failed"
 
   # vLLM 終了とメモリ解放 (次モデルへの residual を避ける)
-  # 1) SIGTERM、子プロセスごと
-  pkill -TERM -P "$vllm_pid" 2>/dev/null || true
-  kill -TERM "$vllm_pid" 2>/dev/null || true
+  # 1) SIGTERM、起動時のプロセスグループまたは PID 配下ごと
+  terminate_vllm TERM
 
   # 2) 最大 30 秒待って、まだ生きてたら SIGKILL
   for i in $(seq 1 30); do
-    kill -0 "$vllm_pid" 2>/dev/null || break
+    vllm_is_running || break
     sleep 1
   done
-  if kill -0 "$vllm_pid" 2>/dev/null; then
+  if vllm_is_running; then
     echo "  vLLM が SIGTERM で終わらないので SIGKILL"
-    pkill -KILL -P "$vllm_pid" 2>/dev/null || true
-    kill -KILL "$vllm_pid" 2>/dev/null || true
+    terminate_vllm KILL
   fi
   wait "$vllm_pid" 2>/dev/null || true
 
-  # 3) 残存 vLLM プロセスを掃除 (worker / engine_core 残り対策)
-  pkill -KILL -f "vllm.entrypoints.openai.api_server" 2>/dev/null || true
-  pkill -KILL -f "EngineCore" 2>/dev/null || true
-
-  # 4) GPU メモリ解放を確認 (5090 32GB なら使用量が ~500MB 以下に落ちる想定)
+  # 3) GPU メモリ解放を確認 (5090 32GB なら使用量が ~500MB 以下に落ちる想定)
   sleep 5
   if command -v nvidia-smi >/dev/null 2>&1; then
     local used_mb
