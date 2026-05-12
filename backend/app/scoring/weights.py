@@ -26,10 +26,25 @@ class ScoringWeights:
 
 
 @dataclass
+class PenaltyWeights:
+    """減点軸の重み (Issue #3)。
+
+    penalty 値そのものは 0〜-3 の負値。ここの重みは正の倍率として掛ける
+    （weight=1.0 で従来挙動、weight=2.0 で減点が倍になる）。
+    """
+
+    duplication: float = 1.0
+    verbosity: float = 1.0
+    off_topic: float = 1.0
+    unsupported_assertion: float = 1.0
+
+
+@dataclass
 class AppConfig:
     """アプリケーション全体設定"""
 
     weights: ScoringWeights = field(default_factory=ScoringWeights)
+    penalty_weights: PenaltyWeights = field(default_factory=PenaltyWeights)
     context_before: int = 3
     context_after: int = 3
     # LLM 推論バックエンド (Issue #12)
@@ -65,12 +80,21 @@ def load_config(path: str | Path | None = None) -> AppConfig:
         summarization=w.get("summarization", 0.8),
     )
 
+    p = raw.get("penalties", {})
+    penalty_weights = PenaltyWeights(
+        duplication=p.get("duplication", 1.0),
+        verbosity=p.get("verbosity", 1.0),
+        off_topic=p.get("off_topic", 1.0),
+        unsupported_assertion=p.get("unsupported_assertion", 1.0),
+    )
+
     ctx = raw.get("context", {})
     llm = raw.get("llm", {})
     agg = raw.get("aggregation", {})
 
     return AppConfig(
         weights=weights,
+        penalty_weights=penalty_weights,
         context_before=ctx.get("before_count", 3),
         context_after=ctx.get("after_count", 3),
         llm_backend=llm.get("backend", "openai"),

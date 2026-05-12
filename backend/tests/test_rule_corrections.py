@@ -2,6 +2,7 @@
 
 from app.schemas.models import EvaluatedUtterance, Penalties, Scores
 from app.scoring.rule_corrections import apply_rule_corrections
+from app.scoring.weights import PenaltyWeights
 
 
 def _make_eu(
@@ -80,3 +81,19 @@ def test_recalculates_total():
     corrected = apply_rule_corrections(evaluated)
     # 全スコア0 で冗長 -1 なので total は -1.0
     assert corrected[0].total_score < 0
+
+
+def test_penalty_weights_propagate_through_corrections():
+    """補正後の total 再計算に penalty_weights が反映される (Issue #3)"""
+    long_text = "あ" * 250  # verbosity 補正で -1 が入る
+    evaluated = [_make_eu("u001", long_text)]
+
+    # 既定 (weight=1.0): verbosity -1 → total -1.0
+    baseline = apply_rule_corrections(evaluated)
+    assert baseline[0].penalties.verbosity == -1
+    assert baseline[0].total_score == -1.0
+
+    # 重み 3.0: -1 * 3.0 → total -3.0
+    weighted = apply_rule_corrections(evaluated, penalty_weights=PenaltyWeights(verbosity=3.0))
+    assert weighted[0].penalties.verbosity == -1  # penalty 値そのものは変化しない
+    assert weighted[0].total_score == -3.0

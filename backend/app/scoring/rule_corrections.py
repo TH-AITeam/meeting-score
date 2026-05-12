@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from app.schemas.models import EvaluatedUtterance, Penalties
 from app.scoring.calculator import calculate_total_score
-from app.scoring.weights import ScoringWeights
+from app.scoring.weights import PenaltyWeights, ScoringWeights
 
 # 冗長判定の閾値（文字数）
 _VERBOSITY_CHAR_THRESHOLD_MILD = 120
@@ -88,6 +88,7 @@ def _check_verbosity(target: EvaluatedUtterance) -> int:
 def apply_rule_corrections(
     evaluated: list[EvaluatedUtterance],
     weights: ScoringWeights | None = None,
+    penalty_weights: PenaltyWeights | None = None,
 ) -> list[EvaluatedUtterance]:
     """ルールベースで重複・冗長を追加補正し、総合スコアを再計算する"""
     corrected: list[EvaluatedUtterance] = []
@@ -108,7 +109,7 @@ def apply_rule_corrections(
                 off_topic=eu.penalties.off_topic,
                 unsupported_assertion=eu.penalties.unsupported_assertion,
             )
-            new_total = calculate_total_score(eu.scores, new_penalties, weights)
+            new_total = calculate_total_score(eu.scores, new_penalties, weights, penalty_weights)
             eu = eu.model_copy(
                 update={
                     "penalties": new_penalties,

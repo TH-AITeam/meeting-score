@@ -37,7 +37,7 @@ from evals.schema import (
 )
 
 if TYPE_CHECKING:
-    from app.scoring.weights import ScoringWeights
+    from app.scoring.weights import PenaltyWeights, ScoringWeights
     from evals.protocol import Evaluator
 
 
@@ -137,6 +137,7 @@ def _evaluate_meeting(
     weights: ScoringWeights,
     context_before: int = 3,
     context_after: int = 3,
+    penalty_weights: PenaltyWeights | None = None,
 ) -> tuple[str, list[EvaluatedUtterance]]:
     """1会議を Evaluator で評価し、(meeting_id, 評価済み発言リスト) を返す。"""
     meeting = load_meeting_from_file(meeting_file)
@@ -144,7 +145,7 @@ def _evaluate_meeting(
     evaluated: list[EvaluatedUtterance] = []
     for ctx in contexts:
         result = evaluator.evaluate(ctx)
-        total = calculate_total_score(result.scores, result.penalties, weights)
+        total = calculate_total_score(result.scores, result.penalties, weights, penalty_weights)
         target = ctx.target_utterance
         evaluated.append(
             EvaluatedUtterance(
@@ -159,7 +160,7 @@ def _evaluate_meeting(
                 reason=result.reason,
             )
         )
-    return meeting.meeting_id, apply_rule_corrections(evaluated, weights)
+    return meeting.meeting_id, apply_rule_corrections(evaluated, weights, penalty_weights)
 
 
 def _system_scores_dict(evaluated: list[EvaluatedUtterance]) -> dict[str, float]:
@@ -209,6 +210,7 @@ def run_eval(
     dataset_path: Path,
     evaluator: Evaluator,
     weights: ScoringWeights,
+    penalty_weights: PenaltyWeights | None = None,
     *,
     meetings_dir: Path | None = None,
     model_name: str = "unknown",
@@ -256,7 +258,12 @@ def run_eval(
         if meeting_file is None:
             continue
         actual_id, evaluated = _evaluate_meeting(
-            meeting_file, evaluator, weights, context_before, context_after
+            meeting_file,
+            evaluator,
+            weights,
+            context_before,
+            context_after,
+            penalty_weights,
         )
         report.per_meeting.append(
             _compute_meeting_metrics(actual_id, evaluated, pairs, tb_by_meeting)

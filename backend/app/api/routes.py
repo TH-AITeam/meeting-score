@@ -115,6 +115,7 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
             result.scores,
             result.penalties,
             config.weights,
+            config.penalty_weights,
         )
 
         evaluated.append(
@@ -140,7 +141,7 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
         )
 
     # ルールベース補正（重複・冗長の追加補正）
-    evaluated = apply_rule_corrections(evaluated, config.weights)
+    evaluated = apply_rule_corrections(evaluated, config.weights, config.penalty_weights)
 
     # 集計
     summary = build_meeting_summary(

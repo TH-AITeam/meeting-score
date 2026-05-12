@@ -92,6 +92,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         Path(args.dataset),
         evaluator,
         cfg.weights,
+        cfg.penalty_weights,
         meetings_dir=Path(args.meetings_dir) if args.meetings_dir else None,
         model_name=args.model or cfg.llm_model,
         context_before=cfg.context_before,
