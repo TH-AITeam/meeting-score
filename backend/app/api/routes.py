@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Request, UploadFile
+from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel, ValidationError
 
 from app.aggregation.aggregator import build_meeting_summary
@@ -15,9 +15,10 @@ from app.context_builder.builder import build_contexts
 from app.evaluators import create_evaluator
 from app.ingest.loader import load_meeting_from_dict, load_meeting_from_file
 from app.reporting.reporter import format_meeting_summary_for_ui
-from app.schemas.models import EvaluatedUtterance, MeetingInput
+from app.schemas.models import EvaluatedUtterance, MeetingInput, MeetingType
 from app.scoring.calculator import calculate_total_score
 from app.scoring.rule_corrections import apply_rule_corrections
+from app.scoring.weights import get_weights_for_type, max_total_score
 from app.store import repository
 from app.store.models import SavedMeeting
 
@@ -79,13 +80,19 @@ async def analyze_meeting_file(file: UploadFile, request: Request):
 
 
 @router.post("/analyze/sample/{filename}")
-async def analyze_sample(filename: str, request: Request):
+async def analyze_sample(
+    filename: str,
+    request: Request,
+    meeting_type: MeetingType | None = Query(None),  # noqa: B008
+):
     """サンプルデータを指定して分析する"""
     path = SAMPLE_DIR / filename
     if not path.exists():
         raise HTTPException(status_code=404, detail="サンプルが見つかりません")
 
     meeting = load_meeting_from_file(path)
+    if meeting_type is not None:
+        meeting = meeting.model_copy(update={"meeting_type": meeting_type})
     return await _run_analysis(meeting, request)
 
 
@@ -98,6 +105,7 @@ class SaveMeetingRequest(BaseModel):
     source_type: str
     input: dict
     result: dict
+    meeting_type: str | None = None
 
 
 @router.get("/meetings")
@@ -115,12 +123,13 @@ async def get_meeting(meeting_id: str):
     return meeting.model_dump()
 
 
-_MAX_TOTAL_SCORE = (1.3 + 1.5 + 1.2 + 1.3 + 0.8 + 0.9 + 0.8) * 3  # = 23.4
-
-
 @router.post("/meetings", status_code=201)
-async def save_meeting(body: SaveMeetingRequest):
+async def save_meeting(body: SaveMeetingRequest, request: Request):
     """分析結果を保存する"""
+    config = request.app.state.config
+    weights = get_weights_for_type(config, body.meeting_type)
+    max_score = max_total_score(weights)
+
     result = body.result
     title = result.get("title", "(タイトルなし)")
     speaker_summaries = result.get("speaker_summaries", [])
@@ -128,12 +137,13 @@ async def save_meeting(body: SaveMeetingRequest):
     avg_score = (
         sum(u.get("total_score", 0) for u in evaluated) / len(evaluated) if evaluated else 0.0
     )
-    overall_score = round(min(avg_score / _MAX_TOTAL_SCORE * 100, 100), 1)
+    overall_score = round(min(avg_score / max_score * 100, 100), 1)
 
     meeting = SavedMeeting(
         id=repository.generate_id(),
         title=title,
         source_type=body.source_type,
+        meeting_type=body.meeting_type,
         created_at=datetime.now(tz=JST).isoformat(),
         speaker_count=len(speaker_summaries),
         utterance_count=len(evaluated),
@@ -161,6 +171,7 @@ async def delete_meeting(meeting_id: str):
 async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
     """共通の分析パイプライン"""
     config = request.app.state.config
+    weights = get_weights_for_type(config, meeting_data.meeting_type)
 
     # 文脈ウィンドウ生成
     contexts = build_contexts(
@@ -184,11 +195,11 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
         if result.evaluation_failed:
             failed_count += 1
 
-        # 総合スコア計算
+        # 総合スコア計算（会議タイプ別重みを適用）
         total = calculate_total_score(
             result.scores,
             result.penalties,
-            config.weights,
+            weights,
             config.penalty_weights,
         )
 
@@ -215,7 +226,7 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
         )
 
     # ルールベース補正（重複・冗長の追加補正）
-    evaluated = apply_rule_corrections(evaluated, config.weights, config.penalty_weights)
+    evaluated = apply_rule_corrections(evaluated, weights, config.penalty_weights)
 
     # 集計
     summary = build_meeting_summary(

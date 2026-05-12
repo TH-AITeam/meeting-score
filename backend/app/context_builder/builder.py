@@ -21,6 +21,7 @@ class EvaluationContext:
     before_utterances: list[Utterance]
     target_utterance: Utterance
     after_utterances: list[Utterance]
+    meeting_type: str | None = None
 
 
 def _estimate_current_topic(agenda: list[str], index: int, total: int) -> str:
@@ -116,6 +117,7 @@ def build_contexts(
                 before_utterances=before,
                 target_utterance=target,
                 after_utterances=after,
+                meeting_type=meeting.meeting_type,
             )
         )
 
