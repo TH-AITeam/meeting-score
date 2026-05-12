@@ -83,7 +83,7 @@ async def analyze_meeting_file(file: UploadFile, request: Request):
 async def analyze_sample(
     filename: str,
     request: Request,
-    meeting_type: MeetingType | None = Query(None),
+    meeting_type: MeetingType | None = Query(None),  # noqa: B008
 ):
     """サンプルデータを指定して分析する"""
     path = SAMPLE_DIR / filename

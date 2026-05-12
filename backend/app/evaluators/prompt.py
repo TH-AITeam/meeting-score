@@ -94,10 +94,10 @@ def _format_utterances(utterances) -> str:
 
 
 _MEETING_TYPE_LABELS: dict[str, str] = {
-    "decision": "意思決定会議（重視軸：意思決定寄与・根拠性・リスク検知）",
-    "brainstorming": "ブレスト会議（重視軸：新規性・論点整理・根拠性）",
-    "progress": "進捗共有・定例（重視軸：アクション化・リスク検知・要約）",
-    "retrospective": "振り返り・レビュー（重視軸：根拠性・リスク検知・要約・論点整理）",
+    "decision": "意思決定会議(重視軸: 意思決定寄与・根拠性・リスク検知)",
+    "brainstorming": "ブレスト会議(重視軸: 新規性・論点整理・根拠性)",
+    "progress": "進捗共有・定例(重視軸: アクション化・リスク検知・要約)",
+    "retrospective": "振り返り・レビュー(重視軸: 根拠性・リスク検知・要約・論点整理)",
 }
 
 
