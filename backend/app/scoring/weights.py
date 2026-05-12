@@ -13,6 +13,7 @@ _CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.yaml"
 @dataclass
 class ScoringWeights:
     """評価軸の重み"""
+
     # 主評価軸
     issue_clarification: float = 1.3
     decision_progress: float = 1.5
@@ -31,6 +32,7 @@ class PenaltyWeights:
     penalty 値そのものは 0〜-3 の負値。ここの重みは正の倍率として掛ける
     （weight=1.0 で従来挙動、weight=2.0 で減点が倍になる）。
     """
+
     duplication: float = 1.0
     verbosity: float = 1.0
     off_topic: float = 1.0
@@ -40,14 +42,15 @@ class PenaltyWeights:
 @dataclass
 class AppConfig:
     """アプリケーション全体設定"""
+
     weights: ScoringWeights = field(default_factory=ScoringWeights)
     penalty_weights: PenaltyWeights = field(default_factory=PenaltyWeights)
     context_before: int = 3
     context_after: int = 3
     # LLM 推論バックエンド (Issue #12)
-    llm_backend: str = "openai"            # "openai" | "local"
-    llm_endpoint: str | None = None         # backend=local 時に必須
-    llm_api_key: str | None = None          # OpenAI 互換サーバが要求する場合
+    llm_backend: str = "openai"  # "openai" | "local"
+    llm_endpoint: str | None = None  # backend=local 時に必須
+    llm_api_key: str | None = None  # OpenAI 互換サーバが要求する場合
     llm_model: str = "gpt-4o-mini"
     llm_max_tokens: int = 1024
     llm_max_retries: int = 3

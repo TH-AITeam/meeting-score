@@ -42,7 +42,7 @@ def _extract_response_text(response: Any) -> str:
         for content in getattr(item, "content", []):
             text = getattr(content, "text", None)
             if text:
-                return text
+                return str(text)
     msg = "OpenAI 応答からテキストを取得できませんでした。"
     raise ValueError(msg)
 
@@ -60,12 +60,14 @@ class OpenAIEvaluator(Evaluator):
         max_tokens: int = 1024,
         max_retries: int = 3,
         timeout: float = 30.0,
+        temperature: float | None = None,
         client: Any | None = None,
     ) -> None:
         self._model = model
         self._max_tokens = max_tokens
         self._max_retries = max_retries
         self._timeout = timeout
+        self._temperature = temperature
         self._injected_client = client  # テスト用に注入可
 
     def _get_client(self) -> Any:
@@ -93,9 +95,9 @@ class OpenAIEvaluator(Evaluator):
 
         for attempt in range(self._max_retries):
             try:
-                response = client.responses.create(
-                    model=self._model,
-                    input=[
+                request: dict[str, Any] = {
+                    "model": self._model,
+                    "input": [
                         {
                             "role": "user",
                             "content": [
@@ -103,8 +105,8 @@ class OpenAIEvaluator(Evaluator):
                             ],
                         }
                     ],
-                    max_output_tokens=self._max_tokens,
-                    text={
+                    "max_output_tokens": self._max_tokens,
+                    "text": {
                         "format": {
                             "type": "json_schema",
                             "name": RESPONSE_SCHEMA_NAME,
@@ -112,26 +114,37 @@ class OpenAIEvaluator(Evaluator):
                             "schema": RESPONSE_SCHEMA,
                         }
                     },
-                )
+                }
+                if self._temperature is not None:
+                    request["temperature"] = self._temperature
+
+                response = client.responses.create(**request)
                 text = _extract_response_text(response)
                 parsed = parse_response(text)
                 return normalize_result(parsed)
             except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
                 logger.warning(
                     "LLM応答パース失敗 (attempt %d/%d): %s",
-                    attempt + 1, self._max_retries, e,
+                    attempt + 1,
+                    self._max_retries,
+                    e,
                 )
                 continue
             except APIError as e:
                 logger.error(
                     "OpenAI API エラー (attempt %d/%d): %s",
-                    attempt + 1, self._max_retries, e,
+                    attempt + 1,
+                    self._max_retries,
+                    e,
                 )
                 continue
             except Exception as e:
                 logger.error(
                     "予期しないエラー (attempt %d/%d): %s: %s",
-                    attempt + 1, self._max_retries, type(e).__name__, e,
+                    attempt + 1,
+                    self._max_retries,
+                    type(e).__name__,
+                    e,
                 )
                 continue
 

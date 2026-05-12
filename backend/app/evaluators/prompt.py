@@ -10,7 +10,7 @@ import json
 import logging
 from pathlib import Path
 from string import Template
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from app.evaluators.base import EvaluationResult
 from app.schemas.models import Penalties, Scores, SpeechType
@@ -59,7 +59,11 @@ RESPONSE_SCHEMA: dict = {
                 "duplication": {"type": "integer", "minimum": -3, "maximum": 0},
                 "verbosity": {"type": "integer", "minimum": -3, "maximum": 0},
                 "off_topic": {"type": "integer", "minimum": -3, "maximum": 0},
-                "unsupported_assertion": {"type": "integer", "minimum": -3, "maximum": 0},
+                "unsupported_assertion": {
+                    "type": "integer",
+                    "minimum": -3,
+                    "maximum": 0,
+                },
             },
             "required": [
                 "duplication",
@@ -105,7 +109,7 @@ def build_prompt(ctx: EvaluationContext) -> str:
     )
 
 
-def parse_response(text: str) -> dict:
+def parse_response(text: str) -> dict[str, object]:
     """LLM 応答テキストから JSON を抽出してパースする。
 
     ```json ... ``` で囲まれているケースにも対応する。
@@ -118,7 +122,7 @@ def parse_response(text: str) -> dict:
         start = text.index("```") + len("```")
         end = text.index("```", start)
         text = text[start:end]
-    return json.loads(text.strip())
+    return cast(dict[str, object], json.loads(text.strip()))
 
 
 def _clamp(value: int, lo: int, hi: int) -> int:

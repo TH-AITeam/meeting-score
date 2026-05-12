@@ -28,6 +28,7 @@ def evaluate_utterance(
     model: str = "gpt-4o-mini",
     max_tokens: int = 1024,
     max_retries: int = 3,
+    temperature: float | None = None,
 ) -> dict:
     """1発言を OpenAI で評価する（旧 API、dict 形式で返す）。
 
@@ -38,6 +39,7 @@ def evaluate_utterance(
         model=model,
         max_tokens=max_tokens,
         max_retries=max_retries,
+        temperature=temperature,
     )
     result = evaluator.evaluate(ctx)
     return result.as_dict()

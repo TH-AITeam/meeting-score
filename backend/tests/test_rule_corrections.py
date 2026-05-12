@@ -5,7 +5,9 @@ from app.scoring.rule_corrections import apply_rule_corrections
 from app.scoring.weights import PenaltyWeights
 
 
-def _make_eu(uid: str, text: str, penalties: Penalties | None = None, **score_kwargs) -> EvaluatedUtterance:
+def _make_eu(
+    uid: str, text: str, penalties: Penalties | None = None, **score_kwargs
+) -> EvaluatedUtterance:
     scores = Scores(**{k: v for k, v in score_kwargs.items() if k in Scores.model_fields})
     if penalties is None:
         penalties = Penalties()
@@ -92,8 +94,6 @@ def test_penalty_weights_propagate_through_corrections():
     assert baseline[0].total_score == -1.0
 
     # 重み 3.0: -1 * 3.0 → total -3.0
-    weighted = apply_rule_corrections(
-        evaluated, penalty_weights=PenaltyWeights(verbosity=3.0)
-    )
+    weighted = apply_rule_corrections(evaluated, penalty_weights=PenaltyWeights(verbosity=3.0))
     assert weighted[0].penalties.verbosity == -1  # penalty 値そのものは変化しない
     assert weighted[0].total_score == -3.0

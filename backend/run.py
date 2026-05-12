@@ -10,8 +10,8 @@
 起動後、ブラウザで http://localhost:8000 を開いてください。
 """
 
-from dotenv import load_dotenv
 import uvicorn
+from dotenv import load_dotenv
 
 load_dotenv()
 

@@ -395,10 +395,75 @@ uv run python run.py
 
 ---
 
+# 評価 (eval ハーネス)
+
+`evals/` 配下に、人手アノテと突き合わせて評価器の精度・安定性を測る eval ハーネスを置いています。
+詳細スキーマは `data/annotations/README.md` を参照してください。
+
+## 取得メトリクス
+
+* **Spearman / Kendall tau**: 人手ランクとシステムランクの順位相関
+* **Top5 Jaccard / Bottom5 Jaccard**: 「貢献した発言」「無価値な発言」の重なり
+* **Pairwise accuracy**: ペア比較 (`A_better` / `B_better` / `tie`) の一致率
+* **安定性 (Stability)**: 同一発言を N=5 回採点したときの軸別 SD と range
+
+## 実行
+
+```bash
+# ベースライン評価
+make eval DATASET=data/annotations/gold/v1
+
+# 同一会議を 5 回採点して分散を見る
+make eval-stability SAMPLE=data/sample_meetings/sample_meeting_01.json N=5
+```
+
+CLI を直接呼びたい場合:
+
+```bash
+cd backend && python -m evals.cli run \
+  --dataset ../data/annotations/gold/v1 \
+  --meetings-dir ../data/annotations/gold/v1/meetings \
+  --out ../reports/eval/v1.json
+```
+
+## ベースラインスコア（プレースホルダ）
+
+最初のゴールドアノテ (`gold/v1`) が揃い次第ここに数値を載せる。各列は会議横断の macro 平均。
+
+| バージョン | モデル | spearman | kendall_tau | top5_jaccard | bottom5_jaccard | pairwise_acc |
+|---|---|---|---|---|---|---|
+| v1 | gpt-5.4-mini (デフォルト) | TBD | TBD | TBD | TBD | TBD |
+
+安定性は会議1本につき N=5 で取り、軸別 mean SD / max SD を JSON に書き出す。
+
+---
+
 # 関連ドキュメント
 
 * `AGENT.md`: 実装エージェント向けの作業指示書
+* `data/annotations/README.md`: アノテーションスキーマ
 * 会議貢献度スコアリング MVP 仕様書: 詳細仕様
+
+---
+
+# 開発手順
+
+## セットアップ
+
+```bash
+cd backend
+uv sync --group dev
+```
+
+## よく使うコマンド
+
+```bash
+make lint        # ruff による静的解析
+make format      # ruff による自動整形
+make typecheck   # mypy による型チェック
+make test        # pytest でテスト実行
+make test-cov    # カバレッジ付きテスト
+```
 
 ---
 
