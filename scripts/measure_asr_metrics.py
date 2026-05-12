@@ -63,9 +63,9 @@ def _char_error_rate(reference: str, hypothesis: str) -> float:
     return prev[-1] / len(ref)
 
 
-def _named_entity_recall(hypothesis: str, entities: list[str]) -> float:
+def _named_entity_recall(hypothesis: str, entities: list[str]) -> float | None:
     if not entities:
-        return float("nan")
+        return None
     hits = sum(1 for e in entities if e and e in hypothesis)
     return hits / len(entities)
 
