@@ -35,7 +35,7 @@ def merge_same_speaker_segments(
     Returns
     -------
     list[Utterance]
-        結合済み Utterance。`utterance_id` は時間順に `u0001` から振り直す。
+        結合済み Utterance。`utterance_id` は時間順に `u001` から振り直す。
         - `text` は連結
         - `words` は連結
         - `start_sec` は先頭、`end_sec` は末尾
@@ -53,10 +53,10 @@ def merge_same_speaker_segments(
         else:
             merged.append(u)
 
-    # utterance_id を u0001 から振り直す (結合前後で連番がズレるため)
+    # utterance_id を u001 から振り直す (結合前後で連番がズレるため)
     return [
         Utterance(
-            utterance_id=f"u{i + 1:04d}",
+            utterance_id=f"u{i + 1:03d}",
             speaker=u.speaker,
             start_sec=u.start_sec,
             end_sec=u.end_sec,

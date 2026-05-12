@@ -118,7 +118,7 @@ def assemble_utterances(
         ]
         utterances.append(
             Utterance(
-                utterance_id=f"u{seq + 1:04d}",
+                utterance_id=f"u{seq + 1:03d}",
                 speaker=turn.speaker,
                 start_sec=turn.start_sec,
                 end_sec=turn.end_sec,

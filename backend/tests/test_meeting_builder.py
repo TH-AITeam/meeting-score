@@ -39,8 +39,8 @@ class _FakeExtractor:
 def test_build_meeting_input_without_extractor() -> None:
     """meta_extractor=None なら空メタで構築する。"""
     utts = [
-        _utt("u0001", "SPEAKER_00", 0.0, 5.0, "はじめましょう"),
-        _utt("u0002", "SPEAKER_01", 5.0, 10.0, "了解です"),
+        _utt("u001", "SPEAKER_00", 0.0, 5.0, "はじめましょう"),
+        _utt("u002", "SPEAKER_01", 5.0, 10.0, "了解です"),
     ]
     mi = build_meeting_input(utts, meeting_id="m001")
     assert mi.meeting_id == "m001"
@@ -64,7 +64,7 @@ def test_build_meeting_input_with_extractor_populates_meta() -> None:
             "decision_points": ["初回に含める機能"],
         }
     )
-    utts = [_utt("u0001", "S0", 0.0, 5.0, "では始めます")]
+    utts = [_utt("u001", "S0", 0.0, 5.0, "では始めます")]
     mi = build_meeting_input(utts, meeting_id="m001", meta_extractor=extractor)
     assert mi.title == "新機能企画"
     assert mi.goal == "初回リリース範囲を決める"
@@ -80,7 +80,7 @@ def test_build_meeting_input_extractor_failure_uses_defaults() -> None:
             msg = "boom"
             raise RuntimeError(msg)
 
-    utts = [_utt("u0001", "S0", 0.0, 5.0, "test")]
+    utts = [_utt("u001", "S0", 0.0, 5.0, "test")]
     mi = build_meeting_input(
         utts,
         meeting_id="m001",
@@ -98,7 +98,7 @@ def test_build_meeting_input_handles_none_in_meta() -> None:
     extractor = _FakeExtractor(
         {"title": None, "goal": None, "agenda": None, "decision_points": None}
     )
-    utts = [_utt("u0001", "S0", 0.0, 5.0, "test")]
+    utts = [_utt("u001", "S0", 0.0, 5.0, "test")]
     mi = build_meeting_input(
         utts,
         meeting_id="m001",
@@ -120,8 +120,8 @@ def test_format_timestamp() -> None:
 def test_transcript_passed_to_extractor_contains_timestamps() -> None:
     extractor = _FakeExtractor({"title": "", "goal": "", "agenda": [], "decision_points": []})
     utts = [
-        _utt("u0001", "田中", 0.0, 5.0, "では始めます"),
-        _utt("u0002", "鈴木", 65.0, 70.0, "了解です"),
+        _utt("u001", "田中", 0.0, 5.0, "では始めます"),
+        _utt("u002", "鈴木", 65.0, 70.0, "了解です"),
     ]
     build_meeting_input(utts, meeting_id="m001", meta_extractor=extractor)
     transcript = extractor.calls[0]

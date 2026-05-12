@@ -49,7 +49,7 @@ def _dummy_meeting_input(meeting_id: str = "m001") -> MeetingInput:
         decision_points=[],
         utterances=[
             SchemaUtterance(
-                utterance_id="u0001",
+                utterance_id="u001",
                 speaker="SPEAKER_00",
                 timestamp="00:00:00",
                 text="こんにちは",

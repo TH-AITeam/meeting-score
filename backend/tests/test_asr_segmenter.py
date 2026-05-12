@@ -81,14 +81,14 @@ def test_merge_chain_of_three() -> None:
 
 
 def test_utterance_id_is_renumbered() -> None:
-    """結合後の utterance_id は u0001 から振り直される。"""
+    """結合後の utterance_id は u001 から振り直される。"""
     utts = [
         _utt("S0", 0.0, 1.0),
         _utt("S1", 2.0, 3.0),
         _utt("S0", 4.0, 5.0),
     ]
     merged = merge_same_speaker_segments(utts)
-    assert [u.utterance_id for u in merged] == ["u0001", "u0002", "u0003"]
+    assert [u.utterance_id for u in merged] == ["u001", "u002", "u003"]
 
 
 def test_unordered_input_is_sorted() -> None:
