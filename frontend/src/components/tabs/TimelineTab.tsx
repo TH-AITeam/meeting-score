@@ -208,9 +208,11 @@ export default function TimelineTab({ utterances }: Props) {
                     <span className="wf-mono">{u.timestamp}</span>
                     {fwd && <span className="chip accent dot">前進</span>}
                     {pen && <span className="chip red dot">{penaltyLabel(u)}</span>}
-                    <span style={{ marginLeft: 'auto' }} className="wf-mono">
-                      {u.total_score >= 0 ? '+' : ''}{u.total_score.toFixed(1)}
-                    </span>
+                    <ScoreBadge
+                      score={u.total_score}
+                      large
+                      style={{ marginLeft: 'auto', fontSize: 13, color: u.total_score < 0 ? 'var(--red)' : 'var(--ink)' }}
+                    />
                   </div>
                   <div style={{ fontSize: 13 }}>{u.text}</div>
                 </div>

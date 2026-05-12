@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { scoreClass } from '../../utils/labels'
 
-const SCORE_TIP = '各軸スコア（0〜3 の整数）× 重み（例: 1.3, 0.8）の合計のため小数になります'
+const SCORE_TIP = '各軸スコア（0〜3）× 重み の合計から、重複・冗長・脱線などの減点を引いた値のため小数になります'
 
 interface Props {
   score: number
