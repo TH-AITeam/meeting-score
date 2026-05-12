@@ -88,7 +88,16 @@ class PyannoteDiarizer:
         pipeline_cls = self._import_pyannote()
         try:
             logger.info("Loading pyannote pipeline: %s", self.config.model_name)
-            pipeline = pipeline_cls.from_pretrained(self.config.model_name, use_auth_token=token)
+            # pyannote.audio 3.x で `use_auth_token` は `token` に rename された。
+            # 新しい引数名で呼び、古いバージョンに当たった場合のみフォールバック。
+            try:
+                pipeline = pipeline_cls.from_pretrained(self.config.model_name, token=token)
+            except TypeError as te:
+                if "token" not in str(te) and "use_auth_token" not in str(te):
+                    raise
+                pipeline = pipeline_cls.from_pretrained(
+                    self.config.model_name, use_auth_token=token
+                )
             if self.config.device.startswith("cuda"):
                 try:
                     import torch

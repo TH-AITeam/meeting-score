@@ -66,10 +66,11 @@ class _FakePipelineClass:
     def __init__(self, pipeline_to_return: _FakePipeline) -> None:
         self._return = pipeline_to_return
 
-    def from_pretrained(self, model_name, use_auth_token):
+    def from_pretrained(self, model_name, token=None, use_auth_token=None):
+        # pyannote.audio 3.x で token に rename。両方受け付けて記録する。
         _FakePipelineClass.last_kwargs = {
             "model_name": model_name,
-            "use_auth_token": use_auth_token,
+            "token": token if token is not None else use_auth_token,
         }
         return self._return
 
@@ -89,7 +90,7 @@ def test_load_passes_token_and_model_name(monkeypatch: pytest.MonkeyPatch) -> No
     diarizer._pyannote = _FakePipelineClass(pipeline)
     diarizer.load()
     assert _FakePipelineClass.last_kwargs["model_name"] == "pyannote/speaker-diarization-3.1"
-    assert _FakePipelineClass.last_kwargs["use_auth_token"] == "hf_dummy"
+    assert _FakePipelineClass.last_kwargs["token"] == "hf_dummy"
 
 
 def test_load_is_idempotent(monkeypatch: pytest.MonkeyPatch) -> None:
