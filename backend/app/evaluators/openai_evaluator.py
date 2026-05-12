@@ -60,12 +60,14 @@ class OpenAIEvaluator(Evaluator):
         max_tokens: int = 1024,
         max_retries: int = 3,
         timeout: float = 30.0,
+        temperature: float | None = None,
         client: Any | None = None,
     ) -> None:
         self._model = model
         self._max_tokens = max_tokens
         self._max_retries = max_retries
         self._timeout = timeout
+        self._temperature = temperature
         self._injected_client = client  # テスト用に注入可
 
     def _get_client(self) -> Any:
@@ -93,9 +95,9 @@ class OpenAIEvaluator(Evaluator):
 
         for attempt in range(self._max_retries):
             try:
-                response = client.responses.create(
-                    model=self._model,
-                    input=[
+                request: dict[str, Any] = {
+                    "model": self._model,
+                    "input": [
                         {
                             "role": "user",
                             "content": [
@@ -103,8 +105,8 @@ class OpenAIEvaluator(Evaluator):
                             ],
                         }
                     ],
-                    max_output_tokens=self._max_tokens,
-                    text={
+                    "max_output_tokens": self._max_tokens,
+                    "text": {
                         "format": {
                             "type": "json_schema",
                             "name": RESPONSE_SCHEMA_NAME,
@@ -112,7 +114,11 @@ class OpenAIEvaluator(Evaluator):
                             "schema": RESPONSE_SCHEMA,
                         }
                     },
-                )
+                }
+                if self._temperature is not None:
+                    request["temperature"] = self._temperature
+
+                response = client.responses.create(**request)
                 text = _extract_response_text(response)
                 parsed = parse_response(text)
                 return normalize_result(parsed)
