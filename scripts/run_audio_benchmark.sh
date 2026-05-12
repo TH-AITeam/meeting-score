@@ -20,7 +20,8 @@
 # 前提:
 #   - SSH 先 (RTX 5090 / 32GB) で uv 環境セットアップ済み
 #   - `uv sync --extra audio` で whisperx / pyannote-audio / librosa を導入済み
-#   - HUGGINGFACE_HUB_TOKEN を export 済み (pyannote の gated repo アクセス用)
+#   - Diarization 実行時は HUGGINGFACE_HUB_TOKEN を export 済み
+#     (pyannote の gated repo アクセス用)
 #   - data/eval_audio/{meeting_01,02,03}/{audio.wav, reference.txt, speakers.rttm}
 
 set -euo pipefail
@@ -52,13 +53,6 @@ for mod in whisperx pyannote.audio librosa; do
   fi
 done
 
-# HF token チェック (pyannote の gated repo)
-if [[ -z "${HUGGINGFACE_HUB_TOKEN:-}" ]]; then
-  echo "ERROR: HUGGINGFACE_HUB_TOKEN が未設定です。pyannote/speaker-diarization-3.1 は gated repo です。" >&2
-  echo "       'export HUGGINGFACE_HUB_TOKEN=hf_xxx' で設定してください。" >&2
-  exit 1
-fi
-
 # 評価音声チェック
 EVAL_DIR="${EVAL_DIR:-data/eval_audio}"
 if [[ ! -d "$EVAL_DIR" ]]; then
@@ -83,6 +77,14 @@ DIAR_CANDIDATES=(
   "pyannote-3.1|pyannote/speaker-diarization-3.1"
 )
 
+require_hf_token_for_diar() {
+  if [[ -z "${HUGGINGFACE_HUB_TOKEN:-}" ]]; then
+    echo "ERROR: HUGGINGFACE_HUB_TOKEN が未設定です。pyannote/speaker-diarization-3.1 は gated repo です。" >&2
+    echo "       Diarization 実行時は 'export HUGGINGFACE_HUB_TOKEN=hf_xxx' で設定してください。" >&2
+    exit 1
+  fi
+}
+
 run_asr_one() {
   local label="$1"
   local hf_id="$2"
@@ -99,6 +101,7 @@ run_asr_one() {
 run_diar_one() {
   local label="$1"
   local hf_id="$2"
+  require_hf_token_for_diar
   echo "========================================="
   echo "  Diar: $label  ($hf_id)"
   echo "========================================="
