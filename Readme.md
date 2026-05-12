@@ -407,19 +407,59 @@ uv run python run.py
 ## セットアップ
 
 ```bash
-cd backend
-uv sync --group dev
+# Task インストール（初回のみ）
+# https://taskfile.dev/installation/
+sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+
+# 依存関係インストール
+task setup
 ```
 
 ## よく使うコマンド
 
 ```bash
-make lint        # ruff による静的解析
-make format      # ruff による自動整形
-make typecheck   # mypy による型チェック
-make test        # pytest でテスト実行
-make test-cov    # カバレッジ付きテスト
+task dev           # バックエンド + フロントエンドを同時起動
+task dev:backend   # バックエンドのみ起動（localhost:8000）
+task dev:frontend  # フロントエンドのみ起動（localhost:5173）
+task lint          # ruff check（構文・スタイル検査）
+task format        # ruff format（自動整形）
+task format:check  # ruff format --check（整形チェックのみ）
+task typecheck     # mypy による型チェック
+task test          # pytest でテスト実行
+task test:cov      # pytest + カバレッジ（term-missing 表示）
+task ci            # CI と同じ lint + test を一括実行
 ```
+
+タスク一覧は `task --list` で確認できます。
+
+---
+
+# CI (GitHub Actions)
+
+## ワークフロー構成
+
+`main` へのプッシュおよび `main` 向けのプルリクエスト作成時に自動で実行されます。
+
+| ジョブ | 内容 |
+|--------|------|
+| `frontend` | TypeScript 型チェック・ESLint・Vite ビルド |
+| `lint` | `ruff check` / `ruff format --check` / `mypy` |
+| `test` | `pytest` + カバレッジ計測（しきい値 70%） |
+
+## ローカルで CI と同じチェックを実行する
+
+```bash
+task ci
+```
+
+## カバレッジ
+
+- CI でカバレッジが **70% 未満** になるとテストジョブが失敗します
+- 安定後は 80% へ引き上げる予定です
+
+## テスト内でのシークレット扱い
+
+`OPENAI_API_KEY` などの外部 API キーを CI に渡さない方針です。LLM を呼び出すテストはモックを使ってください。
 
 ---
 
