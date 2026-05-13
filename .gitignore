@@ -14,6 +14,9 @@ wheels/
 node_modules
 .vite
 
+# misc test/log artifacts
+nohup.out
+
 # stored meeting data (may contain personal information)
 data/stored_meetings/
 # eval / benchmark の生 JSON は基本ローカル保持。
