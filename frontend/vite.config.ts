@@ -10,13 +10,8 @@ export default defineConfig({
     // cross-origin で失敗するため。
     viteStaticCopy({
       targets: [
-        // umd と esm の両方を配る必要がある。@ffmpeg/ffmpeg の worker は
-        // type: 'module' なので importScripts が失敗し、URL の /umd/ を
-        // /esm/ に書き換えて dynamic import にフォールバックする実装になっている。
-        {
-          src: 'node_modules/@ffmpeg/core/dist/umd/*',
-          dest: 'ffmpeg/umd',
-        },
+        // worker は type: 'module' なので esm 版だけで OK (umd は importScripts
+        // が必要だが module worker には importScripts が無い)。
         {
           src: 'node_modules/@ffmpeg/core/dist/esm/*',
           dest: 'ffmpeg/esm',
