@@ -6,28 +6,47 @@ import { MEETING_TYPE_LABELS, MEETING_TYPE_AXES } from '../types/meeting'
 interface Props {
   onAnalyzeSample: (filename: string, meetingType?: MeetingType) => void
   onAnalyzeJson: (data: unknown, meetingType?: MeetingType) => void
+  onAnalyzeAudio: (file: File, meetingType?: MeetingType) => void
   onRestore: (data: MeetingSummary) => void
   historyVersion: number
 }
 
 const MEETING_TYPES: MeetingType[] = ['decision', 'brainstorming', 'progress', 'retrospective']
 
-type InputMode = 'none' | 'file' | 'paste'
+type InputMode = 'none' | 'file' | 'paste' | 'audio'
 
 const CONNECTORS = [
+  {
+    id: 'audio' as const,
+    name: '音声ファイル',
+    desc: '音声から自動で文字起こし・分析',
+    icon: '♪',
+    wip: false,
+  },
+  {
+    id: 'video' as const,
+    name: '動画ファイル',
+    desc: '動画から音声を抽出して分析',
+    icon: '▶',
+    wip: true,
+  },
   {
     id: 'file' as const,
     name: '文字起こしJSON',
     desc: '会議データ .json をアップロード',
     icon: '≡',
+    wip: false,
   },
   {
     id: 'paste' as const,
     name: 'テキストペースト',
     desc: 'JSON を直接貼り付け',
     icon: '✎',
+    wip: false,
   },
 ]
+
+const AUDIO_EXTENSIONS = '.wav,.mp3,.m4a,.flac,.ogg'
 
 function formatDate(iso: string) {
   try {
@@ -40,12 +59,13 @@ function formatDate(iso: string) {
   }
 }
 
-export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, historyVersion }: Props) {
+export default function InputView({ onAnalyzeSample, onAnalyzeJson, onAnalyzeAudio, onRestore, historyVersion }: Props) {
   const [samples, setSamples] = useState<SampleFile[]>([])
   const [samplesStatus, setSamplesStatus] = useState<'loading' | 'ok' | 'error'>('loading')
   const [mode, setMode] = useState<InputMode>('none')
   const [pasteText, setPasteText] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const audioInputRef = useRef<HTMLInputElement>(null)
   const [meetingType, setMeetingType] = useState<MeetingType | undefined>(undefined)
 
   const [history, setHistory] = useState<SavedMeetingMeta[]>([])
@@ -74,6 +94,13 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
     } catch (err) {
       alert(`JSONの読み込みに失敗しました: ${String(err)}`)
     }
+    e.target.value = ''
+  }
+
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    onAnalyzeAudio(file, meetingType)
     e.target.value = ''
   }
 
@@ -164,36 +191,77 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
           {CONNECTORS.map((c) => (
             <div
               key={c.id}
-              className={`wf-box wf-pad${mode === c.id ? ' accent' : ''}`}
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                setMode(mode === c.id ? 'none' : c.id)
-                if (c.id === 'file') fileInputRef.current?.click()
-              }}
+              style={{ position: 'relative' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{
-                  width: 36, height: 36,
-                  border: '1.5px solid var(--ink)',
-                  borderRadius: 8,
-                  display: 'grid', placeItems: 'center',
-                  fontFamily: 'var(--hand)', fontSize: 18,
-                  background: 'var(--accent-soft)',
-                  flexShrink: 0,
-                }}>{c.icon}</span>
-                <div>
-                  <div className="wf-h3">{c.name}</div>
-                  <div className="wf-note">{c.desc}</div>
+              <div
+                className={`wf-box wf-pad${!c.wip && mode === c.id ? ' accent' : ''}`}
+                style={{ cursor: c.wip ? 'default' : 'pointer', opacity: c.wip ? 0.55 : 1 }}
+                onClick={() => {
+                  if (c.wip) return
+                  const id = c.id as InputMode
+                  setMode(mode === id ? 'none' : id)
+                  if (c.id === 'file') fileInputRef.current?.click()
+                  if (c.id === 'audio') audioInputRef.current?.click()
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{
+                    width: 36, height: 36,
+                    border: '1.5px solid var(--ink)',
+                    borderRadius: 8,
+                    display: 'grid', placeItems: 'center',
+                    fontFamily: 'var(--hand)', fontSize: 18,
+                    background: 'var(--accent-soft)',
+                    flexShrink: 0,
+                  }}>{c.icon}</span>
+                  <div>
+                    <div className="wf-h3">{c.name}</div>
+                    <div className="wf-note">{c.desc}</div>
+                  </div>
                 </div>
+                {c.id === 'audio' && (
+                  <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                    <span className="btn sm accent">音声を選択</span>
+                  </div>
+                )}
+                {c.id === 'video' && (
+                  <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                    <span className="btn sm">動画を選択</span>
+                  </div>
+                )}
+                {c.id === 'file' && (
+                  <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                    <span className="btn sm">ファイルを選択</span>
+                  </div>
+                )}
+                {c.id === 'paste' && (
+                  <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                    <span className="btn sm">ペーストする</span>
+                  </div>
+                )}
               </div>
-              {c.id === 'file' && (
-                <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                  <span className="btn sm">ファイルを選択</span>
-                </div>
-              )}
-              {c.id === 'paste' && (
-                <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                  <span className="btn sm">ペーストする</span>
+
+              {c.wip && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  borderRadius: 6,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backgroundImage: 'repeating-linear-gradient(135deg, transparent, transparent 6px, oklch(0.88 0.01 80 / 0.45) 6px, oklch(0.88 0.01 80 / 0.45) 7px)',
+                  pointerEvents: 'none',
+                }}>
+                  <span style={{
+                    fontFamily: 'var(--hand)',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    padding: '4px 10px',
+                    borderRadius: 999,
+                    background: 'var(--ink)',
+                    color: 'var(--bg)',
+                    letterSpacing: '0.04em',
+                    boxShadow: '0 1px 4px oklch(0 0 0 / 0.15)',
+                  }}>
+                    機能追加中
+                  </span>
                 </div>
               )}
             </div>
@@ -206,6 +274,13 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onRestore, h
           accept=".json"
           style={{ display: 'none' }}
           onChange={handleFileChange}
+        />
+        <input
+          ref={audioInputRef}
+          type="file"
+          accept={AUDIO_EXTENSIONS}
+          style={{ display: 'none' }}
+          onChange={handleAudioChange}
         />
 
         {/* Paste area */}
