@@ -11,11 +11,12 @@
  */
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
-// @ffmpeg/core は `vite-plugin-static-copy` で `/ffmpeg/` に同期され、
-// 同一オリジンから serve される。CDN (unpkg) 経由だと worker の
-// importScripts が cross-origin で失敗し "failed to import ffmpeg-core.js"
-// になる既知問題があるため、同一オリジン serve が必須。
-const FFMPEG_CORE_BASE = '/ffmpeg'
+// @ffmpeg/core は `vite-plugin-static-copy` で `/ffmpeg/umd/` と
+// `/ffmpeg/esm/` に同期される。@ffmpeg/ffmpeg の worker は module worker
+// なので importScripts が失敗 → URL の `/umd/` を `/esm/` に置換して
+// dynamic import に fallback する実装。両方の path に core を置いておけば
+// 自動でうまくいく。
+const FFMPEG_CORE_BASE = '/ffmpeg/umd'
 
 export class MediaExtractError extends Error {
   readonly cause?: unknown
