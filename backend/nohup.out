@@ -1,0 +1,8 @@
+ : line 1: python: command not found
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+ : line 2: --input: command not found
+ : line 4: --meeting-id: command not found
+ : line 5: --no-meta-extract: command not found
