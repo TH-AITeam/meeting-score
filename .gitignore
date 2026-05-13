@@ -28,3 +28,13 @@ data/eval_audio/meeting_*/
 *.mp3
 *.m4a
 *.flac
+
+# 動画アップロード効率ベンチ評価データ (Issue #68)
+# data/eval_video/{meeting_*}/ 以下の動画ファイルは個人録画のため除外。
+# README と .gitkeep だけ commit する。
+data/eval_video/meeting_*/
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.webm
