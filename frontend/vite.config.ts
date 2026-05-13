@@ -1,8 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Issue #68: @ffmpeg/core を `public/` 相当に同期し、`/ffmpeg/*` で
+    // 同一オリジン配信する。CDN (unpkg) 経由だと worker の importScripts が
+    // cross-origin で失敗するため。
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'node_modules/@ffmpeg/core/dist/umd/*',
+          dest: 'ffmpeg',
+        },
+      ],
+    }),
+  ],
   // Issue #68: @ffmpeg/ffmpeg は内部で `new Worker(new URL('./worker.js', import.meta.url))`
   // を使う。Vite の esbuild pre-bundle はこの URL 解決を壊して dev サーバで
   // exec が無限 hang する既知の事象があるため、optimizeDeps から除外する。

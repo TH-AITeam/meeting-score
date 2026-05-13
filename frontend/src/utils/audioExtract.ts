@@ -11,12 +11,11 @@
  */
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
-
-const FFMPEG_CORE_VERSION = '0.12.6'
-// CDN を直接渡す。toBlobURL 経由だと Worker の importScripts が blob URL を
-// 読めず "failed to import ffmpeg-core.js" で落ちるブラウザがある。
-// unpkg は CORS を許可しているので直接 URL でも動く。
-const FFMPEG_CORE_BASE = `https://unpkg.com/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/umd`
+// @ffmpeg/core は `vite-plugin-static-copy` で `/ffmpeg/` に同期され、
+// 同一オリジンから serve される。CDN (unpkg) 経由だと worker の
+// importScripts が cross-origin で失敗し "failed to import ffmpeg-core.js"
+// になる既知問題があるため、同一オリジン serve が必須。
+const FFMPEG_CORE_BASE = '/ffmpeg'
 
 export class MediaExtractError extends Error {
   readonly cause?: unknown
