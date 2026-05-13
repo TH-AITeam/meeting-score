@@ -1,22 +1,22 @@
-"""音声入力パイプライン CLI (Issue #11)。
+"""音声入力パイプライン CLI (Issue #11, #68)。
 
-音声ファイル (wav/mp3/m4a) → MeetingInput JSON への一気通貫変換を提供する。
+音声ファイル (wav/mp3/m4a/webm/...) または動画ファイル (mp4/mov/mkv/...) を
+MeetingInput JSON に一気通貫で変換する。
+
+Issue #68 で動画拡張子サポートを追加。動画入力時はローカル ffmpeg で音声を
+一時抽出し、既存パイプラインに渡す (backend API のように動画拒否はしない)。
 
 Examples
 --------
-    # ローカル LLM (vLLM 等) を使ってメタ抽出も含めて変換
-    python -m app.asr.cli \\
-        --input meeting.wav \\
-        --output meeting.json \\
-        --meeting-id m042
+    # 音声ファイル → MeetingInput
+    python -m app.asr.cli --input meeting.wav --output meeting.json --meeting-id m042
+
+    # 動画ファイル → MeetingInput (Issue #68): ローカル ffmpeg で音声抽出
+    python -m app.asr.cli --input meeting.mp4 --output meeting.json --meeting-id m042
 
     # メタ抽出をスキップ (LLM 呼び出し無し、title/goal は手で埋める想定)
-    python -m app.asr.cli \\
-        --input meeting.wav \\
-        --output meeting.json \\
-        --meeting-id m042 \\
-        --no-meta-extract \\
-        --title "新機能企画" --goal "リリース範囲を決める"
+    python -m app.asr.cli --input meeting.wav --output meeting.json --meeting-id m042 \\
+        --no-meta-extract --title "新機能企画" --goal "リリース範囲を決める"
 
     # config.yaml のパスを上書き / 話者数を固定
     python -m app.asr.cli --input audio.wav --output out.json \\
@@ -27,10 +27,12 @@ from __future__ import annotations
 
 import argparse
 import logging
+import tempfile
 from pathlib import Path
 from typing import Any
 
 from app.asr.base import Transcriber
+from app.asr.media import VIDEO_EXTENSIONS, MediaError, extract_audio_from_video
 from app.asr.meeting_builder import MetaExtractor, OpenAIMetaExtractor, build_meeting_input
 from app.asr.pipeline import AudioPipeline
 from app.asr.pyannote_diarizer import PyannoteConfig, PyannoteDiarizer
@@ -160,23 +162,51 @@ def main(argv: list[str] | None = None) -> int:
     cfg = load_config(args.config) if args.config else load_config()
     audio_cfg = _load_audio_section(args.config)
 
-    audio_path = Path(args.input)
-    if not audio_path.exists():
-        logger.error("入力音声が見つかりません: %s", audio_path)
+    input_path = Path(args.input)
+    if not input_path.exists():
+        logger.error("入力ファイルが見つかりません: %s", input_path)
         return 1
 
+    # Issue #68: 動画拡張子ならローカル ffmpeg で音声抽出して既存パイプラインに渡す
+    audio_path = input_path
+    extracted_tmp: Path | None = None
+    if input_path.suffix.lower() in VIDEO_EXTENSIONS:
+        logger.info("Video input detected. Extracting audio via ffmpeg ...")
+        try:
+            tmp_dir = Path(tempfile.mkdtemp(prefix="asr_cli_extract_"))
+            extracted_tmp = tmp_dir / f"{input_path.stem}.webm"
+            extract_audio_from_video(input_path, extracted_tmp)
+            audio_path = extracted_tmp
+            logger.info(
+                "Extracted audio: %s (%.1f MB)",
+                extracted_tmp,
+                extracted_tmp.stat().st_size / (1024 * 1024),
+            )
+        except MediaError as e:
+            logger.error("動画→音声抽出に失敗: %s", e)
+            return 2
+
     logger.info("Transcribing %s ...", audio_path)
-    mi = transcribe_to_meeting_input(
-        audio_path,
-        meeting_id=args.meeting_id,
-        cfg=cfg,
-        audio_cfg=audio_cfg,
-        num_speakers=args.num_speakers,
-        use_meta_extractor=not args.no_meta_extract,
-        use_volume_analyzer=not args.no_volume,
-        default_title=args.title,
-        default_goal=args.goal,
-    )
+    try:
+        mi = transcribe_to_meeting_input(
+            audio_path,
+            meeting_id=args.meeting_id,
+            cfg=cfg,
+            audio_cfg=audio_cfg,
+            num_speakers=args.num_speakers,
+            use_meta_extractor=not args.no_meta_extract,
+            use_volume_analyzer=not args.no_volume,
+            default_title=args.title,
+            default_goal=args.goal,
+        )
+    finally:
+        # 動画抽出時の tmp を片付ける
+        if extracted_tmp and extracted_tmp.exists():
+            try:
+                extracted_tmp.unlink()
+                extracted_tmp.parent.rmdir()
+            except OSError:
+                logger.warning("tmp の削除に失敗 (放置可): %s", extracted_tmp)
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
