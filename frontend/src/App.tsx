@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { analyzeJson, analyzeSample, saveMeeting, uploadAudio } from './api/client'
+import { MediaExtractError, extractAudioFromVideo } from './utils/audioExtract'
 import type { MeetingSummary, MeetingType } from './types/meeting'
 import InputView from './components/InputView'
 import LoadingView from './components/LoadingView'
@@ -12,7 +13,7 @@ type SpeakerMode = 'cards' | 'focus'
 
 type AppState =
   | { phase: 'upload' }
-  | { phase: 'loading'; step?: 'transcribing' | 'analyzing' }
+  | { phase: 'loading'; step?: 'extracting' | 'transcribing' | 'analyzing'; progress?: number }
   | { phase: 'results'; data: MeetingSummary; tab: ResultTab }
 
 const RESULT_TABS: { id: ResultTab; label: string }[] = [
@@ -31,11 +32,48 @@ export default function App() {
   const handleAnalyzeAudio = async (file: File, meetingType?: MeetingType) => {
     setState({ phase: 'loading', step: 'transcribing' })
     try {
-      const meetingInput = await uploadAudio(file)
+      const meetingInput = await uploadAudio(file, file.name)
       setState({ phase: 'loading', step: 'analyzing' })
       const data = await analyzeJson(meetingInput, meetingType)
       setState({ phase: 'results', data, tab: 'summary' })
       saveMeeting('audio', { filename: file.name }, data, meetingType)
+        .then(triggerHistoryRefresh)
+        .catch(() => {/* 保存失敗はサイレントに無視 */})
+    } catch (e) {
+      alert(`分析に失敗しました: ${String(e)}`)
+      setState({ phase: 'upload' })
+    }
+  }
+
+  const handleAnalyzeVideo = async (file: File, meetingType?: MeetingType) => {
+    // Issue #68: 動画はブラウザ内で音声抽出してから /upload_audio に投げる。
+    // backend 側は動画を 415 で拒否するため、抽出失敗時の動画送信フォールバックは無い。
+    setState({ phase: 'loading', step: 'extracting', progress: 0 })
+    let audioBlob: Blob
+    try {
+      audioBlob = await extractAudioFromVideo(file, {
+        onProgress: ({ ratio }) =>
+          setState({ phase: 'loading', step: 'extracting', progress: ratio }),
+      })
+    } catch (e) {
+      const msg = e instanceof MediaExtractError ? e.message : String(e)
+      alert(
+        `動画から音声を抽出できませんでした: ${msg}\n` +
+          'お手数ですが、別の動画を選ぶか、音声ファイルとして書き出してから再アップロードしてください。',
+      )
+      setState({ phase: 'upload' })
+      return
+    }
+
+    setState({ phase: 'loading', step: 'transcribing' })
+    try {
+      // 抽出された音声は webm/opus 固定なので拡張子を付け替えて送る
+      const baseName = file.name.replace(/\.[^.]+$/, '') || 'video'
+      const meetingInput = await uploadAudio(audioBlob, `${baseName}.webm`)
+      setState({ phase: 'loading', step: 'analyzing' })
+      const data = await analyzeJson(meetingInput, meetingType)
+      setState({ phase: 'results', data, tab: 'summary' })
+      saveMeeting('video', { filename: file.name }, data, meetingType)
         .then(triggerHistoryRefresh)
         .catch(() => {/* 保存失敗はサイレントに無視 */})
     } catch (e) {
@@ -147,11 +185,12 @@ export default function App() {
             onAnalyzeSample={handleAnalyzeSample}
             onAnalyzeJson={handleAnalyzeJson}
             onAnalyzeAudio={handleAnalyzeAudio}
+            onAnalyzeVideo={handleAnalyzeVideo}
             onRestore={handleRestore}
             historyVersion={historyVersion}
           />
         )}
-        {state.phase === 'loading' && <LoadingView step={state.step} />}
+        {state.phase === 'loading' && <LoadingView step={state.step} progress={state.progress} />}
         {state.phase === 'results' && (
           <>
             {state.tab === 'summary'  && <SummaryTab data={state.data} />}
