@@ -51,6 +51,10 @@ async function getFFmpeg(onLoadProgress?: (ratio: number) => void): Promise<FFmp
 
   loadPromise = (async () => {
     const ffmpeg = new FFmpeg()
+    ffmpeg.on('log', ({ type, message }) => {
+      // ffmpeg.wasm 内部のログを全部 console に出して、hang/失敗時の解析を可能にする
+      console.debug(`[ffmpeg.wasm ${type}]`, message)
+    })
     if (onLoadProgress) {
       ffmpeg.on('progress', ({ progress }) => onLoadProgress(progress))
     }
@@ -61,9 +65,14 @@ async function getFFmpeg(onLoadProgress?: (ratio: number) => void): Promise<FFmp
       })
     } catch (e) {
       loadPromise = null
+      console.error('[audioExtract] ffmpeg.load failed:', e)
+      const rawMessage =
+        e instanceof Error ? e.message
+        : typeof e === 'string' ? e
+        : JSON.stringify(e)
       throw new MediaExtractError(
-        `ffmpeg.wasm のロードに失敗しました: ${(e as Error).message}`,
-        { cause: e as Error },
+        `ffmpeg.wasm のロードに失敗しました: ${rawMessage || '(原因不明: Console を確認)'}`,
+        { cause: e },
       )
     }
     ffmpegInstance = ffmpeg
