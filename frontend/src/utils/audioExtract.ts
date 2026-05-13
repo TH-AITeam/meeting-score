@@ -11,11 +11,15 @@
  */
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
-// @ffmpeg/ffmpeg の worker は type: 'module' なので importScripts は使えず、
-// dynamic import で core を読み込む実装になっている。よって esm 版を明示的に
-// 渡さないと createFFmpegCore の default export を取得できず ERROR_IMPORT_FAILURE。
-// wasm は esm/umd どちらでも中身同じなので同じ階層に置けば OK。
-const FFMPEG_CORE_BASE = '/ffmpeg/esm'
+// @ffmpeg/core は jsDelivr CDN (ESM 版) から fetch する。
+// - worker は type: 'module' なので importScripts は使えず dynamic import 経由
+//   → ESM 版を直接指す必要がある
+// - jsDelivr は wasm/js とも CORS ヘッダ (`Access-Control-Allow-Origin: *`) を
+//   送るので worker からの cross-origin import が通る
+// - 静的コピーを止めることで Cloudflare Pages の単一ファイル 25 MiB 制限 (wasm
+//   が 32 MB) も回避できる
+const FFMPEG_CORE_VERSION = '0.12.6'
+const FFMPEG_CORE_BASE = `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/esm`
 
 export class MediaExtractError extends Error {
   readonly cause?: unknown
