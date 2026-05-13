@@ -223,7 +223,7 @@ def test_load_audio_section_missing_file_returns_empty(tmp_path: Path) -> None:
 
 
 def test_cli_main_extracts_audio_for_video_input(monkeypatch, tmp_path) -> None:
-    """`--input meeting.mp4` で extract_audio_from_video が呼ばれてから transcribe に渡る。"""
+    """`--input meeting.mp4` で extract→normalize→transcribe が順に走る。"""
     from app.asr import cli
 
     video = tmp_path / "meeting.mp4"
@@ -231,10 +231,17 @@ def test_cli_main_extracts_audio_for_video_input(monkeypatch, tmp_path) -> None:
     out = tmp_path / "out.json"
 
     extracted_paths: list[Path] = []
+    normalized_paths: list[Path] = []
+    transcribed_paths: list[Path] = []
 
     def _fake_extract(input_path, output_path, **kwargs):
         output_path.write_bytes(b"OPUS_FAKE")
         extracted_paths.append(output_path)
+        return output_path
+
+    def _fake_normalize(input_path, output_path, **kwargs):
+        output_path.write_bytes(b"WAV_FAKE")
+        normalized_paths.append(output_path)
         return output_path
 
     class _FakeTranscriber:
@@ -242,6 +249,7 @@ def test_cli_main_extracts_audio_for_video_input(monkeypatch, tmp_path) -> None:
             self.config = config
 
         def transcribe(self, path):
+            transcribed_paths.append(Path(path))
             return [Word("動画から抽出", 0.0, 1.0)]
 
     class _FakeDiarizer:
@@ -252,6 +260,7 @@ def test_cli_main_extracts_audio_for_video_input(monkeypatch, tmp_path) -> None:
             return [Turn(speaker="S0", start_sec=0.0, end_sec=1.0)]
 
     monkeypatch.setattr(cli, "extract_audio_from_video", _fake_extract)
+    monkeypatch.setattr(cli, "normalize_to_wav", _fake_normalize)
     monkeypatch.setattr(cli, "WhisperXTranscriber", _FakeTranscriber)
     monkeypatch.setattr(cli, "PyannoteDiarizer", _FakeDiarizer)
     monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
@@ -272,6 +281,11 @@ def test_cli_main_extracts_audio_for_video_input(monkeypatch, tmp_path) -> None:
     assert exit_code == 0
     assert len(extracted_paths) == 1
     assert extracted_paths[0].suffix == ".webm"
+    assert len(normalized_paths) == 1
+    assert normalized_paths[0].suffix == ".wav"
+    # ASR には正規化後の wav が渡る (webm のままではない)
+    assert len(transcribed_paths) == 1
+    assert transcribed_paths[0].suffix == ".wav"
     parsed = json.loads(out.read_text(encoding="utf-8"))
     assert parsed["meeting_id"] == "m_video"
     assert parsed["utterances"][0]["text"] == "動画から抽出"
@@ -309,8 +323,45 @@ def test_cli_main_returns_2_when_video_extraction_fails(monkeypatch, tmp_path) -
     assert not out.exists()
 
 
+def test_cli_main_returns_2_when_normalize_fails(monkeypatch, tmp_path) -> None:
+    """動画→音声抽出は成功するが、その後の wav 正規化で MediaError → exit 2。"""
+    from app.asr import cli
+    from app.asr.media import MediaError
+
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"FAKE_MP4")
+    out = tmp_path / "out.json"
+
+    def _fake_extract(input_path, output_path, **kwargs):
+        output_path.write_bytes(b"OPUS_FAKE")
+        return output_path
+
+    def _raise_normalize(*args, **kwargs):
+        msg = "normalize failed for video_5min.webm"
+        raise MediaError(msg)
+
+    monkeypatch.setattr(cli, "extract_audio_from_video", _fake_extract)
+    monkeypatch.setattr(cli, "normalize_to_wav", _raise_normalize)
+    monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
+    monkeypatch.setattr(cli, "_load_audio_section", lambda *_: _stub_audio_cfg())
+
+    exit_code = cli.main(
+        [
+            "--input",
+            str(video),
+            "--output",
+            str(out),
+            "--meeting-id",
+            "m_norm_fail",
+            "--no-meta-extract",
+        ]
+    )
+    assert exit_code == 2
+    assert not out.exists()
+
+
 def test_cli_main_no_extraction_for_audio_input(monkeypatch, tmp_path) -> None:
-    """音声入力では extract_audio_from_video は呼ばれない (回帰防止)。"""
+    """音声入力では extract_audio_from_video / normalize_to_wav は呼ばれない (回帰防止)。"""
     from app.asr import cli
 
     audio = tmp_path / "x.wav"
@@ -318,9 +369,14 @@ def test_cli_main_no_extraction_for_audio_input(monkeypatch, tmp_path) -> None:
     out = tmp_path / "out.json"
 
     extract_called = {"value": False}
+    normalize_called = {"value": False}
 
     def _fake_extract(input_path, output_path, **kwargs):
         extract_called["value"] = True
+        return output_path
+
+    def _fake_normalize(input_path, output_path, **kwargs):
+        normalize_called["value"] = True
         return output_path
 
     class _FakeTranscriber:
@@ -338,6 +394,7 @@ def test_cli_main_no_extraction_for_audio_input(monkeypatch, tmp_path) -> None:
             return [Turn(speaker="S0", start_sec=0.0, end_sec=1.0)]
 
     monkeypatch.setattr(cli, "extract_audio_from_video", _fake_extract)
+    monkeypatch.setattr(cli, "normalize_to_wav", _fake_normalize)
     monkeypatch.setattr(cli, "WhisperXTranscriber", _FakeTranscriber)
     monkeypatch.setattr(cli, "PyannoteDiarizer", _FakeDiarizer)
     monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
@@ -357,3 +414,4 @@ def test_cli_main_no_extraction_for_audio_input(monkeypatch, tmp_path) -> None:
     )
     assert exit_code == 0
     assert extract_called["value"] is False
+    assert normalize_called["value"] is False

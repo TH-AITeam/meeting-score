@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any
 
 from app.asr.base import Transcriber
-from app.asr.media import VIDEO_EXTENSIONS, MediaError, extract_audio_from_video
+from app.asr.media import VIDEO_EXTENSIONS, MediaError, extract_audio_from_video, normalize_to_wav
 from app.asr.meeting_builder import MetaExtractor, OpenAIMetaExtractor, build_meeting_input
 from app.asr.pipeline import AudioPipeline
 from app.asr.pyannote_diarizer import PyannoteConfig, PyannoteDiarizer
@@ -167,23 +167,29 @@ def main(argv: list[str] | None = None) -> int:
         logger.error("入力ファイルが見つかりません: %s", input_path)
         return 1
 
-    # Issue #68: 動画拡張子ならローカル ffmpeg で音声抽出して既存パイプラインに渡す
+    # Issue #68: 動画拡張子ならローカル ffmpeg で音声抽出して既存パイプラインに渡す。
+    # 抽出直後の webm を直接 pyannote に渡すと telemetry が duration=None で落ちる
+    # ため、backend API と同じく normalize_to_wav で 16kHz mono wav に揃えてから ASR/Diar へ。
     audio_path = input_path
     extracted_tmp: Path | None = None
+    normalized_tmp: Path | None = None
+    tmp_dir: Path | None = None
     if input_path.suffix.lower() in VIDEO_EXTENSIONS:
         logger.info("Video input detected. Extracting audio via ffmpeg ...")
         try:
             tmp_dir = Path(tempfile.mkdtemp(prefix="asr_cli_extract_"))
             extracted_tmp = tmp_dir / f"{input_path.stem}.webm"
             extract_audio_from_video(input_path, extracted_tmp)
-            audio_path = extracted_tmp
             logger.info(
                 "Extracted audio: %s (%.1f MB)",
                 extracted_tmp,
                 extracted_tmp.stat().st_size / (1024 * 1024),
             )
+            normalized_tmp = tmp_dir / f"{input_path.stem}.wav"
+            normalize_to_wav(extracted_tmp, normalized_tmp)
+            audio_path = normalized_tmp
         except MediaError as e:
-            logger.error("動画→音声抽出に失敗: %s", e)
+            logger.error("動画→音声抽出/正規化に失敗: %s", e)
             return 2
 
     logger.info("Transcribing %s ...", audio_path)
@@ -201,12 +207,17 @@ def main(argv: list[str] | None = None) -> int:
         )
     finally:
         # 動画抽出時の tmp を片付ける
-        if extracted_tmp and extracted_tmp.exists():
+        for p in (extracted_tmp, normalized_tmp):
+            if p and p.exists():
+                try:
+                    p.unlink()
+                except OSError:
+                    logger.warning("tmp の削除に失敗 (放置可): %s", p)
+        if tmp_dir and tmp_dir.exists():
             try:
-                extracted_tmp.unlink()
-                extracted_tmp.parent.rmdir()
+                tmp_dir.rmdir()
             except OSError:
-                logger.warning("tmp の削除に失敗 (放置可): %s", extracted_tmp)
+                logger.warning("tmp dir の削除に失敗 (放置可): %s", tmp_dir)
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
