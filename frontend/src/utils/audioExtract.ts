@@ -10,9 +10,12 @@
  *   は **しない** — Issue #68 の方針通り、ユーザーに再選択を促す。
  */
 import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { fetchFile, toBlobURL } from '@ffmpeg/util'
+import { fetchFile } from '@ffmpeg/util'
 
 const FFMPEG_CORE_VERSION = '0.12.6'
+// CDN を直接渡す。toBlobURL 経由だと Worker の importScripts が blob URL を
+// 読めず "failed to import ffmpeg-core.js" で落ちるブラウザがある。
+// unpkg は CORS を許可しているので直接 URL でも動く。
 const FFMPEG_CORE_BASE = `https://unpkg.com/@ffmpeg/core@${FFMPEG_CORE_VERSION}/dist/umd`
 
 export class MediaExtractError extends Error {
@@ -60,8 +63,8 @@ async function getFFmpeg(onLoadProgress?: (ratio: number) => void): Promise<FFmp
     }
     try {
       await ffmpeg.load({
-        coreURL: await toBlobURL(`${FFMPEG_CORE_BASE}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${FFMPEG_CORE_BASE}/ffmpeg-core.wasm`, 'application/wasm'),
+        coreURL: `${FFMPEG_CORE_BASE}/ffmpeg-core.js`,
+        wasmURL: `${FFMPEG_CORE_BASE}/ffmpeg-core.wasm`,
       })
     } catch (e) {
       loadPromise = null
