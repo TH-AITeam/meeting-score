@@ -11,12 +11,11 @@
  */
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
-// @ffmpeg/core は `vite-plugin-static-copy` で `/ffmpeg/umd/` と
-// `/ffmpeg/esm/` に同期される。@ffmpeg/ffmpeg の worker は module worker
-// なので importScripts が失敗 → URL の `/umd/` を `/esm/` に置換して
-// dynamic import に fallback する実装。両方の path に core を置いておけば
-// 自動でうまくいく。
-const FFMPEG_CORE_BASE = '/ffmpeg/umd'
+// @ffmpeg/ffmpeg の worker は type: 'module' なので importScripts は使えず、
+// dynamic import で core を読み込む実装になっている。よって esm 版を明示的に
+// 渡さないと createFFmpegCore の default export を取得できず ERROR_IMPORT_FAILURE。
+// wasm は esm/umd どちらでも中身同じなので同じ階層に置けば OK。
+const FFMPEG_CORE_BASE = '/ffmpeg/esm'
 
 export class MediaExtractError extends Error {
   readonly cause?: unknown
