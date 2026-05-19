@@ -5,14 +5,14 @@ description = "会議中の各発言の会議貢献度を評価・可視化す�
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.110.0",
-    "numpy>=1.26",
-    "openai>=1.0.0",
-    "pydantic>=2.6.0",
+    "fastapi>=0.136.1",
+    "numpy>=2.4.6",
+    "openai>=2.37.0",
+    "pydantic>=2.13.4",
     "python-dotenv>=1.0.1",
-    "python-multipart>=0.0.9",
+    "python-multipart>=0.0.29",
     "pyyaml>=6.0.1",
-    "uvicorn[standard]>=0.29.0",
+    "uvicorn[standard]>=0.47.0",
 ]
 
 # Issue #19 の音声処理 (WhisperX + pyannote + librosa) は重い依存なので
@@ -27,12 +27,12 @@ audio = [
 
 [dependency-groups]
 dev = [
-    "mypy>=2.0.0",
+    "mypy>=2.1.0",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
-    "ruff>=0.15.12",
-    "types-pyyaml>=6.0.12.20260510",
+    "ruff>=0.15.13",
+    "types-pyyaml>=6.0.12.20260518",
 ]
 
 [tool.ruff]
