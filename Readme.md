@@ -86,6 +86,70 @@ MVP では以下を対象外にします。
 
 # 入力
 
+## 国会会議録APIデータの収集
+
+国会会議録検索システムAPIから、会議録単位または発言単位のレコードを
+JSONLとして保存できます。
+
+```bash
+uv run scripts/collect_kokkai_records.py --help
+```
+
+過去1年分の会議録を取得する例:
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint meeting \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --output data/kokkai/meeting_20250522_20260522.jsonl \
+  --pages-output-dir data/kokkai/pages/meeting_20250522_20260522
+```
+
+発言単位で取得したい場合は `--endpoint speech` を指定します。
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint speech \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --output data/kokkai/speech_20250522_20260522.jsonl \
+  --pages-output-dir data/kokkai/pages/speech_20250522_20260522
+```
+
+試し取りでは `--max-pages 1` を付けると1ページだけ取得できます。
+会議名、院名、発言者、発言本文などで絞り込むこともできます。
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint speech \
+  --name-of-house 衆議院 \
+  --name-of-meeting 予算委員会 \
+  --speech 生成AI \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --max-pages 1 \
+  --output data/kokkai/speech_budget_genai_sample.jsonl
+```
+
+取得結果は `--output` のJSONLへ1行1レコードで保存されます。
+`--pages-output-dir` を指定すると、APIレスポンス全体もページごとのJSONで残します。
+複数ページ取得時は、APIへの連続アクセスを抑えるためページ間に既定で3秒待機します。
+
+中断後に再開する場合は、実行中に表示される `next` の値を
+`--start-record` に渡し、既存JSONLへ続けるため `--append` を付けます。
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint meeting \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --start-record 801 \
+  --append \
+  --output data/kokkai/meeting_20250522_20260522.jsonl \
+  --pages-output-dir data/kokkai/pages/meeting_20250522_20260522
+```
+
 ## 必須入力
 
 * 会議タイトル
