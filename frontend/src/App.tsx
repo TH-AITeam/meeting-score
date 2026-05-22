@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { analyzeJson, analyzeSample, saveMeeting } from './api/client'
+import { analyzeJson, analyzeSample, saveMeeting, uploadAudio } from './api/client'
 import type { MeetingSummary, MeetingType } from './types/meeting'
 import InputView from './components/InputView'
 import LoadingView from './components/LoadingView'
@@ -12,7 +12,7 @@ type SpeakerMode = 'cards' | 'focus'
 
 type AppState =
   | { phase: 'upload' }
-  | { phase: 'loading' }
+  | { phase: 'loading'; step?: 'transcribing' | 'analyzing' }
   | { phase: 'results'; data: MeetingSummary; tab: ResultTab }
 
 const RESULT_TABS: { id: ResultTab; label: string }[] = [
@@ -27,6 +27,22 @@ export default function App() {
   const [historyVersion, setHistoryVersion] = useState(0)
 
   const triggerHistoryRefresh = () => setHistoryVersion((v) => v + 1)
+
+  const handleAnalyzeAudio = async (file: File, meetingType?: MeetingType) => {
+    setState({ phase: 'loading', step: 'transcribing' })
+    try {
+      const meetingInput = await uploadAudio(file)
+      setState({ phase: 'loading', step: 'analyzing' })
+      const data = await analyzeJson(meetingInput, meetingType)
+      setState({ phase: 'results', data, tab: 'summary' })
+      saveMeeting('audio', { filename: file.name }, data, meetingType)
+        .then(triggerHistoryRefresh)
+        .catch(() => {/* 保存失敗はサイレントに無視 */})
+    } catch (e) {
+      alert(`分析に失敗しました: ${String(e)}`)
+      setState({ phase: 'upload' })
+    }
+  }
 
   const handleAnalyzeSample = async (filename: string, meetingType?: MeetingType) => {
     setState({ phase: 'loading' })
@@ -130,11 +146,12 @@ export default function App() {
           <InputView
             onAnalyzeSample={handleAnalyzeSample}
             onAnalyzeJson={handleAnalyzeJson}
+            onAnalyzeAudio={handleAnalyzeAudio}
             onRestore={handleRestore}
             historyVersion={historyVersion}
           />
         )}
-        {state.phase === 'loading' && <LoadingView />}
+        {state.phase === 'loading' && <LoadingView step={state.step} />}
         {state.phase === 'results' && (
           <>
             {state.tab === 'summary'  && <SummaryTab data={state.data} />}
