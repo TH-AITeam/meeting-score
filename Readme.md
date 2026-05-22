@@ -92,13 +92,13 @@ MVP では以下を対象外にします。
 JSONLとして保存できます。
 
 ```bash
-python3 scripts/collect_kokkai_records.py --help
+uv run scripts/collect_kokkai_records.py --help
 ```
 
 過去1年分の会議録を取得する例:
 
 ```bash
-python3 scripts/collect_kokkai_records.py \
+uv run scripts/collect_kokkai_records.py \
   --endpoint meeting \
   --from-date 2025-05-22 \
   --until-date 2026-05-22 \
@@ -109,7 +109,7 @@ python3 scripts/collect_kokkai_records.py \
 発言単位で取得したい場合は `--endpoint speech` を指定します。
 
 ```bash
-python3 scripts/collect_kokkai_records.py \
+uv run scripts/collect_kokkai_records.py \
   --endpoint speech \
   --from-date 2025-05-22 \
   --until-date 2026-05-22 \
@@ -121,7 +121,7 @@ python3 scripts/collect_kokkai_records.py \
 会議名、院名、発言者、発言本文などで絞り込むこともできます。
 
 ```bash
-python3 scripts/collect_kokkai_records.py \
+uv run scripts/collect_kokkai_records.py \
   --endpoint speech \
   --name-of-house 衆議院 \
   --name-of-meeting 予算委員会 \
@@ -140,7 +140,7 @@ python3 scripts/collect_kokkai_records.py \
 `--start-record` に渡し、既存JSONLへ続けるため `--append` を付けます。
 
 ```bash
-python3 scripts/collect_kokkai_records.py \
+uv run scripts/collect_kokkai_records.py \
   --endpoint meeting \
   --from-date 2025-05-22 \
   --until-date 2026-05-22 \
