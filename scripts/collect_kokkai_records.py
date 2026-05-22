@@ -25,6 +25,11 @@ API_PATHS = {
     "meeting_list": "meeting_list",
     "speech": "speech",
 }
+API_RECORD_KEYS = {
+    "meeting": "meetingRecord",
+    "meeting_list": "meetingRecord",
+    "speech": "speechRecord",
+}
 SEARCH_ARG_TO_API_PARAM = {
     "any": "any",
     "name_of_house": "nameOfHouse",
@@ -214,8 +219,18 @@ def wait_before_retry(attempt: int) -> None:
 
 
 def payload_records(endpoint: str, payload: dict[str, Any]) -> list[dict[str, Any]]:
-    record_key = f"{API_PATHS[endpoint]}Record"
-    records = payload.get(record_key, [])
+    api_error = payload.get("message")
+    if isinstance(api_error, str):
+        details = payload.get("details")
+        if isinstance(details, list) and details:
+            detail_text = " / ".join(str(detail) for detail in details)
+            raise KokkaiAPIError(f"APIエラー: {api_error}: {detail_text}")
+        raise KokkaiAPIError(f"APIエラー: {api_error}")
+
+    record_key = API_RECORD_KEYS[endpoint]
+    records = payload.get(record_key)
+    if records is None:
+        raise KokkaiAPIError(f"{record_key}がレスポンスにありません")
     if not isinstance(records, list):
         raise KokkaiAPIError(f"{record_key}が配列ではありません")
     if any(not isinstance(record, dict) for record in records):
@@ -237,10 +252,12 @@ def write_jsonl(path: Path, records: Iterable[dict[str, Any]], append: bool) -> 
 
 def write_page(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    try:
+        with path.open("x", encoding="utf-8") as output:
+            output.write(json.dumps(payload, ensure_ascii=False, indent=2))
+            output.write("\n")
+    except FileExistsError as exc:
+        raise KokkaiAPIError(f"ページJSONが既に存在します: {path}") from exc
 
 
 def collect(args: argparse.Namespace) -> int:
@@ -275,7 +292,8 @@ def collect(args: argparse.Namespace) -> int:
         first_write = False
 
         if args.pages_output_dir is not None:
-            write_page(args.pages_output_dir / f"page_{page_number:05d}.json", payload)
+            page_path = args.pages_output_dir / f"start_record_{next_record_position:09d}.json"
+            write_page(page_path, payload)
 
         print(
             f"page={page_number} records={len(records)} total_written={total_written} "
