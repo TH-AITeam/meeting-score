@@ -1,6 +1,8 @@
-"""バックエンド切替 factory (Issue #12)。
+"""バックエンド切替 factory (Issue #12 + Issue #17)。
 
-config.llm.backend の値で OpenAI / Local を切り替えて Evaluator を返す。
+config.llm.backend の値で Local / OpenAI を切り替えて Evaluator を返す。
+既定は "local" (vLLM 等の OpenAI 互換サーバ)。OpenAI Responses API は
+蒸留・ベンチマーク用途の optional 経路。
 """
 
 from __future__ import annotations
@@ -24,7 +26,7 @@ def create_evaluator(config: AppConfig) -> Evaluator:
     config.llm_backend == "openai" → OpenAIEvaluator
     config.llm_backend == "local"  → LocalEvaluator
     """
-    backend = (config.llm_backend or "openai").lower()
+    backend = (config.llm_backend or "local").lower()
     if backend == "openai":
         return OpenAIEvaluator(
             model=config.llm_model,
