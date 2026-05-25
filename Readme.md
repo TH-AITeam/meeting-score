@@ -421,7 +421,7 @@ bash scripts/serve_local_llm.sh
 llm:
   backend: "local"
   model: "qwen3.6-35b-nvfp4"           # vLLM の --served-model-name と一致
-  endpoint: "http://localhost:8000/v1"  # 別ホストならここを書き換え
+  endpoint: "http://localhost:8001/v1"  # 別ホストならここを書き換え
   api_key: null
   timeout: 60
 ```

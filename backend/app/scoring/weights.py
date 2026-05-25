@@ -2,12 +2,58 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 
 _CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config.yaml"
+DEFAULT_LOCAL_LLM_MODEL = "qwen3.6-35b-nvfp4"
+DEFAULT_OPENAI_LLM_MODEL = "gpt-4o-mini"
+_LOCAL_ONLY_LLM_MODEL_PREFIXES = (
+    "deepseek",
+    "gemma",
+    "llama",
+    "meta-llama/",
+    "mistral",
+    "mixtral",
+    "phi",
+    "qwen",
+    "unsloth/",
+)
+
+
+def is_local_only_llm_model(model: str | None) -> bool:
+    """OpenAI Responses API へ直接渡せないローカル向けモデル名かを判定する。"""
+    name = (model or "").strip().lower()
+    return bool(name) and name.startswith(_LOCAL_ONLY_LLM_MODEL_PREFIXES)
+
+
+def resolve_llm_model_for_backend(backend: str | None, model: str | None) -> str:
+    """backend と model の組み合わせを実行可能な既定値へ正規化する。"""
+    backend_name = (backend or "local").strip().lower()
+    model_name = (model or "").strip()
+    if backend_name == "openai" and (
+        not model_name or is_local_only_llm_model(model_name)
+    ):
+        return DEFAULT_OPENAI_LLM_MODEL
+    return model_name or DEFAULT_LOCAL_LLM_MODEL
+
+
+def _load_dotenv_near_config(path: Path) -> None:
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    load_dotenv(path.parent / ".env", override=False)
+
+
+def _env_value(name: str, default: str | None) -> str | None:
+    value = os.getenv(name)
+    if value is None or value == "":
+        return default
+    return value
 
 
 @dataclass
@@ -52,9 +98,9 @@ class AppConfig:
     # 既定はローカル推論 (vLLM 等の OpenAI 互換サーバ)。
     # OpenAI クラウド (Responses API) は蒸留・ベンチマーク用途のみ。
     llm_backend: str = "local"  # "local" | "openai"
-    llm_endpoint: str | None = None  # backend=local 時に必須 (例: http://localhost:8000/v1)
+    llm_endpoint: str | None = None  # backend=local 時に必須 (例: http://localhost:8001/v1)
     llm_api_key: str | None = None  # OpenAI 互換サーバが要求する場合
-    llm_model: str = "qwen3.6-35b-nvfp4"
+    llm_model: str = DEFAULT_LOCAL_LLM_MODEL
     llm_max_tokens: int = 1024
     llm_max_retries: int = 3
     llm_timeout: float = 30.0
@@ -98,9 +144,17 @@ def max_total_score(weights: ScoringWeights) -> float:
 def load_config(path: str | Path | None = None) -> AppConfig:
     """config.yaml から設定を読み込む"""
     path = Path(path) if path else _CONFIG_PATH
+    _load_dotenv_near_config(path)
 
     if not path.exists():
-        return AppConfig()
+        llm_backend = _env_value("LLM_BACKEND", "local") or "local"
+        llm_model = _env_value("LLM_MODEL", None)
+        return AppConfig(
+            llm_backend=llm_backend,
+            llm_endpoint=_env_value("LLM_ENDPOINT", None),
+            llm_api_key=_env_value("LLM_API_KEY", None),
+            llm_model=resolve_llm_model_for_backend(llm_backend, llm_model),
+        )
 
     with path.open("r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
@@ -121,6 +175,10 @@ def load_config(path: str | Path | None = None) -> AppConfig:
     ctx = raw.get("context", {})
     llm = raw.get("llm", {})
     agg = raw.get("aggregation", {})
+    llm_backend = _env_value("LLM_BACKEND", llm.get("backend", "local")) or "local"
+    llm_endpoint = _env_value("LLM_ENDPOINT", llm.get("endpoint"))
+    llm_api_key = _env_value("LLM_API_KEY", llm.get("api_key"))
+    llm_model = _env_value("LLM_MODEL", llm.get("model"))
 
     return AppConfig(
         weights=weights,
@@ -128,10 +186,10 @@ def load_config(path: str | Path | None = None) -> AppConfig:
         meeting_type_weights=meeting_type_weights,
         context_before=ctx.get("before_count", 3),
         context_after=ctx.get("after_count", 3),
-        llm_backend=llm.get("backend", "local"),
-        llm_endpoint=llm.get("endpoint"),
-        llm_api_key=llm.get("api_key"),
-        llm_model=llm.get("model", "qwen3.6-35b-nvfp4"),
+        llm_backend=llm_backend,
+        llm_endpoint=llm_endpoint,
+        llm_api_key=llm_api_key,
+        llm_model=resolve_llm_model_for_backend(llm_backend, llm_model),
         llm_max_tokens=llm.get("max_tokens", 1024),
         llm_max_retries=llm.get("max_retries", 3),
         llm_timeout=llm.get("timeout", 30.0),

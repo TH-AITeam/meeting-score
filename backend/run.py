@@ -7,7 +7,7 @@
   本番運用はローカル推論バックエンド (vLLM 等) を既定とし、OpenAI API キーは不要。
 
   LLM_BACKEND:   "local" (既定) | "openai"
-  LLM_ENDPOINT:  ローカル推論サーバ URL (例: http://localhost:8000/v1)
+  LLM_ENDPOINT:  ローカル推論サーバ URL (例: http://localhost:8001/v1)
   LLM_MODEL:     推論サーバが配信するモデル名 (例: qwen3.6-35b-nvfp4)
   OPENAI_API_KEY: optional。蒸留・ベンチマーク用途で OpenAI を叩く場合のみ。
 

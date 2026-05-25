@@ -27,6 +27,7 @@ from app.evaluators.prompt import (
     normalize_result,
     parse_response,
 )
+from app.scoring.weights import DEFAULT_OPENAI_LLM_MODEL
 
 if TYPE_CHECKING:
     from app.context_builder.builder import EvaluationContext
@@ -65,7 +66,7 @@ class OpenAIEvaluator(Evaluator):
 
     def __init__(
         self,
-        model: str = "gpt-4o-mini",
+        model: str = DEFAULT_OPENAI_LLM_MODEL,
         max_tokens: int = 1024,
         max_retries: int = 3,
         timeout: float = 30.0,
@@ -161,4 +162,4 @@ class OpenAIEvaluator(Evaluator):
         return EvaluationResult.failed()
 
 
-__all__ = ["OpenAIEvaluator"]
+__all__ = ["DEFAULT_OPENAI_LLM_MODEL", "OpenAIEvaluator"]

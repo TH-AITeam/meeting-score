@@ -8,7 +8,7 @@ OpenAI 依存を捨て、Lyon の A100 上で判断モデルを動かすため�
 [Streamlit / FastAPI]
         │
         │ OpenAI 互換 SDK
-        │ base_url=http://lyon:8000/v1
+        │ base_url=http://lyon:8001/v1
         ▼
 [vLLM サーバ on Lyon A100]
         │
@@ -41,7 +41,7 @@ MODEL="meta-llama/Llama-3.1-8B-Instruct" bash scripts/serve_local_llm.sh
 ### 起動確認
 
 ```bash
-curl -s http://localhost:8000/v1/models | jq .
+curl -s http://localhost:8001/v1/models | jq .
 ```
 
 `data[0].id` に MODEL 名が出ていれば OK。
@@ -59,7 +59,7 @@ After=network.target
 User=tomoki
 WorkingDirectory=/home/tomoki/meeting-score
 Environment=MODEL=Qwen/Qwen2.5-7B-Instruct
-Environment=PORT=8000
+Environment=PORT=8001
 Environment=GPU_MEM_UTIL=0.85
 ExecStart=/bin/bash scripts/serve_local_llm.sh
 Restart=on-failure
@@ -88,7 +88,7 @@ services:
       - --guided-decoding-backend=xgrammar
       - --gpu-memory-utilization=0.85
     ports:
-      - "8000:8000"
+      - "8001:8000"
     deploy:
       resources:
         reservations:
@@ -105,7 +105,7 @@ services:
 llm:
   backend: "local"
   model: "Qwen/Qwen2.5-7B-Instruct"     # サーバが配信しているモデル名と一致
-  endpoint: "http://lyon:8000/v1"        # サーバの公開アドレス
+  endpoint: "http://lyon:8001/v1"        # サーバの公開アドレス
   api_key: null                           # vLLM は不要
   max_tokens: 1024
   max_retries: 3
@@ -116,9 +116,9 @@ llm:
 
 ```bash
 # 1. Lyon と SSH ポートフォワード
-ssh -L 8000:localhost:8000 lyon
+ssh -L 8001:localhost:8001 lyon
 
-# 2. config.yaml で endpoint: "http://localhost:8000/v1"
+# 2. config.yaml で endpoint: "http://localhost:8001/v1"
 # 3. アプリ起動
 uv run python -m uvicorn app.api.main:app --reload
 ```

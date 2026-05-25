@@ -16,7 +16,7 @@ from app.evaluators import (
     create_evaluator,
 )
 from app.schemas.models import Utterance
-from app.scoring.weights import AppConfig
+from app.scoring.weights import DEFAULT_OPENAI_LLM_MODEL, AppConfig
 
 
 def _make_ctx() -> EvaluationContext:
@@ -52,7 +52,14 @@ class TestCreateEvaluator:
         ev = create_evaluator(config)
         assert isinstance(ev, OpenAIEvaluator)
         assert isinstance(ev, Evaluator)
+        assert ev._model == "gpt-4o-mini"
         assert ev._timeout == 12.5
+
+    def test_openai_backend_replaces_local_default_model(self) -> None:
+        config = AppConfig(llm_backend="openai")
+        ev = create_evaluator(config)
+        assert isinstance(ev, OpenAIEvaluator)
+        assert ev._model == DEFAULT_OPENAI_LLM_MODEL
 
     def test_local_backend_requires_endpoint(self) -> None:
         config = AppConfig(llm_backend="local", llm_endpoint=None)
@@ -62,7 +69,7 @@ class TestCreateEvaluator:
     def test_local_backend_with_endpoint(self) -> None:
         config = AppConfig(
             llm_backend="local",
-            llm_endpoint="http://localhost:8000/v1",
+            llm_endpoint="http://localhost:8001/v1",
             llm_model="qwen2.5-7b-instruct",
         )
         ev = create_evaluator(config)
@@ -77,6 +84,7 @@ class TestCreateEvaluator:
         config = AppConfig(llm_backend="OpenAI")
         ev = create_evaluator(config)
         assert isinstance(ev, OpenAIEvaluator)
+        assert ev._model == DEFAULT_OPENAI_LLM_MODEL
 
 
 # ---------------------------------------------------------------------------
@@ -140,7 +148,7 @@ class TestLocalEvaluator:
         client = _FakeClient(_VALID_JSON)
         ev = LocalEvaluator(
             model="qwen2.5-7b-instruct",
-            endpoint="http://localhost:8000/v1",
+            endpoint="http://localhost:8001/v1",
             client=client,
         )
         result = ev.evaluate(_make_ctx())
@@ -154,7 +162,7 @@ class TestLocalEvaluator:
         client = _FakeClient(_VALID_JSON)
         ev = LocalEvaluator(
             model="qwen",
-            endpoint="http://localhost:8000/v1",
+            endpoint="http://localhost:8001/v1",
             client=client,
         )
         ev.evaluate(_make_ctx())
@@ -168,7 +176,7 @@ class TestLocalEvaluator:
         client = _FakeClient("not a json")
         ev = LocalEvaluator(
             model="qwen",
-            endpoint="http://localhost:8000/v1",
+            endpoint="http://localhost:8001/v1",
             max_retries=2,
             client=client,
         )
@@ -180,11 +188,11 @@ class TestLocalEvaluator:
     def test_endpoint_trailing_slash_normalized(self) -> None:
         ev = LocalEvaluator(
             model="qwen",
-            endpoint="http://localhost:8000/v1/",
+            endpoint="http://localhost:8001/v1/",
             client=_FakeClient(_VALID_JSON),
         )
         # 内部で rstrip("/") している
-        assert ev._endpoint == "http://localhost:8000/v1"
+        assert ev._endpoint == "http://localhost:8001/v1"
 
 
 # ---------------------------------------------------------------------------

@@ -12,7 +12,7 @@ Examples
 
     # 別ホストの vLLM サーバを叩く（Issue #18 のベンチマーク用途）
     python -m evals.cli \\
-        --endpoint http://other-host:8000/v1 \\
+        --endpoint http://other-host:8001/v1 \\
         --model qwen3.6-27b-bnb \\
         stability \\
         --meeting data/sample_meetings/sample_meeting_01.json \\
@@ -37,7 +37,7 @@ from pathlib import Path
 from app.context_builder.builder import build_contexts
 from app.evaluators import create_evaluator
 from app.ingest.loader import load_meeting_from_file
-from app.scoring.weights import AppConfig, load_config
+from app.scoring.weights import AppConfig, load_config, resolve_llm_model_for_backend
 from evals.runner import run_eval
 from evals.stability import evaluate_stability
 
@@ -63,6 +63,7 @@ def _build_config(args: argparse.Namespace) -> AppConfig:
         cfg.llm_model = args.model
     if args.api_key:
         cfg.llm_api_key = args.api_key
+    cfg.llm_model = resolve_llm_model_for_backend(cfg.llm_backend, cfg.llm_model)
     return cfg
 
 
@@ -155,7 +156,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", help="config.yaml のパス (既定: backend/config.yaml)")
     parser.add_argument("--backend", choices=("openai", "local"), help="LLM backend 上書き")
     parser.add_argument(
-        "--endpoint", help="OpenAI 互換エンドポイント (例: http://127.0.0.1:8000/v1)"
+        "--endpoint", help="OpenAI 互換エンドポイント (例: http://127.0.0.1:8001/v1)"
     )
     parser.add_argument("--model", help="LLM モデル名 (既定: config.yaml の値)")
     parser.add_argument("--api-key", help="OpenAI 互換 API キー上書き")

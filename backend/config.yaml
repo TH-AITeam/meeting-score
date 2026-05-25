@@ -32,7 +32,7 @@ context:
 llm:
   backend: "local"                  # local | openai
   model: "qwen3.6-35b-nvfp4"        # local では vLLM の --served-model-name と一致させる
-  endpoint: "http://localhost:8000/v1"  # backend=local 時に必須
+  endpoint: "http://localhost:8001/v1"  # backend=local 時に必須
   api_key: null                    # OpenAI 互換サーバが要求する場合のみ。OpenAI は環境変数 OPENAI_API_KEY
   max_tokens: 1024
   max_retries: 3
