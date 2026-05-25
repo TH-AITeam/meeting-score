@@ -19,6 +19,7 @@
 | v0.4 | audio in | ASR + diarization で音声→評価まで | #18 → #10 |
 | v0.5 | local model | OpenAI を捨て、ローカル推論に移行 | #17 → #11, #16 |
 | v0.6 | training | SFT / DPO / 重み回帰で自前モデル運用 | #12〜#15 |
+| v0.7 | feedback-loop | 組織別フィードバック→定期バッチ適合(重みプロファイル / 組織別 LoRA) | #77〜#83 |
 
 ## 品質チェック(横断)
 
@@ -49,7 +50,19 @@
 #12 (SFT data) ─→ #13 (SFT) ─→ #14 (DPO)
                      ↓
                   #15 (weight regression)
+                     ↓
+#77 (Epic feedback-loop)
+   ├─ #78 (feedback API + DB) ─┐
+   ├─ #79 (feedback UI)        ├─→ #80 (data transform) ─→ #81 (weights profile, Phase1)
+   │                           │                       └─→ #82 (LoRA batch, Phase2) ─→ #83 (multi-LoRA serving, Phase2)
 ```
+
+## v0.7 補足
+
+- v0.6(#12〜#15) は **研究者主導の全体改善**。v0.7(#77〜#83) は **運用フィードバック専用の別系統**
+- ベースモデル(#17)・eval ハーネス(#4)・LoRA 学習基盤(`trl`+`peft`)は共有
+- 段階昇格: 50 ペアで重みプロファイル更新、300 ペアで組織別 LoRA 作成、100 ペア追加 or 週 1 で LoRA 増分更新
+- ガバナンス Phase1(同意フロー / 話者匿名化 / 行レベル分離 / 学習除外フラグ / 削除依頼)を Epic に集約
 
 ## 重要な原則
 
