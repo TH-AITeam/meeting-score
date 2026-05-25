@@ -24,18 +24,19 @@ context:
   before_count: 3             # 直前の発言数
   after_count: 3              # 直後の発言数
 
-# LLM 設定 (Issue #12)
-# backend で OpenAI / ローカル推論サーバを切り替える
-#   - openai : OpenAI Responses API
-#   - local  : OpenAI 互換エンドポイント (vLLM など)
+# LLM 設定 (Issue #12 + Issue #17)
+# 本番運用は local バックエンド (vLLM など OpenAI 互換サーバ)。
+# OpenAI Responses API は蒸留データ生成 (Issue #12) やベンチマーク比較でのみ使う。
+#   - local  : OpenAI 互換エンドポイント (vLLM など) — 既定
+#   - openai : OpenAI Responses API — optional (蒸留・ベンチ用途)
 llm:
-  backend: "openai"               # openai | local
-  model: "gpt-4o-mini"             # backend に応じた識別子（local では推論サーバが配信するモデル名）
-  endpoint: null                   # backend=local 時に必須 (例: http://localhost:8000/v1)
+  backend: "local"                  # local | openai
+  model: "qwen3.6-35b-nvfp4"        # local では vLLM の --served-model-name と一致させる
+  endpoint: "http://localhost:8000/v1"  # backend=local 時に必須
   api_key: null                    # OpenAI 互換サーバが要求する場合のみ。OpenAI は環境変数 OPENAI_API_KEY
   max_tokens: 1024
   max_retries: 3
-  timeout: 30                      # 秒
+  timeout: 60                      # 秒。35B (NVFP4) は p50 ~7s のため余裕を持たせる
 
 # 会議タイプ別重み (Issue #64)
 # 未指定時は上記 weights をフォールバックとして使用する
