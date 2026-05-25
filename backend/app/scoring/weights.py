@@ -48,11 +48,13 @@ class AppConfig:
     meeting_type_weights: dict[str, ScoringWeights] = field(default_factory=dict)
     context_before: int = 3
     context_after: int = 3
-    # LLM 推論バックエンド (Issue #12)
-    llm_backend: str = "openai"  # "openai" | "local"
-    llm_endpoint: str | None = None  # backend=local 時に必須
+    # LLM 推論バックエンド (Issue #12 + Issue #17)
+    # 既定はローカル推論 (vLLM 等の OpenAI 互換サーバ)。
+    # OpenAI クラウド (Responses API) は蒸留・ベンチマーク用途のみ。
+    llm_backend: str = "local"  # "local" | "openai"
+    llm_endpoint: str | None = None  # backend=local 時に必須 (例: http://localhost:8000/v1)
     llm_api_key: str | None = None  # OpenAI 互換サーバが要求する場合
-    llm_model: str = "gpt-4o-mini"
+    llm_model: str = "qwen3.6-35b-nvfp4"
     llm_max_tokens: int = 1024
     llm_max_retries: int = 3
     llm_timeout: float = 30.0
@@ -126,10 +128,10 @@ def load_config(path: str | Path | None = None) -> AppConfig:
         meeting_type_weights=meeting_type_weights,
         context_before=ctx.get("before_count", 3),
         context_after=ctx.get("after_count", 3),
-        llm_backend=llm.get("backend", "openai"),
+        llm_backend=llm.get("backend", "local"),
         llm_endpoint=llm.get("endpoint"),
         llm_api_key=llm.get("api_key"),
-        llm_model=llm.get("model", "gpt-4o-mini"),
+        llm_model=llm.get("model", "qwen3.6-35b-nvfp4"),
         llm_max_tokens=llm.get("max_tokens", 1024),
         llm_max_retries=llm.get("max_retries", 3),
         llm_timeout=llm.get("timeout", 30.0),
