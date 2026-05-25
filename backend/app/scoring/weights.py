@@ -34,9 +34,7 @@ def resolve_llm_model_for_backend(backend: str | None, model: str | None) -> str
     """backend と model の組み合わせを実行可能な既定値へ正規化する。"""
     backend_name = (backend or "local").strip().lower()
     model_name = (model or "").strip()
-    if backend_name == "openai" and (
-        not model_name or is_local_only_llm_model(model_name)
-    ):
+    if backend_name == "openai" and (not model_name or is_local_only_llm_model(model_name)):
         return DEFAULT_OPENAI_LLM_MODEL
     return model_name or DEFAULT_LOCAL_LLM_MODEL
 
