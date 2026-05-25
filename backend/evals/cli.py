@@ -1,21 +1,28 @@
-"""eval ハーネス CLI (Issue #5)。
+"""eval ハーネス CLI (Issue #5 + Issue #17)。
+
+既定の backend は local (vLLM 等 OpenAI 互換サーバ)。
+OpenAI Responses API はベンチマーク比較・蒸留用途の optional 経路。
 
 Examples
 --------
-    # ベースライン評価（既定の backend = OpenAI）
+    # ベースライン評価（既定の backend = local）
     python -m evals.cli run \\
         --dataset data/annotations/gold/v1 \\
         --out reports/eval/v1.json
 
-    # ローカル vLLM サーバを叩く（Issue #18 のベンチマーク用途）
+    # 別ホストの vLLM サーバを叩く（Issue #18 のベンチマーク用途）
     python -m evals.cli \\
-        --backend local \\
-        --endpoint http://127.0.0.1:8000/v1 \\
+        --endpoint http://other-host:8000/v1 \\
         --model qwen3.6-27b-bnb \\
         stability \\
         --meeting data/sample_meetings/sample_meeting_01.json \\
         --n 5 \\
         --out reports/eval/stability.json
+
+    # OpenAI クラウドと比較（API キーが必要、optional）
+    python -m evals.cli --backend openai --model gpt-4o-mini run \\
+        --dataset data/annotations/gold/v1 \\
+        --out reports/eval/openai_baseline.json
 """
 
 from __future__ import annotations
