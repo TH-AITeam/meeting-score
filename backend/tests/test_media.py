@@ -241,3 +241,8 @@ def test_webm_is_treated_as_audio_for_api() -> None:
     """frontend 抽出後の典型形式 .webm は backend で音声扱い。"""
     assert ".webm" in media.AUDIO_EXTENSIONS_INCLUDING_WEBM
     assert ".webm" not in media.VIDEO_EXTENSIONS
+
+
+def test_webm_is_treated_as_video_input_for_cli_tools() -> None:
+    """CLI / ベンチのローカル動画入力では .webm も抽出対象に含める。"""
+    assert ".webm" in media.VIDEO_INPUT_EXTENSIONS

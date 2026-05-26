@@ -32,6 +32,9 @@ AUDIO_EXTENSIONS_INCLUDING_WEBM = AUDIO_EXTENSIONS | {".webm"}
 
 # 動画入力として認識する拡張子。**CLI 専用** (backend API はこれらを 415 で弾く)。
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".avi"}
+# .webm は音声にも動画にもなり得るため、API では音声扱いを維持しつつ、
+# CLI / ベンチのローカル動画入力では抽出対象に含める。
+VIDEO_INPUT_EXTENSIONS = VIDEO_EXTENSIONS | {".webm"}
 
 
 class MediaError(RuntimeError):
@@ -179,8 +182,8 @@ def extract_audio_from_video(
         msg = f"入力ファイルが存在しません: {input_path}"
         raise MediaError(msg)
     suffix = input_path.suffix.lower()
-    if suffix not in VIDEO_EXTENSIONS and suffix != ".webm":
-        msg = f"動画拡張子ではありません ({suffix})。許容: {sorted(VIDEO_EXTENSIONS)}"
+    if suffix not in VIDEO_INPUT_EXTENSIONS:
+        msg = f"動画拡張子ではありません ({suffix})。許容: {sorted(VIDEO_INPUT_EXTENSIONS)}"
         raise MediaError(msg)
 
     if not has_audio_stream(input_path):
@@ -250,6 +253,7 @@ __all__ = [
     "AUDIO_EXTENSIONS",
     "AUDIO_EXTENSIONS_INCLUDING_WEBM",
     "VIDEO_EXTENSIONS",
+    "VIDEO_INPUT_EXTENSIONS",
     "MediaError",
     "extract_audio_from_video",
     "has_audio_stream",

@@ -291,6 +291,74 @@ def test_cli_main_extracts_audio_for_video_input(monkeypatch, tmp_path) -> None:
     assert parsed["utterances"][0]["text"] == "動画から抽出"
 
 
+def test_cli_main_extracts_audio_for_webm_video_input(monkeypatch, tmp_path) -> None:
+    """`--input meeting.webm` も動画入力として extract→normalize に通す。"""
+    from app.asr import cli
+
+    video = tmp_path / "meeting.webm"
+    video.write_bytes(b"FAKE_WEBM")
+    out = tmp_path / "out.json"
+
+    extracted_inputs: list[Path] = []
+    normalized_inputs: list[Path] = []
+    transcribed_paths: list[Path] = []
+
+    def _fake_extract(input_path, output_path, **kwargs):
+        output_path.write_bytes(b"OPUS_FAKE")
+        extracted_inputs.append(input_path)
+        return output_path
+
+    def _fake_normalize(input_path, output_path, **kwargs):
+        output_path.write_bytes(b"WAV_FAKE")
+        normalized_inputs.append(input_path)
+        return output_path
+
+    class _FakeTranscriber:
+        def __init__(self, config) -> None:
+            self.config = config
+
+        def transcribe(self, path):
+            transcribed_paths.append(Path(path))
+            return [Word("WebMから抽出", 0.0, 1.0)]
+
+    class _FakeDiarizer:
+        def __init__(self, config) -> None:
+            self.config = config
+
+        def diarize(self, path, num_speakers=None):
+            return [Turn(speaker="S0", start_sec=0.0, end_sec=1.0)]
+
+    monkeypatch.setattr(cli, "extract_audio_from_video", _fake_extract)
+    monkeypatch.setattr(cli, "normalize_to_wav", _fake_normalize)
+    monkeypatch.setattr(cli, "WhisperXTranscriber", _FakeTranscriber)
+    monkeypatch.setattr(cli, "PyannoteDiarizer", _FakeDiarizer)
+    monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
+    monkeypatch.setattr(cli, "_load_audio_section", lambda *_: _stub_audio_cfg())
+
+    exit_code = cli.main(
+        [
+            "--input",
+            str(video),
+            "--output",
+            str(out),
+            "--meeting-id",
+            "m_webm_video",
+            "--no-meta-extract",
+            "--no-volume",
+        ]
+    )
+
+    assert exit_code == 0
+    assert extracted_inputs == [video]
+    assert len(normalized_inputs) == 1
+    assert normalized_inputs[0].suffix == ".webm"
+    assert len(transcribed_paths) == 1
+    assert transcribed_paths[0].suffix == ".wav"
+    parsed = json.loads(out.read_text(encoding="utf-8"))
+    assert parsed["meeting_id"] == "m_webm_video"
+    assert parsed["utterances"][0]["text"] == "WebMから抽出"
+
+
 def test_cli_main_returns_2_when_video_extraction_fails(monkeypatch, tmp_path) -> None:
     """動画→音声抽出に失敗したら exit code 2 を返す (transcribe へ進まない)。"""
     from app.asr import cli

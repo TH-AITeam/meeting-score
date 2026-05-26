@@ -34,7 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
 from app.asr.media import (  # noqa: E402  (sys.path 追加後の import)
-    VIDEO_EXTENSIONS,
+    VIDEO_INPUT_EXTENSIONS,
     MediaError,
     extract_audio_from_video,
 )
@@ -98,7 +98,7 @@ def _find_videos(eval_dir: Path) -> list[Path]:
         if not sub.is_dir():
             continue
         for f in sorted(sub.iterdir()):
-            if f.suffix.lower() in VIDEO_EXTENSIONS:
+            if f.suffix.lower() in VIDEO_INPUT_EXTENSIONS:
                 videos.append(f)
     return videos
 
@@ -114,7 +114,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--report",
-        default=str(REPO_ROOT / "reports" / "video_benchmarks" / "upload_efficiency.json"),
+        default=str(
+            REPO_ROOT / "reports" / "video_benchmarks" / "upload_efficiency.json"
+        ),
         help="結果 JSON の出力先 (既定: reports/video_benchmarks/upload_efficiency.json)",
     )
     parser.add_argument(
@@ -128,7 +130,10 @@ def main() -> int:
     videos = _find_videos(eval_dir)
     if not videos:
         print(f"ERROR: {eval_dir} に動画が見つかりませんでした。", file=sys.stderr)
-        print("       data/eval_video/README.md の手順で配置してください。", file=sys.stderr)
+        print(
+            "       data/eval_video/README.md の手順で配置してください。",
+            file=sys.stderr,
+        )
         return 1
 
     results: list[BenchResult] = []

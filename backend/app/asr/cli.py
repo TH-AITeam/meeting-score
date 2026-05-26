@@ -32,7 +32,12 @@ from pathlib import Path
 from typing import Any
 
 from app.asr.base import Transcriber
-from app.asr.media import VIDEO_EXTENSIONS, MediaError, extract_audio_from_video, normalize_to_wav
+from app.asr.media import (
+    VIDEO_INPUT_EXTENSIONS,
+    MediaError,
+    extract_audio_from_video,
+    normalize_to_wav,
+)
 from app.asr.meeting_builder import MetaExtractor, OpenAIMetaExtractor, build_meeting_input
 from app.asr.pipeline import AudioPipeline
 from app.asr.pyannote_diarizer import PyannoteConfig, PyannoteDiarizer
@@ -174,7 +179,7 @@ def main(argv: list[str] | None = None) -> int:
     extracted_tmp: Path | None = None
     normalized_tmp: Path | None = None
     tmp_dir: Path | None = None
-    if input_path.suffix.lower() in VIDEO_EXTENSIONS:
+    if input_path.suffix.lower() in VIDEO_INPUT_EXTENSIONS:
         logger.info("Video input detected. Extracting audio via ffmpeg ...")
         try:
             tmp_dir = Path(tempfile.mkdtemp(prefix="asr_cli_extract_"))
