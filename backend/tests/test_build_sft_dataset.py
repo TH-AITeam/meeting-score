@@ -147,6 +147,21 @@ def test_load_tier_missing_dir_noop(tmp_path):
     assert result.by_meeting == {}
 
 
+def test_load_tier_merges_same_meeting_from_multiple_sources(tmp_path):
+    distill = tmp_path / "distill"
+    gold = tmp_path / "gold"
+    _make_meeting(distill, "m1", [_good_label(1)])
+    _make_meeting(gold, "m1", [_good_label(2)])
+
+    result = BuildResult()
+    load_tier(distill / "jobs", distill / "labels", "distilled", PROMPT_TEMPLATE, result)
+    load_tier(gold / "jobs", gold / "labels", "gold", PROMPT_TEMPLATE, result)
+
+    assert [s.source for s in result.by_meeting["m1"]] == ["distilled", "gold"]
+    assert [s.utterance_id for s in result.by_meeting["m1"]] == ["1", "2"]
+    assert result.source_meetings["m1"] == {"distilled", "gold"}
+
+
 # ---------- 会議単位分割 ----------
 
 
@@ -174,6 +189,17 @@ def test_collect_split_routes_by_meeting(tmp_path):
     sets = {"train": {"a"}, "val": {"b"}, "test": set()}
     splits = collect_split(result.by_meeting, sets)
     assert len(splits["train"]) == 1 and len(splits["val"]) == 1 and splits["test"] == []
+
+
+def test_collect_split_sorts_meetings_for_stable_output(tmp_path):
+    _make_meeting(tmp_path, "a", [_good_label(1)])
+    _make_meeting(tmp_path, "b", [_good_label(1)])
+    result = BuildResult()
+    load_tier(tmp_path / "jobs", tmp_path / "labels", "distilled", PROMPT_TEMPLATE, result)
+
+    splits = collect_split(result.by_meeting, {"train": {"b", "a"}, "val": set(), "test": set()})
+
+    assert [s.meeting_id for s in splits["train"]] == ["a", "b"]
 
 
 # ---------- エンドツーエンド ----------

@@ -87,9 +87,9 @@ class Sample:
 class BuildResult:
     by_meeting: dict[str, list[Sample]] = field(default_factory=dict)
     reject_counts: Counter = field(default_factory=Counter)
-    source_meetings: dict[str, str] = field(
+    source_meetings: dict[str, set[str]] = field(
         default_factory=dict
-    )  # meeting_id -> source
+    )  # meeting_id -> sources
 
 
 # ---------------------------------------------------------------------------
@@ -228,8 +228,8 @@ def load_tier(
                 )
             )
         if samples:
-            result.by_meeting[meeting_id] = samples
-            result.source_meetings[meeting_id] = source
+            result.by_meeting.setdefault(meeting_id, []).extend(samples)
+            result.source_meetings.setdefault(meeting_id, set()).add(source)
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +263,7 @@ def collect_split(
 ) -> dict[str, list[Sample]]:
     out: dict[str, list[Sample]] = {"train": [], "val": [], "test": []}
     for split, meetings in meeting_sets.items():
-        for m in meetings:
+        for m in sorted(meetings):
             out[split].extend(by_meeting.get(m, []))
     return out
 
