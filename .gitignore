@@ -19,6 +19,9 @@ node_modules
 
 # misc test/log artifacts
 nohup.out
+*.db
+*.db-wal
+*.db-shm
 
 # stored meeting data (may contain personal information)
 data/stored_meetings/
