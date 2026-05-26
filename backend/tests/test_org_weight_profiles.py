@@ -23,6 +23,13 @@ retrain = importlib.util.module_from_spec(spec)
 sys.modules["retrain_weights_per_org"] = retrain
 spec.loader.exec_module(retrain)
 
+ROLLBACK_SCRIPT_PATH = REPO_ROOT / "scripts" / "rollback_weights.py"
+rollback_spec = importlib.util.spec_from_file_location("rollback_weights", ROLLBACK_SCRIPT_PATH)
+assert rollback_spec is not None and rollback_spec.loader is not None
+rollback_weights = importlib.util.module_from_spec(rollback_spec)
+sys.modules["rollback_weights"] = rollback_weights
+rollback_spec.loader.exec_module(rollback_weights)
+
 
 @pytest.fixture(autouse=True)
 def _isolated_storage(tmp_path, monkeypatch):
@@ -245,3 +252,19 @@ def test_write_yaml_is_atomic_for_target_path(tmp_path: Path):
         yaml.safe_load(path.read_text(encoding="utf-8"))["generated_at"] == "2026-05-26T00:00:00Z"
     )
     assert not list(path.parent.glob(".*.tmp"))
+
+
+def test_rollback_uses_sanitized_org_and_rejects_unsafe_timestamp(tmp_path: Path):
+    profile_dir = tmp_path / "profiles"
+    safe_org = ".._org_evil"
+    ts = "20260526T000000Z"
+    history = profile_dir / "_history" / safe_org / f"{ts}.yaml"
+    history.parent.mkdir(parents=True)
+    history.write_text("weights:\n  issue_clarification: 2.0\n", encoding="utf-8")
+
+    target = rollback_weights.rollback("../org/evil", ts, profile_dir)
+
+    assert target == profile_dir / f"{safe_org}.yaml"
+    assert target.read_text(encoding="utf-8") == history.read_text(encoding="utf-8")
+    with pytest.raises(ValueError):
+        rollback_weights.rollback("../org/evil", "../escape", profile_dir)
