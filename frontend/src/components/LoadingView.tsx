@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { MediaStats } from '../App'
 
 const ANALYZE_MESSAGES = [
   '発言データを読み込んでいます...',
@@ -25,9 +26,29 @@ interface Props {
   step?: 'extracting' | 'transcribing' | 'analyzing'
   /** 抽出進捗 0.0 - 1.0 (extracting のときのみ意味を持つ) */
   progress?: number
+  /**
+   * 動画 → 音声抽出後のサイズ比較 (Issue #68)。
+   * extracting 完了後 (transcribing / analyzing 中) に表示してアップロード効率化を可視化する。
+   */
+  mediaStats?: MediaStats
 }
 
-export default function LoadingView({ step, progress }: Props) {
+function trimTrailingZero(value: string): string {
+  return value.endsWith('.0') ? value.slice(0, -2) : value
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${trimTrailingZero((bytes / 1024).toFixed(1))} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function formatReduction(pct: number): string {
+  const rounded = Math.abs(pct).toFixed(1)
+  return pct >= 0 ? `削減 -${rounded}%` : `増加 +${rounded}%`
+}
+
+export default function LoadingView({ step, progress, mediaStats }: Props) {
   const messages =
     step === 'extracting' ? EXTRACT_MESSAGES
     : step === 'transcribing' ? TRANSCRIBE_MESSAGES
@@ -52,6 +73,9 @@ export default function LoadingView({ step, progress }: Props) {
       ? Math.round(Math.max(0, Math.min(1, progress)) * 100)
       : null
 
+  // 抽出が完了し transcribing / analyzing に進んだら、削減効果を可視化する。
+  const showMediaStats = mediaStats && step !== 'extracting'
+
   return (
     <div className="loading-screen">
       <div className="spinner" />
@@ -60,6 +84,32 @@ export default function LoadingView({ step, progress }: Props) {
       {pct !== null && (
         <div className="wf-note" style={{ marginTop: 8, fontVariantNumeric: 'tabular-nums' }}>
           {pct}%
+        </div>
+      )}
+      {showMediaStats && (
+        <div
+          aria-label="アップロード効率化の結果"
+          style={{
+            marginTop: 14,
+            padding: '8px 14px',
+            border: '1px solid var(--rule-2)',
+            borderRadius: 6,
+            background: 'var(--accent-soft)',
+            fontVariantNumeric: 'tabular-nums',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 12,
+          }}
+        >
+          <span className="wf-note" style={{ margin: 0 }}>動画</span>
+          <strong>{formatSize(mediaStats.originalBytes)}</strong>
+          <span aria-hidden>→</span>
+          <span className="wf-note" style={{ margin: 0 }}>抽出音声</span>
+          <strong>{formatSize(mediaStats.extractedBytes)}</strong>
+          <span style={{ color: 'var(--accent)', fontWeight: 700 }}>
+            ({formatReduction(mediaStats.reductionPct)})
+          </span>
         </div>
       )}
     </div>
