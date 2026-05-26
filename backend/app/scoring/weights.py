@@ -81,6 +81,7 @@ class PenaltyWeights:
     verbosity: float = 1.0
     off_topic: float = 1.0
     unsupported_assertion: float = 1.0
+    override: float = 0.5
 
 
 @dataclass
@@ -165,6 +166,7 @@ def load_config(path: str | Path | None = None) -> AppConfig:
         verbosity=p.get("verbosity", 1.0),
         off_topic=p.get("off_topic", 1.0),
         unsupported_assertion=p.get("unsupported_assertion", 1.0),
+        override=p.get("override", 0.5),
     )
 
     mtw_raw = raw.get("meeting_type_weights", {})

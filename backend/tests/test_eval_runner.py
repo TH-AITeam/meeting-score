@@ -215,7 +215,7 @@ def test_run_eval_with_real_sample_meeting(tmp_path):
     assert len(report.per_meeting) == 1
     m = report.per_meeting[0]
     assert m.meeting_id == "m001"
-    assert m.n_utterances == 23
+    assert m.n_utterances == 24
 
     # OrderedEvaluator は u003 (score=3) > u001 (score=1) を返すはず
     assert m.pairwise is not None
@@ -233,7 +233,7 @@ def test_run_eval_with_real_sample_meeting(tmp_path):
     payload = report.to_dict()
     assert "macro" in payload
     assert payload["model"] == "stub-ordered"
-    assert payload["per_meeting"][0]["n_utterances"] == 23
+    assert payload["per_meeting"][0]["n_utterances"] == 24
 
 
 def test_run_eval_with_no_annotations(tmp_path):
