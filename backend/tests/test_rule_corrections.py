@@ -279,6 +279,27 @@ def test_no_override_when_explicitly_referencing_prior_speaker():
     assert corrected[1].penalties.override == 0
 
 
+def test_override_penalty_impacts_total_by_half_point():
+    """上書き発言の総合スコア減点は既定重み 0.5 で -0.5 点になる"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == -1
+    assert corrected[1].total_score == -0.5
+
+
 def test_recalculates_total():
     """補正後に総合スコアが再計算される"""
     long_text = "あ" * 250
