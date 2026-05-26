@@ -269,6 +269,20 @@ def test_upload_audio_rejects_video_with_415(monkeypatch: pytest.MonkeyPatch) ->
         assert "frontend" in detail or "ffmpeg" in detail
 
 
+def test_upload_audio_rejects_video_webm_content_type(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`.webm` でも video/webm として来たものは動画扱いで拒否する。"""
+    app = _make_app(monkeypatch, _dummy_meeting_input())
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("meeting.webm", BytesIO(b"FAKE_VIDEO_WEBM"), "video/webm")},
+    )
+
+    assert response.status_code == 415
+    assert "動画" in response.json()["detail"]
+
+
 def test_upload_audio_accepts_webm_opus(monkeypatch: pytest.MonkeyPatch) -> None:
     """frontend 抽出で生成される webm/opus を受け付ける (Issue #68 主経路)。"""
     app = _make_app(monkeypatch, _dummy_meeting_input("m_webm"))
@@ -280,6 +294,42 @@ def test_upload_audio_accepts_webm_opus(monkeypatch: pytest.MonkeyPatch) -> None
     )
     assert response.status_code == 200
     assert response.json()["meeting_id"] == "m_webm"
+
+
+def test_upload_audio_rejects_payload_too_large_before_processing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """アップロード上限超過は正規化/ASR の前に 413 で止める。"""
+    called = {"normalize": False, "transcribe": False}
+
+    def _fake_normalize(*args, **kwargs):
+        called["normalize"] = True
+
+    def _fake_transcribe(*args, **kwargs):
+        called["transcribe"] = True
+        return _dummy_meeting_input()
+
+    app = FastAPI()
+    app.include_router(audio_router, prefix="/api")
+    app.state.config = AppConfig(
+        weights=ScoringWeights(),
+        penalty_weights=PenaltyWeights(),
+        llm_model="dummy",
+    )
+    app.state.config_path = None
+    monkeypatch.setattr("app.api.audio_routes.MAX_UPLOAD_BYTES", 1)
+    monkeypatch.setattr("app.api.audio_routes.normalize_to_wav", _fake_normalize)
+    monkeypatch.setattr("app.api.audio_routes.transcribe_to_meeting_input", _fake_transcribe)
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("a.wav", BytesIO(b"x"), "audio/wav")},
+    )
+
+    assert response.status_code == 413
+    assert "アップロード上限" in response.json()["detail"]
+    assert called == {"normalize": False, "transcribe": False}
 
 
 def test_upload_audio_accepts_opus_extension(monkeypatch: pytest.MonkeyPatch) -> None:

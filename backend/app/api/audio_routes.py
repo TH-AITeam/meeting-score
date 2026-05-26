@@ -46,6 +46,34 @@ router = APIRouter()
 
 # Issue #68: webm/opus を受け付ける。frontend が ffmpeg.wasm で抽出した形式に対応
 _ALLOWED_EXTENSIONS = AUDIO_EXTENSIONS_INCLUDING_WEBM
+MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+_UPLOAD_CHUNK_BYTES = 1024 * 1024
+
+
+def _format_mb(n_bytes: int) -> str:
+    return f"{n_bytes / (1024 * 1024):.0f}MB"
+
+
+def _is_video_upload(suffix: str, content_type: str | None) -> bool:
+    return suffix in VIDEO_EXTENSIONS or (content_type or "").lower().startswith("video/")
+
+
+def _raise_upload_too_large() -> None:
+    raise HTTPException(
+        status_code=413,
+        detail=f"アップロード上限を超えています。上限: {_format_mb(MAX_UPLOAD_BYTES)}",
+    )
+
+
+async def _write_upload_with_limit(file: UploadFile, upload_path: Path) -> int:
+    total = 0
+    with upload_path.open("wb") as f:
+        while chunk := await file.read(_UPLOAD_CHUNK_BYTES):
+            total += len(chunk)
+            if total > MAX_UPLOAD_BYTES:
+                _raise_upload_too_large()
+            f.write(chunk)
+    return total
 
 
 @router.post("/upload_audio")
@@ -69,9 +97,10 @@ async def upload_audio(
     no_meta_extract : True なら LLM メタ抽出をスキップ (動作確認用)
     """
     suffix = Path(file.filename or "").suffix.lower()
+    content_type = file.content_type
 
     # Issue #68: 動画は backend で受け付けない。frontend で音声抽出してから送らせる
-    if suffix in VIDEO_EXTENSIONS:
+    if _is_video_upload(suffix, content_type):
         raise HTTPException(
             status_code=415,
             detail=(
@@ -90,20 +119,29 @@ async def upload_audio(
     mid = meeting_id or f"m_{uuid.uuid4().hex[:8]}"
     cfg = request.app.state.config
 
-    # multipart の bytes を一時ファイルに書き出す
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        upload_path = Path(tmp.name)
-        content = await file.read()
-        upload_path.write_bytes(content)
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > MAX_UPLOAD_BYTES:
+                _raise_upload_too_large()
+        except ValueError:
+            logger.warning("invalid content-length header: %s", content_length)
 
-    # Issue #68: 受信音声を 16kHz mono wav に正規化してから ASR に渡す
+    upload_path: Path | None = None
     normalized_path: Path | None = None
     try:
+        # multipart の bytes を一時ファイルに書き出す。Content-Length が無い場合も
+        # chunk ごとに上限を見て、ASR/正規化に進む前に 413 で止める。
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+            upload_path = Path(tmp.name)
+        upload_size = await _write_upload_with_limit(file, upload_path)
+
+        # Issue #68: 受信音声を 16kHz mono wav に正規化してから ASR に渡す
         audio_section = _load_audio_section_from_app_state(request)
         logger.info(
             "Upload received: filename=%s size=%d bytes meeting_id=%s",
             file.filename,
-            len(content),
+            upload_size,
             mid,
         )
         # wav 以外は ffmpeg で正規化する。wav の場合も正規化を通して

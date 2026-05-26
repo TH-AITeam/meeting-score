@@ -367,12 +367,18 @@ def test_cli_main_returns_2_when_video_extraction_fails(monkeypatch, tmp_path) -
     video = tmp_path / "broken.mp4"
     video.write_bytes(b"FAKE_BROKEN")
     out = tmp_path / "out.json"
+    tmp_dir = tmp_path / "scratch_extract"
 
     def _raise_media(*args, **kwargs):
         msg = "ffmpeg failed for broken.mp4"
         raise MediaError(msg)
 
+    def _fake_mkdtemp(prefix):
+        tmp_dir.mkdir()
+        return str(tmp_dir)
+
     monkeypatch.setattr(cli, "extract_audio_from_video", _raise_media)
+    monkeypatch.setattr(cli.tempfile, "mkdtemp", _fake_mkdtemp)
     monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
     monkeypatch.setattr(cli, "_load_audio_section", lambda *_: _stub_audio_cfg())
 
@@ -389,6 +395,7 @@ def test_cli_main_returns_2_when_video_extraction_fails(monkeypatch, tmp_path) -
     )
     assert exit_code == 2
     assert not out.exists()
+    assert not tmp_dir.exists()
 
 
 def test_cli_main_returns_2_when_normalize_fails(monkeypatch, tmp_path) -> None:
@@ -399,6 +406,7 @@ def test_cli_main_returns_2_when_normalize_fails(monkeypatch, tmp_path) -> None:
     video = tmp_path / "video.mp4"
     video.write_bytes(b"FAKE_MP4")
     out = tmp_path / "out.json"
+    tmp_dir = tmp_path / "scratch_normalize"
 
     def _fake_extract(input_path, output_path, **kwargs):
         output_path.write_bytes(b"OPUS_FAKE")
@@ -408,8 +416,13 @@ def test_cli_main_returns_2_when_normalize_fails(monkeypatch, tmp_path) -> None:
         msg = "normalize failed for video_5min.webm"
         raise MediaError(msg)
 
+    def _fake_mkdtemp(prefix):
+        tmp_dir.mkdir()
+        return str(tmp_dir)
+
     monkeypatch.setattr(cli, "extract_audio_from_video", _fake_extract)
     monkeypatch.setattr(cli, "normalize_to_wav", _raise_normalize)
+    monkeypatch.setattr(cli.tempfile, "mkdtemp", _fake_mkdtemp)
     monkeypatch.setattr(cli, "load_config", lambda *_: _base_cfg())
     monkeypatch.setattr(cli, "_load_audio_section", lambda *_: _stub_audio_cfg())
 
@@ -426,6 +439,7 @@ def test_cli_main_returns_2_when_normalize_fails(monkeypatch, tmp_path) -> None:
     )
     assert exit_code == 2
     assert not out.exists()
+    assert not tmp_dir.exists()
 
 
 def test_cli_main_no_extraction_for_audio_input(monkeypatch, tmp_path) -> None:

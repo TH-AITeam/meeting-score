@@ -179,9 +179,9 @@ def main(argv: list[str] | None = None) -> int:
     extracted_tmp: Path | None = None
     normalized_tmp: Path | None = None
     tmp_dir: Path | None = None
-    if input_path.suffix.lower() in VIDEO_INPUT_EXTENSIONS:
-        logger.info("Video input detected. Extracting audio via ffmpeg ...")
-        try:
+    try:
+        if input_path.suffix.lower() in VIDEO_INPUT_EXTENSIONS:
+            logger.info("Video input detected. Extracting audio via ffmpeg ...")
             tmp_dir = Path(tempfile.mkdtemp(prefix="asr_cli_extract_"))
             extracted_tmp = tmp_dir / f"{input_path.stem}.webm"
             extract_audio_from_video(input_path, extracted_tmp)
@@ -193,12 +193,8 @@ def main(argv: list[str] | None = None) -> int:
             normalized_tmp = tmp_dir / f"{input_path.stem}.wav"
             normalize_to_wav(extracted_tmp, normalized_tmp)
             audio_path = normalized_tmp
-        except MediaError as e:
-            logger.error("動画→音声抽出/正規化に失敗: %s", e)
-            return 2
 
-    logger.info("Transcribing %s ...", audio_path)
-    try:
+        logger.info("Transcribing %s ...", audio_path)
         mi = transcribe_to_meeting_input(
             audio_path,
             meeting_id=args.meeting_id,
@@ -210,6 +206,11 @@ def main(argv: list[str] | None = None) -> int:
             default_title=args.title,
             default_goal=args.goal,
         )
+    except MediaError as e:
+        if input_path.suffix.lower() in VIDEO_INPUT_EXTENSIONS:
+            logger.error("動画→音声抽出/正規化に失敗: %s", e)
+            return 2
+        raise
     finally:
         # 動画抽出時の tmp を片付ける
         for p in (extracted_tmp, normalized_tmp):
