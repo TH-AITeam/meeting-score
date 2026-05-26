@@ -1,5 +1,14 @@
 """OpenAI Responses API を使った Evaluator 実装 (Issue #12)。
 
+本番運用のデフォルトバックエンドは `LocalEvaluator` (Issue #17)。
+本クラスは以下の **optional 用途** でのみ使用する:
+
+- 蒸留データ生成 (Issue #12) — 強い OpenAI モデルで教師信号を作る
+- ベンチマーク比較 — ローカルモデルと OpenAI クラウドの精度差を測る
+
+通常の評価フローでは `create_evaluator(config)` 経由で `LocalEvaluator`
+が選ばれる (config.yaml の `llm.backend: "local"` が既定)。
+
 旧 `app/evaluators/llm_evaluator.py: evaluate_utterance` の実装を Evaluator
 プロトコルに準拠させたもの。
 """
@@ -18,6 +27,7 @@ from app.evaluators.prompt import (
     normalize_result,
     parse_response,
 )
+from app.scoring.weights import DEFAULT_OPENAI_LLM_MODEL
 
 if TYPE_CHECKING:
     from app.context_builder.builder import EvaluationContext
@@ -56,7 +66,7 @@ class OpenAIEvaluator(Evaluator):
 
     def __init__(
         self,
-        model: str = "gpt-4o-mini",
+        model: str = DEFAULT_OPENAI_LLM_MODEL,
         max_tokens: int = 1024,
         max_retries: int = 3,
         timeout: float = 30.0,
@@ -152,4 +162,4 @@ class OpenAIEvaluator(Evaluator):
         return EvaluationResult.failed()
 
 
-__all__ = ["OpenAIEvaluator"]
+__all__ = ["DEFAULT_OPENAI_LLM_MODEL", "OpenAIEvaluator"]

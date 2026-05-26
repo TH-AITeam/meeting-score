@@ -7,6 +7,10 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.110.0",
     "numpy>=1.26",
+    # openai SDK: ローカル推論バックエンド (vLLM 等) を OpenAI 互換 API で叩くために
+    # `base_url` 差し替えで使用する。OpenAI クラウドへの依存は撤去済 (Issue #17) で、
+    # 本番運用は OPENAI_API_KEY なしで動く。OpenAI クラウド (Responses API) を叩くのは
+    # 蒸留データ生成 (Issue #12) やベンチマーク比較の optional 用途のみ。
     "openai>=1.0.0",
     "pydantic>=2.6.0",
     "python-dotenv>=1.0.1",

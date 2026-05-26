@@ -5,7 +5,7 @@ p50 / p95 / p99 / 平均レイテンシを取る。
 
 Usage:
     python scripts/measure_latency.py \
-        --endpoint http://127.0.0.1:8000/v1 \
+        --endpoint http://127.0.0.1:8001/v1 \
         --model qwen3.6-27b-awq \
         --sample data/sample_meetings/sample_meeting_01.json \
         --n 100 \

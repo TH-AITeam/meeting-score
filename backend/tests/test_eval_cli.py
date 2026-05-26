@@ -7,7 +7,12 @@ from types import SimpleNamespace
 import evals.cli as cli
 from app.context_builder.builder import EvaluationContext
 from app.schemas.models import MeetingInput, Utterance
-from app.scoring.weights import AppConfig, PenaltyWeights, ScoringWeights
+from app.scoring.weights import (
+    DEFAULT_OPENAI_LLM_MODEL,
+    AppConfig,
+    PenaltyWeights,
+    ScoringWeights,
+)
 
 
 def _make_ctx() -> EvaluationContext:
@@ -48,13 +53,13 @@ def test_build_config_applies_cli_overrides(monkeypatch) -> None:
     args = SimpleNamespace(
         config=None,
         backend="local",
-        endpoint="http://127.0.0.1:8000/v1",
+        endpoint="http://127.0.0.1:8001/v1",
         model="qwen3.6-27b-bnb",
         api_key="dummy",
     )
     cfg = cli._build_config(args)
     assert cfg.llm_backend == "local"
-    assert cfg.llm_endpoint == "http://127.0.0.1:8000/v1"
+    assert cfg.llm_endpoint == "http://127.0.0.1:8001/v1"
     assert cfg.llm_model == "qwen3.6-27b-bnb"
     assert cfg.llm_api_key == "dummy"
 
@@ -65,13 +70,31 @@ def test_build_config_endpoint_only_implies_local(monkeypatch) -> None:
     args = SimpleNamespace(
         config=None,
         backend=None,
-        endpoint="http://127.0.0.1:8000/v1",
+        endpoint="http://127.0.0.1:8001/v1",
         model=None,
         api_key=None,
     )
     cfg = cli._build_config(args)
     assert cfg.llm_backend == "local"
-    assert cfg.llm_endpoint == "http://127.0.0.1:8000/v1"
+    assert cfg.llm_endpoint == "http://127.0.0.1:8001/v1"
+
+
+def test_build_config_openai_backend_replaces_local_model(monkeypatch) -> None:
+    """--backend openai だけでも OpenAI 用の既定モデルを使う"""
+    base_cfg = _base_cfg()
+    base_cfg.llm_backend = "local"
+    base_cfg.llm_model = "qwen3.6-35b-nvfp4"
+    monkeypatch.setattr(cli, "load_config", lambda *_: base_cfg)
+    args = SimpleNamespace(
+        config=None,
+        backend="openai",
+        endpoint=None,
+        model=None,
+        api_key=None,
+    )
+    cfg = cli._build_config(args)
+    assert cfg.llm_backend == "openai"
+    assert cfg.llm_model == DEFAULT_OPENAI_LLM_MODEL
 
 
 def test_cmd_run_passes_penalty_weights_to_runner(monkeypatch, capsys) -> None:

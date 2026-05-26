@@ -1,11 +1,14 @@
 """LLM による発言評価モジュール（後方互換ラッパー、Issue #12 で再構成）。
 
-実装本体は `app/evaluators/openai_evaluator.py` (OpenAI 用) と
-`app/evaluators/local_evaluator.py` (ローカル LLM 用) に分離された。
-本モジュールは旧来の `evaluate_utterance()` 関数 API と
-`_build_prompt()` シンボルを保持する薄い互換層。
+.. deprecated:: Issue #17
+    本モジュールは OpenAI Responses API への直接呼び出し旧 API
+    (`evaluate_utterance()`) を維持する薄い互換層。新規コードは
+    `app.evaluators.create_evaluator(config)` を経由してローカル推論
+    バックエンド (vLLM 等) を使うこと。本モジュールはテストや蒸留・
+    ベンチマーク等の限定用途でのみ残す。将来的に削除予定。
 
-新しいコードは `app.evaluators.create_evaluator(config)` を使うこと。
+実装本体は `app/evaluators/openai_evaluator.py` (OpenAI 用) と
+`app/evaluators/local_evaluator.py` (ローカル LLM 用) に分離されている。
 """
 
 from __future__ import annotations

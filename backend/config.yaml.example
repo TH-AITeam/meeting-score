@@ -37,7 +37,7 @@ context:
 llm:
   backend: "local"                 # 採用後の本番設定は local
   model: "qwen3.6-35b-nvfp4"        # vLLM の --served-model-name と一致させる
-  endpoint: "http://127.0.0.1:8000/v1"  # SSH 先で動かすときは適宜書き換え
+  endpoint: "http://127.0.0.1:8001/v1"  # SSH 先で動かすときは適宜書き換え
   api_key: null                    # OpenAI 互換サーバが要求する場合のみ
   max_tokens: 1024
   max_retries: 3

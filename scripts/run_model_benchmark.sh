@@ -82,7 +82,7 @@ DATASET="${DATASET:-data/annotations/gold/v1}"
 SAMPLE="${SAMPLE:-data/sample_meetings/sample_meeting_01.json}"
 N_STABILITY="${N_STABILITY:-5}"
 N_LATENCY="${N_LATENCY:-100}"
-PORT="${PORT:-8000}"
+PORT="${PORT:-8001}"
 GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.92}"
 # 32GB VRAM 環境では既定 8K でも 27B/32B クラスは KV cache で OOM するため 4K に絞る
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-4096}"

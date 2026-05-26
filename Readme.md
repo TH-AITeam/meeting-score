@@ -86,6 +86,70 @@ MVP では以下を対象外にします。
 
 # 入力
 
+## 国会会議録APIデータの収集
+
+国会会議録検索システムAPIから、会議録単位または発言単位のレコードを
+JSONLとして保存できます。
+
+```bash
+uv run scripts/collect_kokkai_records.py --help
+```
+
+過去1年分の会議録を取得する例:
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint meeting \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --output data/kokkai/meeting_20250522_20260522.jsonl \
+  --pages-output-dir data/kokkai/pages/meeting_20250522_20260522
+```
+
+発言単位で取得したい場合は `--endpoint speech` を指定します。
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint speech \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --output data/kokkai/speech_20250522_20260522.jsonl \
+  --pages-output-dir data/kokkai/pages/speech_20250522_20260522
+```
+
+試し取りでは `--max-pages 1` を付けると1ページだけ取得できます。
+会議名、院名、発言者、発言本文などで絞り込むこともできます。
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint speech \
+  --name-of-house 衆議院 \
+  --name-of-meeting 予算委員会 \
+  --speech 生成AI \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --max-pages 1 \
+  --output data/kokkai/speech_budget_genai_sample.jsonl
+```
+
+取得結果は `--output` のJSONLへ1行1レコードで保存されます。
+`--pages-output-dir` を指定すると、APIレスポンス全体もページごとのJSONで残します。
+複数ページ取得時は、APIへの連続アクセスを抑えるためページ間に既定で3秒待機します。
+
+中断後に再開する場合は、実行中に表示される `next` の値を
+`--start-record` に渡し、既存JSONLへ続けるため `--append` を付けます。
+
+```bash
+uv run scripts/collect_kokkai_records.py \
+  --endpoint meeting \
+  --from-date 2025-05-22 \
+  --until-date 2026-05-22 \
+  --start-record 801 \
+  --append \
+  --output data/kokkai/meeting_20250522_20260522.jsonl \
+  --pages-output-dir data/kokkai/pages/meeting_20250522_20260522
+```
+
 ## 必須入力
 
 * 会議タイトル
@@ -322,28 +386,92 @@ project/
 * スキーマ: Pydantic
 * API: FastAPI など
 * UI: 軽量な Web UI
-* LLM 呼び出し: OpenAI API or モック
+* LLM 呼び出し: **ローカル推論 (vLLM など OpenAI 互換サーバ) を既定**。OpenAI Responses API は蒸留・ベンチマーク用途の optional。テスト用のモックも併存。
 
 ---
 
-# OpenAI 設定
+# LLM バックエンド設定 (Issue #17)
 
-実行時は `OPENAI_API_KEY` を設定してください。
-`.env` に次のように書いても読み込まれます。
+本プロジェクトは **ローカル推論バックエンド (vLLM 等の OpenAI 互換サーバ)** を既定とします。
+OpenAI クラウド (Responses API) への依存は撤去され、`OPENAI_API_KEY` なしで全機能が動作します。
 
-```env
-OPENAI_API_KEY=your_api_key_here
-```
+| バックエンド | 用途 | 設定 |
+|---|---|---|
+| `local` (既定) | 本番運用・通常の評価フロー | `llm.backend: "local"` + `llm.endpoint` + `llm.model` |
+| `openai` (optional) | 蒸留データ生成 (Issue #12) / ベンチマーク比較 | `llm.backend: "openai"` + `OPENAI_API_KEY` |
 
-既定の評価モデルは `gpt-5.4-mini` です。必要なら `config.yaml` の `llm.model` で変更できます。
+## Quick Start (ローカル推論で動かす)
 
-依存関係の同期は `uv` 前提にしています。
+### 1. 推論サーバ (vLLM) を起動
+
+GPU が手元にある場合:
 
 ```bash
-uv sync
-uv run pytest -q
-uv run python run.py
+# 採用モデル: unsloth/Qwen3.6-35B-A3B-NVFP4 (詳細は docs/adr/0001-judgment-model.md)
+bash scripts/serve_local_llm.sh
 ```
+
+別ホスト (例: SSH 先の RTX 5090) で動かす場合は `docs/local_inference_setup.md` を参照。
+
+### 2. 設定を確認
+
+`backend/config.yaml` の既定値:
+
+```yaml
+llm:
+  backend: "local"
+  model: "qwen3.6-35b-nvfp4"           # vLLM の --served-model-name と一致
+  endpoint: "http://localhost:8001/v1"  # 別ホストならここを書き換え
+  api_key: null
+  timeout: 60
+```
+
+`.env` で環境変数として上書きしたい場合は `backend/.env.example` を `.env` にコピーして編集。
+
+### 3. アプリを起動
+
+```bash
+# 依存関係の同期 (初回のみ)
+task setup
+
+# バックエンド + フロントエンド同時起動
+task dev
+```
+
+正常に動けば `OPENAI_API_KEY` を設定しなくても評価 API がレスポンスを返します。
+
+## OpenAI 経路を使う場合 (optional)
+
+蒸留データ生成 (Issue #12) や OpenAI クラウドとのベンチマーク比較で OpenAI を叩く場合のみ:
+
+```bash
+# .env に OPENAI_API_KEY を設定
+echo "OPENAI_API_KEY=sk-..." >> backend/.env
+
+# config.yaml で backend を切り替え
+# llm.backend: "openai"
+# llm.model: "gpt-4o-mini"
+
+uv run --project backend python run.py
+```
+
+CLI から一時的に OpenAI を使うこともできます:
+
+```bash
+uv run --project backend python -m evals.cli \
+    --backend openai --model gpt-4o-mini run \
+    --dataset ../data/annotations/gold/v1 \
+    --out ../reports/eval/openai_baseline.json
+```
+
+## トラブルシューティング
+
+- **`llm.backend=local の場合は llm.endpoint を config.yaml に設定してください` エラー**
+  → `config.yaml` の `llm.endpoint` を実行環境の vLLM URL に書き換える
+- **推論サーバへの接続タイムアウト**
+  → `llm.timeout` を伸ばす (35B NVFP4 の p50 は ~7s)
+- **OpenAI を使わないのにテストで `openai` SDK がインポートされる**
+  → 正常。`openai` パッケージは LocalEvaluator がローカル推論サーバを叩くクライアントとしても使用するため、依存に残っています
 
 ---
 
