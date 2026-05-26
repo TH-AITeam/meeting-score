@@ -22,8 +22,6 @@ import json
 import logging
 from pathlib import Path
 
-import torch
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("eval_lora")
 
@@ -132,6 +130,19 @@ def main() -> None:
         rows = rows[: args.limit]
     logger.info("検証件数: %d", len(rows))
 
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if not rows:
+        out_path.write_text("", encoding="utf-8")
+        print("\n" + "=" * 60)
+        print(f"検証結果  (n=0, adapter={args.adapter})")
+        print("評価対象が 0 件のため、指標計算をスキップしました。")
+        print("=" * 60)
+        print(f"予測の詳細を書き出し: {args.out}")
+        return
+
+    import torch
+
     # --no-adapter なら素のベース（--model-id）、それ以外は学習済みアダプタを読む。
     model_name = args.model_id if args.no_adapter else args.adapter
     logger.info("ロード対象: %s (backend=%s, 4bit=%s)", model_name, args.backend, args.load_in_4bit)
@@ -149,6 +160,12 @@ def main() -> None:
         # GPU上限を絞って溢れを accelerate が CPU へオフロードする
         # （活性化/KV 用に GPU を ~7GB 空ける）。オフロード分は遅いが動く。
         load_kwargs = dict(torch_dtype="auto", device_map=args.device_map, trust_remote_code=True)
+        if args.load_in_4bit:
+            from transformers import BitsAndBytesConfig
+            load_kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.bfloat16,
+            )
         if args.device_map == "auto":
             load_kwargs["max_memory"] = {0: f"{args.gpu_mem_gib}GiB", "cpu": "120GiB"}
         model = AutoModelForCausalLM.from_pretrained(model_name, **load_kwargs)
@@ -174,7 +191,7 @@ def main() -> None:
     abs_err = {a: [] for a in SCORE_AXES + PENALTY_AXES}
     exact = {a: 0 for a in SCORE_AXES + PENALTY_AXES}
     pred_totals, gold_totals, total_abs = [], [], []
-    out_f = open(args.out, "w")
+    out_f = out_path.open("w", encoding="utf-8")
 
     for i, row in enumerate(rows):
         user_msg = next(m for m in row["messages"] if m["role"] == "user")

@@ -87,7 +87,7 @@ def build_user_prompt(template: Template, meta: dict, utt: dict) -> str:
     mt = meta.get("meeting_type", "")
     return template.substitute(
         meeting_type=_MEETING_TYPE_LABELS.get(mt, mt) if mt else "(未指定)",
-        meeting_goal=meta.get("goal", "") or "(なし)",
+        meeting_goal=meta.get("goal", ""),
         agenda="、".join(meta.get("agenda", [])) if meta.get("agenda") else "(なし)",
         decision_points="、".join(meta.get("decision_points", []))
         if meta.get("decision_points") else "(なし)",
@@ -148,7 +148,10 @@ def main() -> None:
     # 会議単位で train/val 分割（リーク防止）。
     meetings = list(samples_by_meeting)
     random.Random(args.seed).shuffle(meetings)
-    n_val = max(1, round(len(meetings) * args.val_ratio)) if len(meetings) > 1 else 0
+    n_val = round(len(meetings) * args.val_ratio)
+    if args.val_ratio > 0 and len(meetings) > 1:
+        n_val = max(1, n_val)
+    n_val = min(n_val, max(0, len(meetings) - 1))
     val_meetings = set(meetings[:n_val])
 
     train, val = [], []
@@ -158,16 +161,15 @@ def main() -> None:
     Path(args.out_train).write_text(
         "\n".join(json.dumps(r, ensure_ascii=False) for r in train) + "\n", encoding="utf-8"
     )
-    if val:
-        Path(args.out_val).write_text(
-            "\n".join(json.dumps(r, ensure_ascii=False) for r in val) + "\n", encoding="utf-8"
-        )
+    Path(args.out_val).write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in val) + ("\n" if val else ""),
+        encoding="utf-8",
+    )
 
     print(f"会議 {len(samples_by_meeting)} 件 / train {len(train)} 件・val {len(val)} 件"
           f"（ラベル欠落 {skipped} 件スキップ）")
     print(f"  -> {args.out_train}")
-    if val:
-        print(f"  -> {args.out_val}")
+    print(f"  -> {args.out_val}")
 
 
 if __name__ == "__main__":
