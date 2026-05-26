@@ -119,6 +119,86 @@ def test_no_override_when_correcting_with_reference():
     assert corrected[1].penalties.override == 0
 
 
+def test_override_not_exempted_by_generic_reply_words():
+    """汎用的な語だけを含む別提案は返信扱いで免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "利用率向上の観点について、通知機能を初回に入れるべきです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_override_not_exempted_by_broad_prior_words():
+    """直前発言内の広い語だけでは提案依頼として免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "認証基盤の確認が必要です。次に担当者へ状況を共有します。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_override_not_exempted_by_incidental_short_speaker_id_match():
+    """短い話者IDの偶然一致は話者参照として免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "ABテスト基盤を初回に入れるべきです。利用率を測れば改善が早まります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_no_override_when_explicitly_referencing_prior_speaker():
+    """直前話者への明示的な参照がある提案は上書き減点されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "Aさんの指摘を踏まえて、初回はフォーマットチェックだけに絞るべきです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == 0
+
+
 def test_recalculates_total():
     """補正後に総合スコアが再計算される"""
     long_text = "あ" * 250
