@@ -232,7 +232,12 @@ export default function App() {
         {state.phase === 'results' && (
           <>
             {state.tab === 'summary'  && <SummaryTab data={state.data} />}
-            {state.tab === 'timeline' && <TimelineTab utterances={state.data.evaluated_utterances} />}
+            {state.tab === 'timeline' && (
+              <TimelineTab
+                utterances={state.data.evaluated_utterances}
+                meetingId={state.data.meeting_id}
+              />
+            )}
             {state.tab === 'speakers' && (
               <SpeakersTab
                 summaries={state.data.speaker_summaries}
