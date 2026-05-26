@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from sqlalchemy import func
 from sqlmodel import Session, select
 
@@ -141,7 +143,7 @@ def _count(session: Session, model: _FeedbackModel, org_id: str) -> int:
     return int(session.exec(stmt).one())
 
 
-def count_pairwise_since(session: Session, org_id: str, since: object | None = None) -> int:
+def count_pairwise_since(session: Session, org_id: str, since: datetime | None = None) -> int:
     """組織の pairwise 件数を数える。since があれば差分件数。"""
     stmt = (
         select(func.count()).select_from(PairwiseFeedback).where(PairwiseFeedback.org_id == org_id)
@@ -156,7 +158,7 @@ def list_pairwise(session: Session, org_id: str) -> list[PairwiseFeedback]:
     stmt = (
         select(PairwiseFeedback)
         .where(PairwiseFeedback.org_id == org_id)
-        .order_by(PairwiseFeedback.created_at)
+        .order_by(PairwiseFeedback.created_at)  # type: ignore[arg-type]
     )
     return list(session.exec(stmt).all())
 

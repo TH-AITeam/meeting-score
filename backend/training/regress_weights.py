@@ -36,7 +36,9 @@ def _features_and_labels(
     for ex in examples:
         if ex.winner == "tie":
             continue
-        xs.append([float(ex.scores_a.get(axis, 0.0)) - float(ex.scores_b.get(axis, 0.0)) for axis in AXES])
+        xs.append(
+            [float(ex.scores_a.get(axis, 0.0)) - float(ex.scores_b.get(axis, 0.0)) for axis in AXES]
+        )
         ys.append(1.0 if ex.winner == "A" else 0.0)
     return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float)
 
@@ -52,14 +54,14 @@ def pairwise_accuracy(
     correct = 0
     for ex in examples:
         diff = np.asarray(
-            [float(ex.scores_a.get(axis, 0.0)) - float(ex.scores_b.get(axis, 0.0)) for axis in AXES],
+            [
+                float(ex.scores_a.get(axis, 0.0)) - float(ex.scores_b.get(axis, 0.0))
+                for axis in AXES
+            ],
             dtype=float,
         )
         margin = float(diff @ w)
-        if abs(margin) <= tie_threshold:
-            pred = "tie"
-        else:
-            pred = "A" if margin > 0 else "B"
+        pred = "tie" if abs(margin) <= tie_threshold else "A" if margin > 0 else "B"
         total += 1
         correct += int(pred == ex.winner)
     return correct / total if total else 0.0
@@ -81,7 +83,9 @@ def regress_weights(
     x, y = _features_and_labels(examples)
     if len(y) == 0:
         weights = base_weights or ScoringWeights()
-        return WeightRegressionResult(weights=weights, pairwise_acc=pairwise_accuracy(examples, weights), n_pairs=0)
+        return WeightRegressionResult(
+            weights=weights, pairwise_acc=pairwise_accuracy(examples, weights), n_pairs=0
+        )
 
     initial = base_weights or ScoringWeights()
     prior = np.asarray([getattr(initial, axis) for axis in AXES], dtype=float)
@@ -94,7 +98,9 @@ def regress_weights(
         w -= learning_rate * grad
         w = np.clip(w, 0.05, 3.0)
 
-    learned = ScoringWeights(**{axis: round(float(value), 4) for axis, value in zip(AXES, w, strict=True)})
+    learned = ScoringWeights(
+        **{axis: round(float(value), 4) for axis, value in zip(AXES, w, strict=True)}
+    )
     return WeightRegressionResult(
         weights=learned,
         pairwise_acc=pairwise_accuracy(examples, learned),

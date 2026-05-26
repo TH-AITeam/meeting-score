@@ -124,7 +124,7 @@ class LibrosaVolumeAnalyzer:
             )
             raise ImportError(msg) from e
         samples, sr = librosa.load(str(audio_path), sr=16000, mono=True)
-        means = segment_rms_means(samples, sr, spans)
+        means = segment_rms_means(samples, int(sr), spans)
         return [classify_volume(m, self.thresholds) for m in means]
 
 
