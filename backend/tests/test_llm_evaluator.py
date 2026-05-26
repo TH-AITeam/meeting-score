@@ -34,7 +34,7 @@ _VALID_JSON = (
     '"risk_detection": 0, "actionability": 0, "groundedness": 0, '
     '"novelty": 0, "summarization": 0}, '
     '"penalties": {"duplication": 0, "verbosity": 0, '
-    '"off_topic": 0, "unsupported_assertion": 0}, '
+    '"off_topic": 0, "unsupported_assertion": 0, "override": 0}, '
     '"reason": "ok"}'
 )
 

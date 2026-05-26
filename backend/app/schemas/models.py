@@ -97,6 +97,7 @@ class Penalties(BaseModel):
     verbosity: int = Field(0, ge=-3, le=0)
     off_topic: int = Field(0, ge=-3, le=0)
     unsupported_assertion: int = Field(0, ge=-3, le=0)
+    override: int = Field(0, ge=-3, le=0)
 
 
 class EvaluatedUtterance(BaseModel):

@@ -128,11 +128,15 @@ def test_penalty_weight_doubles_duplication():
 def test_penalty_weights_apply_per_axis():
     """各軸の重みが独立して掛かる"""
     scores = Scores()
-    penalties = Penalties(duplication=-1, verbosity=-2, off_topic=-1, unsupported_assertion=-3)
-    pw = PenaltyWeights(duplication=2.0, verbosity=0.5, off_topic=1.0, unsupported_assertion=1.5)
+    penalties = Penalties(
+        duplication=-1, verbosity=-2, off_topic=-1, unsupported_assertion=-3, override=-1
+    )
+    pw = PenaltyWeights(
+        duplication=2.0, verbosity=0.5, off_topic=1.0, unsupported_assertion=1.5, override=2.0
+    )
     total = calculate_total_score(scores, penalties, penalty_weights=pw)
-    # -1*2.0 + -2*0.5 + -1*1.0 + -3*1.5 = -2 -1 -1 -4.5 = -8.5
-    assert total == -8.5
+    # -1*2.0 + -2*0.5 + -1*1.0 + -3*1.5 + -1*2.0 = -10.5
+    assert total == -10.5
 
 
 def test_penalty_weights_with_scores_mixed():
@@ -156,6 +160,7 @@ def test_load_config_reads_penalties_section(tmp_path: Path):
               verbosity: 0.5
               off_topic: 1.0
               unsupported_assertion: 1.5
+              override: 2.0
             """
         ),
         encoding="utf-8",
@@ -166,6 +171,7 @@ def test_load_config_reads_penalties_section(tmp_path: Path):
     assert cfg.penalty_weights.verbosity == 0.5
     assert cfg.penalty_weights.off_topic == 1.0
     assert cfg.penalty_weights.unsupported_assertion == 1.5
+    assert cfg.penalty_weights.override == 2.0
 
 
 def test_load_config_defaults_when_penalties_missing(tmp_path: Path):
@@ -178,6 +184,7 @@ def test_load_config_defaults_when_penalties_missing(tmp_path: Path):
     assert cfg.penalty_weights.verbosity == 1.0
     assert cfg.penalty_weights.off_topic == 1.0
     assert cfg.penalty_weights.unsupported_assertion == 1.0
+    assert cfg.penalty_weights.override == 0.5
 
 
 def test_load_config_env_overrides_llm_section(tmp_path: Path, monkeypatch):

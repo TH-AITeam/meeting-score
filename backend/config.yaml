@@ -18,6 +18,7 @@ penalties:
   verbosity: 1.0              # 冗長
   off_topic: 1.0              # 論点逸脱
   unsupported_assertion: 1.0  # 根拠薄い断言
+  override: 0.5               # 上書き発言
 
 # 文脈ウィンドウ設定
 context:

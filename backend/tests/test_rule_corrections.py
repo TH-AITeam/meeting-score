@@ -6,17 +6,22 @@ from app.scoring.weights import PenaltyWeights
 
 
 def _make_eu(
-    uid: str, text: str, penalties: Penalties | None = None, **score_kwargs
+    uid: str,
+    text: str,
+    penalties: Penalties | None = None,
+    speaker: str = "A",
+    speech_type: str = "情報共有",
+    **score_kwargs,
 ) -> EvaluatedUtterance:
     scores = Scores(**{k: v for k, v in score_kwargs.items() if k in Scores.model_fields})
     if penalties is None:
         penalties = Penalties()
     return EvaluatedUtterance(
         utterance_id=uid,
-        speaker="A",
+        speaker=speaker,
         timestamp="00:00:00",
         text=text,
-        speech_type="情報共有",
+        speech_type=speech_type,
         scores=scores,
         penalties=penalties,
         total_score=0.0,
@@ -72,6 +77,227 @@ def test_different_topics_not_duplicate():
     corrected = apply_rule_corrections(evaluated)
     # 別の論点なので重複減点されない
     assert corrected[1].penalties.duplication == 0
+
+
+def test_override_detection_for_unanswered_proposal():
+    """直前の他者発言を受けずに別提案を被せた発言は減点される"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_no_override_when_correcting_with_reference():
+    """直前を引用して論点修正する発言は上書き減点されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーションは詳細エラーハンドリングまで初回に入れる案です。",
+            speaker="A",
+            speech_type="提案",
+        ),
+        _make_eu(
+            "u002",
+            "そのバリデーション範囲については、初回はフォーマットチェックだけに絞るべきです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == 0
+
+
+def test_override_not_exempted_by_unanswered_question():
+    """問いかけ直後でも答えていない別提案は減点される"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "ここまでのリリース範囲で合意でよいですか\uff1f",
+            speaker="A",
+            speech_type="意思決定促進",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_no_override_for_question_answer_with_prior_overlap():
+    """問いかけに対して直前内容へ答えている提案は減点されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "対象ユーザーは社内利用と社外利用のどちらを先にやりますか\uff1f",
+            speaker="A",
+            speech_type="質問",
+        ),
+        _make_eu(
+            "u002",
+            "社内利用を先にやるべきです。社外向けはセキュリティ要件が重いです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == 0
+
+
+def test_override_not_exempted_by_non_invitation_desire_statement():
+    """願望・宣言文の直後に別論点を被せた場合は減点される"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "テスト期間を1週間は確保したいです。",
+            speaker="A",
+            speech_type="提案",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_override_not_exempted_by_generic_reply_words():
+    """汎用的な語だけを含む別提案は返信扱いで免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "利用率向上の観点について、通知機能を初回に入れるべきです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_override_not_exempted_by_broad_prior_words():
+    """直前発言内の広い語だけでは提案依頼として免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "認証基盤の確認が必要です。次に担当者へ状況を共有します。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_override_not_exempted_by_generic_contrast_marker():
+    """一般的な逆接語だけでは直前への応答として免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "ただ、通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_override_not_exempted_by_incidental_short_speaker_id_match():
+    """短い話者IDの偶然一致は話者参照として免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "ABテスト基盤を初回に入れるべきです。利用率を測れば改善が早まります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_no_override_when_explicitly_referencing_prior_speaker():
+    """直前話者への明示的な参照がある提案は上書き減点されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "Aさんの指摘を踏まえて、初回はフォーマットチェックだけに絞るべきです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == 0
+
+
+def test_override_penalty_impacts_total_by_half_point():
+    """上書き発言の総合スコア減点は既定重み 0.5 で -0.5 点になる"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == -1
+    assert corrected[1].total_score == -0.5
 
 
 def test_recalculates_total():

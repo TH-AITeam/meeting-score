@@ -64,12 +64,14 @@ RESPONSE_SCHEMA: dict = {
                     "minimum": -3,
                     "maximum": 0,
                 },
+                "override": {"type": "integer", "minimum": -3, "maximum": 0},
             },
             "required": [
                 "duplication",
                 "verbosity",
                 "off_topic",
                 "unsupported_assertion",
+                "override",
             ],
             "additionalProperties": False,
         },
@@ -176,6 +178,7 @@ def normalize_result(parsed: dict) -> EvaluationResult:
         verbosity=_clamp(penalties_raw.get("verbosity", 0), -3, 0),
         off_topic=_clamp(penalties_raw.get("off_topic", 0), -3, 0),
         unsupported_assertion=_clamp(penalties_raw.get("unsupported_assertion", 0), -3, 0),
+        override=_clamp(penalties_raw.get("override", 0), -3, 0),
     )
 
     return EvaluationResult(
