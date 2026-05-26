@@ -21,6 +21,8 @@ _VERBOSITY_CHAR_THRESHOLD_STRONG = 200
 _DUPLICATE_OVERLAP_RATIO = 0.6
 
 # 上書き判定: 直前発言とほぼ語彙接点がない場合だけ拾う、緩めの初期値。
+# embedding 基盤を持ち込まず、ローカルで安定して動く bigram Jaccard を
+# 低コストな近似として使う。LLM 判定は prompt/schema 側の override で併用する。
 _OVERRIDE_REPLY_OVERLAP_RATIO = 0.08
 _OVERRIDE_MIN_TEXT_LENGTH = 12
 _ASSERTIVE_SPEECH_TYPES = {

@@ -187,6 +187,8 @@ def _generate_improvement_comments(
         )
 
     # 上書き発言が多い場面の検出
+    # ルール単体の -1 は発言単位の減点に留め、LLM 判定と重なった強いケースだけ
+    # 会議全体の改善コメントに出す。
     overrides = [u for u in evaluated if u.penalties.override <= -2]
     if overrides:
         comments.append(
