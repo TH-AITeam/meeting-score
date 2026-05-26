@@ -29,7 +29,7 @@ _ASSERTIVE_SPEECH_TYPES = {
 }
 _PRIOR_INVITATION_MARKERS = (
     "?",
-    "？",
+    "\uff1f",
     "ませんか",
     "ましょう",
     "したい",
