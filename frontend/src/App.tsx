@@ -11,10 +11,40 @@ import SpeakersTab from './components/tabs/SpeakersTab'
 type ResultTab = 'summary' | 'timeline' | 'speakers'
 type SpeakerMode = 'cards' | 'focus'
 
+/**
+ * 動画 → 音声抽出時のサイズ比較 (Issue #68 受け入れ条件)。
+ * アップロード効率化が主目的なので、抽出完了後のローディング画面で
+ * ユーザーに「実際に何 MB 削減できたか」を可視化する。
+ */
+export type MediaStats = {
+  /** 元動画サイズ (MB) */
+  originalMB: number
+  /** 抽出後音声サイズ (MB) */
+  extractedMB: number
+  /** 削減率 (0-100、小数 1 桁) */
+  reductionPct: number
+}
+
 type AppState =
   | { phase: 'upload' }
-  | { phase: 'loading'; step?: 'extracting' | 'transcribing' | 'analyzing'; progress?: number }
+  | {
+      phase: 'loading'
+      step?: 'extracting' | 'transcribing' | 'analyzing'
+      progress?: number
+      mediaStats?: MediaStats
+    }
   | { phase: 'results'; data: MeetingSummary; tab: ResultTab }
+
+function computeMediaStats(originalBytes: number, extractedBytes: number): MediaStats {
+  const originalMB = originalBytes / (1024 * 1024)
+  const extractedMB = extractedBytes / (1024 * 1024)
+  const reductionPct = originalMB > 0 ? (1 - extractedMB / originalMB) * 100 : 0
+  return {
+    originalMB: Math.round(originalMB * 10) / 10,
+    extractedMB: Math.round(extractedMB * 10) / 10,
+    reductionPct: Math.round(reductionPct * 10) / 10,
+  }
+}
 
 const RESULT_TABS: { id: ResultTab; label: string }[] = [
   { id: 'summary',  label: '会議サマリー' },
@@ -65,12 +95,16 @@ export default function App() {
       return
     }
 
-    setState({ phase: 'loading', step: 'transcribing' })
+    // Issue #68: アップロード効率化の効果をユーザーに可視化するため、
+    // 抽出完了後のローディング画面で「元動画 X.X MB → 音声 Y.Y MB (-ZZ%)」を表示する。
+    const mediaStats = computeMediaStats(file.size, audioBlob.size)
+
+    setState({ phase: 'loading', step: 'transcribing', mediaStats })
     try {
       // 抽出された音声は webm/opus 固定なので拡張子を付け替えて送る
       const baseName = file.name.replace(/\.[^.]+$/, '') || 'video'
       const meetingInput = await uploadAudio(audioBlob, `${baseName}.webm`)
-      setState({ phase: 'loading', step: 'analyzing' })
+      setState({ phase: 'loading', step: 'analyzing', mediaStats })
       const data = await analyzeJson(meetingInput, meetingType)
       setState({ phase: 'results', data, tab: 'summary' })
       saveMeeting('video', { filename: file.name }, data, meetingType)
@@ -190,7 +224,13 @@ export default function App() {
             historyVersion={historyVersion}
           />
         )}
-        {state.phase === 'loading' && <LoadingView step={state.step} progress={state.progress} />}
+        {state.phase === 'loading' && (
+          <LoadingView
+            step={state.step}
+            progress={state.progress}
+            mediaStats={state.mediaStats}
+          />
+        )}
         {state.phase === 'results' && (
           <>
             {state.tab === 'summary'  && <SummaryTab data={state.data} />}
