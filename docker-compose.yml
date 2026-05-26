@@ -1,0 +1,29 @@
+# フィードバック収集 DB (Issue #78) 用の PostgreSQL。
+# 本番・統合確認は Docker 管理の Postgres を使う。ローカルの単体テストや
+# 軽い動作確認は DATABASE_URL 未設定で SQLite (data/feedback.db) にフォールバックする。
+#
+# 使い方:
+#   docker compose up -d db
+#   export DATABASE_URL=postgresql+psycopg://meeting:meeting@localhost:5432/meeting_score
+#   cd backend && uv sync --extra postgres && uv run uvicorn app.api.main:app --reload
+services:
+  db:
+    image: postgres:16
+    container_name: meeting-score-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-meeting}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-meeting}
+      POSTGRES_DB: ${POSTGRES_DB:-meeting_score}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - feedback_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-meeting} -d ${POSTGRES_DB:-meeting_score}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  feedback_pgdata:

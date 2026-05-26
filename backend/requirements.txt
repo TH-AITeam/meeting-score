@@ -8,3 +8,6 @@ openai>=1.0.0
 pyyaml>=6.0.1
 python-multipart>=0.0.9
 python-dotenv>=1.0.1
+# フィードバック収集 DB (Issue #78)。SQLite ローカル / PostgreSQL 本番互換。
+# Postgres ドライバ psycopg は optional extra [postgres] で導入する。
+sqlmodel>=0.0.38

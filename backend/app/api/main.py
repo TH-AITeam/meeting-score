@@ -13,8 +13,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.audio_routes import router as audio_router
+from app.api.feedback import router as feedback_router
 from app.api.routes import router
 from app.scoring.weights import load_config
+from app.store.db import init_db
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,8 @@ async def lifespan(app: FastAPI):
     config = load_config()
     app.state.config = config
     logger.info("設定読み込み完了: model=%s", config.llm_model)
+    init_db()
+    logger.info("フィードバック DB 初期化完了")
     yield
 
 
@@ -46,6 +50,7 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 app.include_router(audio_router, prefix="/api")
+app.include_router(feedback_router, prefix="/api")
 
 # 静的ファイル配信 (UI)
 ui_dir = Path(__file__).resolve().parent.parent.parent.parent / "frontend" / "dist"
