@@ -53,6 +53,7 @@
 | verbosity | 0 | 15 | 210 | 552 |
 | off_topic | 0 | 17 | 35 | 725 |
 | unsupported_assertion | 0 | 0 | 35 | 742 |
+| override | 0 | 0 | 0 | 777 |
 
 ## reject 内訳
 

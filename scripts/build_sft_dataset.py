@@ -44,16 +44,11 @@ from app.evaluators.prompt import (  # noqa: E402  (sys.path 追加後の import
     normalize_result,
 )
 
-SCORE_KEYS = [
-    "issue_clarification",
-    "decision_progress",
-    "risk_detection",
-    "actionability",
-    "groundedness",
-    "novelty",
-    "summarization",
-]
-PENALTY_KEYS = ["duplication", "verbosity", "off_topic", "unsupported_assertion"]
+# 軸キーは RESPONSE_SCHEMA（単一の真実）から導出し、スキーマ変更に追従する。
+# 固定リストにすると #91 の penalties.override 追加のような変更に取り残され、
+# 統計 (penalty_dist) や本定数を import する下流 (#80 等) が齟齬を起こす。
+SCORE_KEYS = list(RESPONSE_SCHEMA["properties"]["scores"]["properties"])
+PENALTY_KEYS = list(RESPONSE_SCHEMA["properties"]["penalties"]["properties"])
 
 
 @dataclass
