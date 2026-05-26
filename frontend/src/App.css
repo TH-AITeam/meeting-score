@@ -519,3 +519,211 @@ body {
   color: var(--ink-3);
   cursor: pointer;
 }
+
+/* ---------- フィードバック UI (Issue #79) ---------- */
+
+/* 控えめなトースト（ゲーミフィケーション無し） */
+.feedback-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  z-index: 1100;
+}
+
+/* Top5 編集モーダル */
+.feedback-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.feedback-modal {
+  background: var(--paper);
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  width: min(560px, 92vw);
+  max-height: 86vh;
+  overflow: auto;
+  padding: 16px 18px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.22);
+}
+.feedback-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.feedback-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.top5-edit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.top5-edit-row {
+  display: grid;
+  grid-template-columns: 28px 22px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1.5px solid var(--rule-2);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.top5-drag-handle {
+  cursor: grab;
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px;
+}
+.top5-drag-handle:focus-visible {
+  outline: 2px solid var(--accent);
+  border-radius: 4px;
+}
+.top5-rank {
+  text-align: center;
+}
+.top5-row-body {
+  min-width: 0;
+}
+.top5-speaker {
+  font-weight: 600;
+  font-size: 12px;
+}
+.top5-row-text {
+  font-size: 12px;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top5-picker {
+  margin-top: 8px;
+  border: 1px dashed var(--rule);
+  border-radius: 8px;
+  padding: 8px;
+}
+.top5-picker-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  max-height: 200px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.top5-picker-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--rule-2);
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.top5-picker-item:hover {
+  background: var(--bg-2);
+}
+
+.feedback-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1.5px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+}
+
+/* 発言カードの 👎（控えめ。常時表示しない＝選択時のみ） */
+.feedback-flag {
+  position: relative;
+  display: inline-flex;
+  margin-left: 4px;
+}
+.feedback-flag-trigger {
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.feedback-flag-trigger:hover,
+.feedback-flag-trigger[aria-expanded='true'] {
+  opacity: 1;
+  color: var(--accent);
+}
+.feedback-popover {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  z-index: 1050;
+  width: 248px;
+  background: var(--paper);
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  cursor: default;
+}
+.feedback-dir-toggle {
+  display: flex;
+  gap: 6px;
+}
+.feedback-axis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+}
+.feedback-axis-opt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.feedback-popover-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* 件数表示（淡々と。順位・バッジは出さない） */
+.feedback-stats {
+  flex-shrink: 0;
+  padding-top: 2px;
+  color: var(--ink-3);
+}
+.feedback-stage {
+  color: var(--ink-2);
+}
