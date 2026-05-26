@@ -2,6 +2,8 @@ import { useState } from 'react'
 import type { EvaluatedUtterance, MeetingSummary, Scores } from '../../types/meeting'
 import { AXIS_LABELS } from '../../utils/labels'
 import ScoreBadge from '../ui/ScoreBadge'
+import Top5Editor from '../Top5Editor'
+import FeedbackStats from '../FeedbackStats'
 
 interface Props {
   data: MeetingSummary
@@ -47,6 +49,7 @@ function typeChipTone(u: EvaluatedUtterance): string {
 
 export default function SummaryTab({ data }: Props) {
   const [filter, setFilter] = useState<Filter>('all')
+  const [editingTop5, setEditingTop5] = useState(false)
 
   const utterances = data.evaluated_utterances
   const totalCount = utterances.length
@@ -126,7 +129,17 @@ export default function SummaryTab({ data }: Props) {
           {/* Forward progress list */}
           <div className="wf-box wf-pad" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexShrink: 0 }}>
-              <div className="wf-h3">前進した発言</div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div className="wf-h3">前進した発言</div>
+                <button
+                  type="button"
+                  className="btn ghost sm"
+                  aria-label="Top5 を直してフィードバックする"
+                  onClick={() => setEditingTop5(true)}
+                >
+                  Top5 を直す
+                </button>
+              </div>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {FILTER_CHIPS.map((c) => (
                   <span
@@ -202,7 +215,18 @@ export default function SummaryTab({ data }: Props) {
             )}
           </div>
         </div>
+
+        <FeedbackStats />
       </div>
+
+      {editingTop5 && (
+        <Top5Editor
+          meetingId={data.meeting_id}
+          top5={data.top_utterances.slice(0, 5)}
+          allUtterances={data.evaluated_utterances}
+          onClose={() => setEditingTop5(false)}
+        />
+      )}
     </div>
   )
 }

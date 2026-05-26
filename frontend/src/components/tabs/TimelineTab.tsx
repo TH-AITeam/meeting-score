@@ -2,9 +2,11 @@ import { useState } from 'react'
 import type { EvaluatedUtterance, Scores } from '../../types/meeting'
 import { AXIS_LABELS, AXIS_LABELS_FULL, PENALTY_LABELS } from '../../utils/labels'
 import ScoreBadge from '../ui/ScoreBadge'
+import FeedbackFlag from '../FeedbackFlag'
 
 interface Props {
   utterances: EvaluatedUtterance[]
+  meetingId: string
 }
 
 const AXIS_COLORS: Record<keyof Scores, string> = {
@@ -55,7 +57,7 @@ function penaltyLabel(u: EvaluatedUtterance): string {
   return PENALTY_LABELS[entry[0]] ?? entry[0]
 }
 
-export default function TimelineTab({ utterances }: Props) {
+export default function TimelineTab({ utterances, meetingId }: Props) {
   // Unique speakers
   const speakers = [...new Set(utterances.map((u) => u.speaker))]
   // Unique types
@@ -213,6 +215,7 @@ export default function TimelineTab({ utterances }: Props) {
                       large
                       style={{ marginLeft: 'auto', fontSize: 13, color: u.total_score < 0 ? 'var(--red)' : 'var(--ink)' }}
                     />
+                    {isSel && <FeedbackFlag meetingId={meetingId} utteranceId={u.utterance_id} />}
                   </div>
                   <div style={{ fontSize: 13 }}>{u.text}</div>
                 </div>
