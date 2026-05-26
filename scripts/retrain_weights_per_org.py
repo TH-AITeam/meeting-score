@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -23,6 +24,7 @@ from app.scoring.weights_loader import (  # noqa: E402
     load_org_profile,
     penalties_to_dict,
     profile_path,
+    sanitize_org_id,
     weights_to_dict,
 )
 from app.store import db, feedback_repository, repository  # noqa: E402
@@ -57,14 +59,24 @@ def _parse_generated_at(path: Path) -> datetime | None:
     value = raw.get("generated_at")
     if not value:
         return None
-    return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        logger.warning("invalid generated_at in %s: %r", path, value)
+        return None
 
 
-def _scores_by_meeting() -> dict[str, dict[str, dict[str, float]]]:
-    meetings: dict[str, dict[str, dict[str, float]]] = {}
+ScoreIndex = dict[str, dict[str, dict[str, dict[str, float]]]]
+
+
+def _scores_by_meeting() -> ScoreIndex:
+    meetings: ScoreIndex = {}
     for meta in repository.list_all():
         saved = repository.get(meta.id)
         if saved is None:
+            continue
+        org_id = saved.input.get("org_id")
+        if not org_id:
             continue
         meeting_id = saved.input.get("meeting_id") or meta.id
         utterances = saved.result.get("evaluated_utterances", [])
@@ -74,19 +86,20 @@ def _scores_by_meeting() -> dict[str, dict[str, dict[str, float]]]:
             if "utterance_id" in u
         }
         if scores:
-            meetings[meeting_id] = scores
+            org_scores = meetings.setdefault(str(org_id), {})
+            org_scores.setdefault(str(meeting_id), scores)
     return meetings
 
 
 def build_feedback_dataset(
     pairs: list[PairwiseFeedback],
-    score_index: dict[str, dict[str, dict[str, float]]] | None = None,
+    score_index: ScoreIndex | None = None,
 ) -> list[PairwiseTrainingExample]:
     """DB の pairwise feedback と保存済みスコアを結合する。"""
     score_index = score_index or _scores_by_meeting()
     examples: list[PairwiseTrainingExample] = []
     for pair in pairs:
-        meeting_scores = score_index.get(pair.meeting_id)
+        meeting_scores = score_index.get(pair.org_id, {}).get(pair.meeting_id)
         if not meeting_scores:
             continue
         scores_a = meeting_scores.get(pair.utt_a)
@@ -126,13 +139,16 @@ def _profile_payload(
 
 def _write_yaml(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(yaml.safe_dump(payload, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    content = yaml.safe_dump(payload, sort_keys=False, allow_unicode=True)
+    tmp_path = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    tmp_path.write_text(content, encoding="utf-8")
+    os.replace(tmp_path, path)
 
 
 def _write_profile_with_history(profile: Path, payload: dict) -> None:
-    org_id = payload["org_id"]
+    safe_org_id = sanitize_org_id(payload["org_id"])
     ts = payload["generated_at"].replace(":", "").replace("-", "")
-    history = profile.parent / "_history" / org_id / f"{ts}.yaml"
+    history = profile.parent / "_history" / safe_org_id / f"{ts}.yaml"
     _write_yaml(history, payload)
     _write_yaml(profile, payload)
 
@@ -140,7 +156,7 @@ def _write_profile_with_history(profile: Path, payload: dict) -> None:
 def _write_review(profile_dir: Path, org_id: str, payload: dict, reason: str) -> Path:
     payload = {**payload, "status": "blocked", "reason": reason}
     ts = payload["generated_at"].replace(":", "").replace("-", "")
-    path = profile_dir / "_review" / org_id / f"{ts}.yaml"
+    path = profile_dir / "_review" / sanitize_org_id(org_id) / f"{ts}.yaml"
     _write_yaml(path, payload)
     return path
 
