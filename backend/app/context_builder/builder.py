@@ -24,17 +24,9 @@ class EvaluationContext:
     meeting_type: str | None = None
 
 
-def _estimate_current_topic(agenda: list[str], index: int, total: int) -> str:
-    """発言位置からアジェンダ上の現在議題を推定する（フォールバック用）
-
-    発言列を議題数で均等分割し、各発言がどの議題区間に属するか推定する。
-    明示的な議題情報がない場合にのみ使用される。
-    """
-    if not agenda:
-        return ""
-    segment_size = max(1, total // len(agenda))
-    topic_idx = min(index // segment_size, len(agenda) - 1)
-    return agenda[topic_idx]
+def _estimate_current_topic() -> str:
+    """明示的な議題情報がない場合は、議題を推定しない。"""
+    return ""
 
 
 def _build_topic_map(meeting: MeetingInput) -> dict[str, str]:
@@ -76,16 +68,13 @@ def _build_topic_map(meeting: MeetingInput) -> dict[str, str]:
 def _resolve_topic(
     utterance: Utterance,
     topic_map: dict[str, str],
-    agenda: list[str],
-    index: int,
-    total: int,
 ) -> str:
-    """発言の議題を解決する。優先順位: 発言の topic > topic_transitions > 均等分割推定"""
+    """発言の議題を解決する。優先順位: 発言の topic > topic_transitions > 不明"""
     if utterance.topic:
         return utterance.topic
     if utterance.utterance_id in topic_map:
         return topic_map[utterance.utterance_id]
-    return _estimate_current_topic(agenda, index, total)
+    return _estimate_current_topic()
 
 
 def build_contexts(
@@ -106,7 +95,7 @@ def build_contexts(
         before = utterances[start:i]
         after = utterances[i + 1 : end]
 
-        current_topic = _resolve_topic(target, topic_map, meeting.agenda, i, total)
+        current_topic = _resolve_topic(target, topic_map)
 
         contexts.append(
             EvaluationContext(
