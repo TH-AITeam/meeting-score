@@ -103,6 +103,7 @@ export default function Top5Editor({ meetingId, top5, allUtterances, onClose }: 
   )
 
   const rows = orderIds.map((id) => byId.get(id)).filter((u): u is EvaluatedUtterance => !!u)
+  const top5CountValid = orderIds.length === 5 && rows.length === 5 && originalIds.length === 5
 
   const changed =
     orderIds.length !== originalIds.length || orderIds.some((id, i) => id !== originalIds[i])
@@ -128,12 +129,16 @@ export default function Top5Editor({ meetingId, top5, allUtterances, onClose }: 
 
   const removeAt = (id: string) => setOrderIds((ids) => ids.filter((x) => x !== id))
   const addUtterance = (id: string) => {
-    setOrderIds((ids) => (ids.includes(id) ? ids : [...ids, id]))
+    setOrderIds((ids) => (ids.includes(id) || ids.length >= 5 ? ids : [...ids, id]))
     setShowPicker(false)
     setQuery('')
   }
 
   const handleSave = async () => {
+    if (!top5CountValid) {
+      setToast('Top5 は5件で保存してください')
+      return
+    }
     setSaving(true)
     try {
       const ack = await postTopK({
@@ -197,6 +202,8 @@ export default function Top5Editor({ meetingId, top5, allUtterances, onClose }: 
           type="button"
           className="btn ghost sm"
           aria-expanded={showPicker}
+          disabled={rows.length >= 5}
+          title={rows.length >= 5 ? 'Top5 から外してから追加してください' : undefined}
           onClick={() => setShowPicker((v) => !v)}
         >
           ＋ 他の発言から差し替え
@@ -219,6 +226,7 @@ export default function Top5Editor({ meetingId, top5, allUtterances, onClose }: 
                   <button
                     type="button"
                     className="top5-picker-item"
+                    disabled={rows.length >= 5}
                     onClick={() => addUtterance(u.utterance_id)}
                     aria-label={`「${snippet(u.text, 24)}」を Top5 に追加`}
                   >
@@ -245,7 +253,7 @@ export default function Top5Editor({ meetingId, top5, allUtterances, onClose }: 
             type="button"
             className="btn accent"
             onClick={handleSave}
-            disabled={saving || !changed || rows.length === 0}
+            disabled={saving || !changed || !top5CountValid}
           >
             保存
           </button>

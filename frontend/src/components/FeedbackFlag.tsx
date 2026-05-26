@@ -48,17 +48,25 @@ export default function FeedbackFlag({ meetingId, utteranceId }: Props) {
     if (!direction) return
     setSaving(true)
     try {
-      // 複数軸が選ばれても API は 1 軸/行なので、選択順の先頭を代表として送る。
-      // 軸未選択（任意）の場合は null。
-      const axis = axes.size > 0 ? [...axes][0] : null
-      await postAxisFlag({
-        meeting_id: meetingId,
-        utterance_id: utteranceId,
-        direction,
-        axis,
-        comment: comment.trim() || null,
-      })
-      setToast('ありがとうございました')
+      // API は 1 軸/行なので、複数選択時は軸ごとに 1 件ずつ送る。
+      const selectedAxes = axes.size > 0 ? [...axes] : [null]
+      const trimmedComment = comment.trim() || null
+      await Promise.all(
+        selectedAxes.map((axis) =>
+          postAxisFlag({
+            meeting_id: meetingId,
+            utterance_id: utteranceId,
+            direction,
+            axis,
+            comment: trimmedComment,
+          }),
+        ),
+      )
+      setToast(
+        selectedAxes.length > 1
+          ? `ありがとうございました（${selectedAxes.length} 件に反映）`
+          : 'ありがとうございました',
+      )
       setOpen(false)
       reset()
     } catch {
