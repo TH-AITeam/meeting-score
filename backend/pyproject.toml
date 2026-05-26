@@ -5,18 +5,18 @@ description = "会議中の各発言の会議貢献度を評価・可視化す�
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.110.0",
-    "numpy>=1.26",
+    "fastapi>=0.136.3",
+    "numpy>=2.4.6",
     # openai SDK: ローカル推論バックエンド (vLLM 等) を OpenAI 互換 API で叩くために
     # `base_url` 差し替えで使用する。OpenAI クラウドへの依存は撤去済 (Issue #17) で、
     # 本番運用は OPENAI_API_KEY なしで動く。OpenAI クラウド (Responses API) を叩くのは
     # 蒸留データ生成 (Issue #12) やベンチマーク比較の optional 用途のみ。
-    "openai>=1.0.0",
-    "pydantic>=2.6.0",
+    "openai>=2.38.0",
+    "pydantic>=2.13.4",
     "python-dotenv>=1.0.1",
-    "python-multipart>=0.0.9",
+    "python-multipart>=0.0.29",
     "pyyaml>=6.0.1",
-    "uvicorn[standard]>=0.29.0",
+    "uvicorn[standard]>=0.48.0",
 ]
 
 # Issue #19 の音声処理 (WhisperX + pyannote + librosa) は重い依存なので
@@ -26,17 +26,17 @@ audio = [
     "librosa>=0.10",
     "pyannote-audio>=3.1",
     "soundfile>=0.12",
-    "whisperx>=3.1",
+    "whisperx>=3.8.6",
 ]
 
 [dependency-groups]
 dev = [
-    "mypy>=2.0.0",
+    "mypy>=2.1.0",
     "pre-commit>=4.6.0",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
-    "ruff>=0.15.12",
-    "types-pyyaml>=6.0.12.20260510",
+    "ruff>=0.15.14",
+    "types-pyyaml>=6.0.12.20260518",
 ]
 
 [tool.ruff]
