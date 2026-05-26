@@ -51,8 +51,10 @@ export const saveMeeting = (
 export const deleteMeeting = (id: string): Promise<void> =>
   request(`/meetings/${encodeURIComponent(id)}`, { method: 'DELETE' })
 
-export const uploadAudio = (file: File): Promise<unknown> => {
+export const uploadAudio = (blob: Blob, filename?: string): Promise<unknown> => {
   const formData = new FormData()
-  formData.append('file', file)
+  // File 派生なら .name を流用、Blob のみなら明示された filename を使う
+  const name = filename ?? (blob instanceof File ? blob.name : 'audio.bin')
+  formData.append('file', blob, name)
   return request('/upload_audio', { method: 'POST', body: formData })
 }

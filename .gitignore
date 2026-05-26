@@ -17,6 +17,9 @@ htmlcov/
 node_modules
 .vite
 
+# misc test/log artifacts
+nohup.out
+
 # stored meeting data (may contain personal information)
 data/stored_meetings/
 # eval / benchmark の生 JSON は基本ローカル保持。
@@ -31,3 +34,13 @@ data/eval_audio/meeting_*/
 *.mp3
 *.m4a
 *.flac
+
+# 動画アップロード効率ベンチ評価データ (Issue #68)
+# data/eval_video/{meeting_*}/ 以下の動画ファイルは個人録画のため除外。
+# README と .gitkeep だけ commit する。
+data/eval_video/meeting_*/
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.webm

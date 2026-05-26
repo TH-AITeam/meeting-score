@@ -7,13 +7,14 @@ interface Props {
   onAnalyzeSample: (filename: string, meetingType?: MeetingType) => void
   onAnalyzeJson: (data: unknown, meetingType?: MeetingType) => void
   onAnalyzeAudio: (file: File, meetingType?: MeetingType) => void
+  onAnalyzeVideo: (file: File, meetingType?: MeetingType) => void
   onRestore: (data: MeetingSummary) => void
   historyVersion: number
 }
 
 const MEETING_TYPES: MeetingType[] = ['decision', 'brainstorming', 'progress', 'retrospective']
 
-type InputMode = 'none' | 'file' | 'paste' | 'audio'
+type InputMode = 'none' | 'file' | 'paste' | 'audio' | 'video'
 
 const CONNECTORS = [
   {
@@ -26,9 +27,9 @@ const CONNECTORS = [
   {
     id: 'video' as const,
     name: '動画ファイル',
-    desc: '動画から音声を抽出して分析',
+    desc: 'ブラウザ内で音声を抽出して分析',
     icon: '▶',
-    wip: true,
+    wip: false,
   },
   {
     id: 'file' as const,
@@ -47,6 +48,7 @@ const CONNECTORS = [
 ]
 
 const AUDIO_EXTENSIONS = '.wav,.mp3,.m4a,.flac,.ogg'
+const VIDEO_EXTENSIONS = '.mp4,.mov,.mkv,.avi,.webm'
 
 function formatDate(iso: string) {
   try {
@@ -59,13 +61,14 @@ function formatDate(iso: string) {
   }
 }
 
-export default function InputView({ onAnalyzeSample, onAnalyzeJson, onAnalyzeAudio, onRestore, historyVersion }: Props) {
+export default function InputView({ onAnalyzeSample, onAnalyzeJson, onAnalyzeAudio, onAnalyzeVideo, onRestore, historyVersion }: Props) {
   const [samples, setSamples] = useState<SampleFile[]>([])
   const [samplesStatus, setSamplesStatus] = useState<'loading' | 'ok' | 'error'>('loading')
   const [mode, setMode] = useState<InputMode>('none')
   const [pasteText, setPasteText] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const audioInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
   const [meetingType, setMeetingType] = useState<MeetingType | undefined>(undefined)
 
   const [history, setHistory] = useState<SavedMeetingMeta[]>([])
@@ -101,6 +104,13 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onAnalyzeAud
     const file = e.target.files?.[0]
     if (!file) return
     onAnalyzeAudio(file, meetingType)
+    e.target.value = ''
+  }
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    onAnalyzeVideo(file, meetingType)
     e.target.value = ''
   }
 
@@ -202,6 +212,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onAnalyzeAud
                   setMode(mode === id ? 'none' : id)
                   if (c.id === 'file') fileInputRef.current?.click()
                   if (c.id === 'audio') audioInputRef.current?.click()
+                  if (c.id === 'video') videoInputRef.current?.click()
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -226,7 +237,7 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onAnalyzeAud
                 )}
                 {c.id === 'video' && (
                   <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                    <span className="btn sm">動画を選択</span>
+                    <span className="btn sm accent">動画を選択</span>
                   </div>
                 )}
                 {c.id === 'file' && (
@@ -281,6 +292,13 @@ export default function InputView({ onAnalyzeSample, onAnalyzeJson, onAnalyzeAud
           accept={AUDIO_EXTENSIONS}
           style={{ display: 'none' }}
           onChange={handleAudioChange}
+        />
+        <input
+          ref={videoInputRef}
+          type="file"
+          accept={VIDEO_EXTENSIONS}
+          style={{ display: 'none' }}
+          onChange={handleVideoChange}
         />
 
         {/* Paste area */}

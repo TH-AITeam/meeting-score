@@ -22,7 +22,7 @@ from app.scoring.weights import AppConfig, PenaltyWeights, ScoringWeights
 
 
 def _make_app(monkeypatch_target_module: Any, fake_result: MeetingInput) -> FastAPI:
-    """テスト用最小 FastAPI アプリ。config を inject、transcribe を stub。"""
+    """テスト用最小 FastAPI アプリ。config を inject、transcribe / normalize を stub。"""
     app = FastAPI()
     app.include_router(audio_router, prefix="/api")
     app.state.config = AppConfig(
@@ -37,7 +37,24 @@ def _make_app(monkeypatch_target_module: Any, fake_result: MeetingInput) -> Fast
         return fake_result
 
     monkeypatch_target_module.setattr("app.api.audio_routes.transcribe_to_meeting_input", _fake)
+
+    # Issue #68: normalize_to_wav は本物の ffmpeg を呼ぶので mock で短絡
+    def _fake_normalize(input_path, output_path, **kwargs):
+        output_path.write_bytes(b"FAKE_WAV")
+        return output_path
+
+    monkeypatch_target_module.setattr("app.api.audio_routes.normalize_to_wav", _fake_normalize)
     return app
+
+
+def _stub_normalize(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Issue #68: normalize_to_wav は ffmpeg を呼ぶので mock で短絡する共通ヘルパ。"""
+
+    def _fake_normalize(input_path, output_path, **kwargs):
+        output_path.write_bytes(b"FAKE_WAV")
+        return output_path
+
+    monkeypatch.setattr("app.api.audio_routes.normalize_to_wav", _fake_normalize)
 
 
 def _dummy_meeting_input(meeting_id: str = "m001") -> MeetingInput:
@@ -100,6 +117,7 @@ def test_upload_audio_generates_meeting_id_when_missing(monkeypatch: pytest.Monk
         llm_model="dummy",
     )
     monkeypatch.setattr("app.api.audio_routes.transcribe_to_meeting_input", _fake)
+    _stub_normalize(monkeypatch)
 
     client = TestClient(app)
     response = client.post(
@@ -128,6 +146,7 @@ def test_upload_audio_passes_form_fields(monkeypatch: pytest.MonkeyPatch) -> Non
         llm_model="dummy",
     )
     monkeypatch.setattr("app.api.audio_routes.transcribe_to_meeting_input", _fake)
+    _stub_normalize(monkeypatch)
 
     client = TestClient(app)
     response = client.post(
@@ -157,8 +176,11 @@ def test_upload_audio_runs_processing_in_threadpool(monkeypatch: pytest.MonkeyPa
         return _dummy_meeting_input(kwargs["meeting_id"])
 
     async def _fake_threadpool(func, *args, **kwargs):
-        captured["func"] = func
-        captured["meeting_id"] = kwargs["meeting_id"]
+        # transcribe_to_meeting_input は kwargs に meeting_id を持つ。
+        # normalize_to_wav 呼び出しでは meeting_id 無し (route 内の 2 つ目の呼び出しが transcribe)
+        if "meeting_id" in kwargs:
+            captured["func"] = func
+            captured["meeting_id"] = kwargs["meeting_id"]
         return func(*args, **kwargs)
 
     app = FastAPI()
@@ -170,6 +192,7 @@ def test_upload_audio_runs_processing_in_threadpool(monkeypatch: pytest.MonkeyPa
     )
     monkeypatch.setattr("app.api.audio_routes.transcribe_to_meeting_input", _fake)
     monkeypatch.setattr("app.api.audio_routes.run_in_threadpool", _fake_threadpool)
+    _stub_normalize(monkeypatch)
 
     client = TestClient(app)
     response = client.post(
@@ -198,6 +221,7 @@ def test_upload_audio_returns_500_on_processing_error(monkeypatch: pytest.Monkey
         llm_model="dummy",
     )
     monkeypatch.setattr("app.api.audio_routes.transcribe_to_meeting_input", _raise)
+    _stub_normalize(monkeypatch)
 
     client = TestClient(app)
     response = client.post(
@@ -217,3 +241,139 @@ def test_load_audio_section_helper_reads_yaml(tmp_path: Path) -> None:
     request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(config_path=str(cfg))))
     sec = _load_audio_section_from_app_state(request)
     assert sec["asr"]["device"] == "cpu"
+
+
+# --------------------------------------------------------------------------
+# Issue #68: 動画拒否 / webm 受付 / 正規化失敗のケース
+# --------------------------------------------------------------------------
+
+
+def test_upload_audio_rejects_video_with_415(monkeypatch: pytest.MonkeyPatch) -> None:
+    """動画ファイルは 415 で拒否し、frontend 抽出案内を返す。"""
+    app = _make_app(monkeypatch, _dummy_meeting_input())
+    client = TestClient(app)
+    for ext, mime in [
+        (".mp4", "video/mp4"),
+        (".mov", "video/quicktime"),
+        (".mkv", "video/x-matroska"),
+        (".avi", "video/x-msvideo"),
+    ]:
+        response = client.post(
+            "/api/upload_audio",
+            files={"file": (f"meeting{ext}", BytesIO(b"FAKE_VIDEO"), mime)},
+        )
+        assert response.status_code == 415, f"{ext} should be 415"
+        detail = response.json()["detail"]
+        assert "動画" in detail
+        # 案内文に frontend 抽出 / ffmpeg コマンド例が入る
+        assert "frontend" in detail or "ffmpeg" in detail
+
+
+def test_upload_audio_rejects_video_webm_content_type(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`.webm` でも video/webm として来たものは動画扱いで拒否する。"""
+    app = _make_app(monkeypatch, _dummy_meeting_input())
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("meeting.webm", BytesIO(b"FAKE_VIDEO_WEBM"), "video/webm")},
+    )
+
+    assert response.status_code == 415
+    assert "動画" in response.json()["detail"]
+
+
+def test_upload_audio_accepts_webm_opus(monkeypatch: pytest.MonkeyPatch) -> None:
+    """frontend 抽出で生成される webm/opus を受け付ける (Issue #68 主経路)。"""
+    app = _make_app(monkeypatch, _dummy_meeting_input("m_webm"))
+    client = TestClient(app)
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("extracted.webm", BytesIO(b"OPUS_FAKE"), "audio/webm")},
+        data={"meeting_id": "m_webm"},
+    )
+    assert response.status_code == 200
+    assert response.json()["meeting_id"] == "m_webm"
+
+
+def test_upload_audio_rejects_payload_too_large_before_processing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """アップロード上限超過は正規化/ASR の前に 413 で止める。"""
+    called = {"normalize": False, "transcribe": False}
+
+    def _fake_normalize(*args, **kwargs):
+        called["normalize"] = True
+
+    def _fake_transcribe(*args, **kwargs):
+        called["transcribe"] = True
+        return _dummy_meeting_input()
+
+    app = FastAPI()
+    app.include_router(audio_router, prefix="/api")
+    app.state.config = AppConfig(
+        weights=ScoringWeights(),
+        penalty_weights=PenaltyWeights(),
+        llm_model="dummy",
+    )
+    app.state.config_path = None
+    monkeypatch.setattr("app.api.audio_routes.MAX_UPLOAD_BYTES", 1)
+    monkeypatch.setattr("app.api.audio_routes.normalize_to_wav", _fake_normalize)
+    monkeypatch.setattr("app.api.audio_routes.transcribe_to_meeting_input", _fake_transcribe)
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("a.wav", BytesIO(b"x"), "audio/wav")},
+    )
+
+    assert response.status_code == 413
+    assert "アップロード上限" in response.json()["detail"]
+    assert called == {"normalize": False, "transcribe": False}
+
+
+def test_upload_audio_accepts_opus_extension(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`.opus` も許容拡張子に入る。"""
+    app = _make_app(monkeypatch, _dummy_meeting_input("m_opus"))
+    client = TestClient(app)
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("a.opus", BytesIO(b"OPUS"), "audio/ogg")},
+    )
+    assert response.status_code == 200
+
+
+def test_upload_audio_returns_500_when_normalize_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """normalize_to_wav (ffmpeg) が失敗したら 500 + 案内を返す。"""
+    from app.asr.media import MediaError
+
+    app = FastAPI()
+    app.include_router(audio_router, prefix="/api")
+    app.state.config = AppConfig(
+        weights=ScoringWeights(),
+        penalty_weights=PenaltyWeights(),
+        llm_model="dummy",
+    )
+    app.state.config_path = None
+
+    def _raise_media(*args, **kwargs):
+        msg = "ffmpeg failed"
+        raise MediaError(msg)
+
+    monkeypatch.setattr("app.api.audio_routes.normalize_to_wav", _raise_media)
+    # transcribe には到達しない想定だが念のため stub
+    monkeypatch.setattr(
+        "app.api.audio_routes.transcribe_to_meeting_input",
+        lambda *a, **k: _dummy_meeting_input(),
+    )
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/upload_audio",
+        files={"file": ("a.webm", BytesIO(b"OPUS_FAKE"), "audio/webm")},
+    )
+    assert response.status_code == 500
+    detail = response.json()["detail"]
+    assert "正規化" in detail or "ffmpeg" in detail

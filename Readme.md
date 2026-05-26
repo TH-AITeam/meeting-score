@@ -672,11 +672,46 @@ bash scripts/run_audio_benchmark.sh --all
 
 ---
 
+# 動画入力 (Issue #68): クライアント側音声抽出
+
+会議の生**動画** (mp4 / mov / mkv / avi / webm) はブラウザ内で音声トラックだけを抽出してから `/upload_audio` に送る。動画自体をサーバーに送らないので、120MB の 1 時間会議でも実アップロードは 10MB 強に圧縮される。
+
+- **ブラウザ抽出**: `@ffmpeg/ffmpeg` (ffmpeg.wasm) を **lazy load** (初回のみ ~20MB DL)。`libopus / mono / 16kHz / 32kbps` で webm に圧縮
+- **backend は動画を 415 で拒否**: アップロード効率化のため、`/upload_audio` は `.mp4` 等を受け付けず 415 を返す。frontend が動画を選んだ場合は必ず `extractAudioFromVideo` を経由する
+- **fallback はしない**: 抽出失敗時に元動画をアップロードするフォールバックは意図的に持たない (Issue #68)。ユーザーには「別の動画を選ぶか、音声書き出しして再アップロード」を案内
+- **CLI は独立**: `python -m app.asr.cli --input meeting.mp4 ...` はローカル ffmpeg で抽出してから既存パイプラインへ流す (frontend に依存しない動作確認用)
+
+## SSH 実測ベンチ (PR #70)
+
+`data/eval_video/meeting_01/video.mp4` (会議録画 51 分 / 1280×720 / H.264) を SSH 先 (RTX 5090) で `scripts/run_video_benchmark.py` にかけた結果:
+
+| 指標 | 動画 | 抽出後 (webm/opus) | 比率 |
+|---|---:|---:|---:|
+| サイズ | 120.4 MB | 12.2 MB | **10.2%** |
+| 100Mbps での upload | 10.1 s | 1.0 s | 1/10 |
+| 10Mbps での upload | 101.0 s | 10.3 s | 1/10 |
+
+抽出時間はネイティブ ffmpeg で 28.3 秒 (RTF 0.009)。ブラウザ ffmpeg.wasm はおよそ 2〜4 倍遅いので、同サイズで 60〜120 秒程度を想定 (LoadingView の進捗バー越しに見える)。
+
+## ベンチ再現
+
+```bash
+# 動画を data/eval_video/meeting_01/video.mp4 に置いた後
+cd /path/to/meeting-score
+source backend/.venv/bin/activate
+python scripts/run_video_benchmark.py --print-table
+```
+
+結果は `reports/video_benchmarks/upload_efficiency.json` に出る。
+
+---
+
 # 関連ドキュメント
 
 * `AGENT.md`: 実装エージェント向けの作業指示書
 * `data/annotations/README.md`: アノテーションスキーマ
 * `data/eval_audio/README.md`: 音声処理モデル評価データの準備手順 (Issue #19 ベンチ用)
+* `data/eval_video/README.md`: 動画アップロード効率ベンチ用データの準備手順 (Issue #68 ベンチ用)
 * `data/sample_audio/README.md`: 音声入力 CLI / API 動作確認用音声の置き方
 * `docs/audio_model_candidates.md` / `docs/audio_model_selection_v1.md` / `docs/adr/0002-audio-model.md`: 音声モデル選定
 * `backend/prompts/meta_extraction.txt`: 書き起こしから会議メタを抽出する LLM プロンプト
