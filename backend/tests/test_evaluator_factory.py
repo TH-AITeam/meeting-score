@@ -138,7 +138,7 @@ _VALID_JSON = (
     '"risk_detection": 1, "actionability": 2, "groundedness": 1, '
     '"novelty": 0, "summarization": 0}, '
     '"penalties": {"duplication": 0, "verbosity": -1, '
-    '"off_topic": 0, "unsupported_assertion": 0}, '
+    '"off_topic": 0, "unsupported_assertion": 0, "override": 0}, '
     '"reason": "判定理由"}'
 )
 

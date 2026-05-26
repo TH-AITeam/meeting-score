@@ -9,7 +9,7 @@ LLM 評価後に、ルールベースで重複・冗長を追加補正し、
 
 from __future__ import annotations
 
-from app.schemas.models import EvaluatedUtterance, Penalties
+from app.schemas.models import EvaluatedUtterance, Penalties, SpeechType
 from app.scoring.calculator import calculate_total_score
 from app.scoring.weights import PenaltyWeights, ScoringWeights
 
@@ -19,6 +19,29 @@ _VERBOSITY_CHAR_THRESHOLD_STRONG = 200
 
 # 重複判定: 短い発言で加点もない場合に既出テキストと照合
 _DUPLICATE_OVERLAP_RATIO = 0.6
+
+# 上書き判定: 直前発言とほぼ語彙接点がない場合だけ拾う、緩めの初期値。
+# embedding 基盤を持ち込まず、ローカルで安定して動く bigram Jaccard を
+# 低コストな近似として使う。LLM 判定は prompt/schema 側の override で併用する。
+_OVERRIDE_REPLY_OVERLAP_RATIO = 0.08
+_OVERRIDE_MIN_TEXT_LENGTH = 12
+_ASSERTIVE_SPEECH_TYPES = {
+    SpeechType.PROPOSAL.value,
+    SpeechType.DECISION_PUSH.value,
+}
+_REPLY_MARKERS = (
+    "同意",
+    "賛成",
+    "反対",
+    "確かに",
+    "たしかに",
+    "今の",
+    "先ほど",
+    "さっき",
+    "踏まえ",
+    "受けて",
+)
+_SPEAKER_REFERENCE_SUFFIXES = ("さん", "氏", "の発言", "の意見", "の指摘", "の話")
 
 
 def _bigrams(text: str) -> set[str]:
@@ -85,6 +108,39 @@ def _check_verbosity(target: EvaluatedUtterance) -> int:
     return 0
 
 
+def _has_explicit_speaker_reference(text: str, speaker: str) -> bool:
+    """直前話者への明示的な言及だけを検出する。"""
+    name = speaker.strip()
+    if not name:
+        return False
+    return any(f"{name}{suffix}" in text for suffix in _SPEAKER_REFERENCE_SUFFIXES)
+
+
+def _check_override(target: EvaluatedUtterance, prior: EvaluatedUtterance | None) -> int:
+    """直前の他者発言を無視して自説を被せた発言を検出する (0 or -1)"""
+    if prior is None:
+        return 0
+    if target.speaker == prior.speaker:
+        return 0
+    if target.speech_type not in _ASSERTIVE_SPEECH_TYPES:
+        return 0
+    if len(target.text) < _OVERRIDE_MIN_TEXT_LENGTH:
+        return 0
+
+    # 直前発言への明示的な参照・同意・反論・訂正、または語彙重なりがある場合だけ
+    # 正当な応答・論点修正として扱う。問いかけ直後でも、応答証拠なしなら減点する。
+    has_reply_marker = any(marker in target.text for marker in _REPLY_MARKERS)
+    has_prior_overlap = _bigram_jaccard(target.text, prior.text) >= _OVERRIDE_REPLY_OVERLAP_RATIO
+    if (
+        _has_explicit_speaker_reference(target.text, prior.speaker)
+        or has_reply_marker
+        or has_prior_overlap
+    ):
+        return 0
+
+    return -1
+
+
 def apply_rule_corrections(
     evaluated: list[EvaluatedUtterance],
     weights: ScoringWeights | None = None,
@@ -93,21 +149,25 @@ def apply_rule_corrections(
     """ルールベースで重複・冗長を追加補正し、総合スコアを再計算する"""
     corrected: list[EvaluatedUtterance] = []
     prior_texts: list[str] = []
+    prior_utterance: EvaluatedUtterance | None = None
 
     for eu in evaluated:
         dup_adj = _check_duplication(eu, prior_texts)
         verb_adj = _check_verbosity(eu)
+        override_adj = _check_override(eu, prior_utterance)
 
-        needs_update = dup_adj != 0 or verb_adj != 0
+        needs_update = dup_adj != 0 or verb_adj != 0 or override_adj != 0
 
         if needs_update:
             new_dup = max(eu.penalties.duplication + dup_adj, -3)
             new_verb = max(eu.penalties.verbosity + verb_adj, -3)
+            new_override = max(eu.penalties.override + override_adj, -3)
             new_penalties = Penalties(
                 duplication=new_dup,
                 verbosity=new_verb,
                 off_topic=eu.penalties.off_topic,
                 unsupported_assertion=eu.penalties.unsupported_assertion,
+                override=new_override,
             )
             new_total = calculate_total_score(eu.scores, new_penalties, weights, penalty_weights)
             eu = eu.model_copy(
@@ -119,5 +179,6 @@ def apply_rule_corrections(
 
         corrected.append(eu)
         prior_texts.append(eu.text)
+        prior_utterance = eu
 
     return corrected
