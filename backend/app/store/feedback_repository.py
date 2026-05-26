@@ -27,6 +27,12 @@ STAGE1_MIN_PAIRS = 50  # 組織別重みプロファイル
 STAGE2_MIN_PAIRS = 300  # 組織別 LoRA
 
 
+def list_trainable_org_ids(session: Session) -> list[str]:
+    """学習利用に同意している組織 ID を列挙する。"""
+    stmt = select(Organization.org_id).where(Organization.consent_to_train == True)  # noqa: E712
+    return list(session.exec(stmt).all())
+
+
 def get_or_create_org(session: Session, org_id: str, name: str | None = None) -> Organization:
     """組織を取得。無ければ作成する (認証基盤未整備のためモック挙動)。
 
@@ -133,6 +139,26 @@ _FeedbackModel = type[PairwiseFeedback] | type[TopKFeedback] | type[AxisFlagFeed
 def _count(session: Session, model: _FeedbackModel, org_id: str) -> int:
     stmt = select(func.count()).select_from(model).where(model.org_id == org_id)
     return int(session.exec(stmt).one())
+
+
+def count_pairwise_since(session: Session, org_id: str, since: object | None = None) -> int:
+    """組織の pairwise 件数を数える。since があれば差分件数。"""
+    stmt = (
+        select(func.count()).select_from(PairwiseFeedback).where(PairwiseFeedback.org_id == org_id)
+    )
+    if since is not None:
+        stmt = stmt.where(PairwiseFeedback.created_at > since)
+    return int(session.exec(stmt).one())
+
+
+def list_pairwise(session: Session, org_id: str) -> list[PairwiseFeedback]:
+    """組織の pairwise feedback を作成順に返す。"""
+    stmt = (
+        select(PairwiseFeedback)
+        .where(PairwiseFeedback.org_id == org_id)
+        .order_by(PairwiseFeedback.created_at)
+    )
+    return list(session.exec(stmt).all())
 
 
 def get_stats(session: Session, org_id: str) -> FeedbackStats:

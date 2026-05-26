@@ -18,7 +18,8 @@ from app.reporting.reporter import format_meeting_summary_for_ui
 from app.schemas.models import EvaluatedUtterance, MeetingInput, MeetingType
 from app.scoring.calculator import calculate_total_score
 from app.scoring.rule_corrections import apply_rule_corrections
-from app.scoring.weights import get_weights_for_type, max_total_score
+from app.scoring.weights import max_total_score
+from app.scoring.weights_loader import load_penalty_weights, load_weights
 from app.store import repository
 from app.store.models import SavedMeeting
 
@@ -127,7 +128,8 @@ async def get_meeting(meeting_id: str):
 async def save_meeting(body: SaveMeetingRequest, request: Request):
     """分析結果を保存する"""
     config = request.app.state.config
-    weights = get_weights_for_type(config, body.meeting_type)
+    org_id = body.input.get("org_id") if isinstance(body.input, dict) else None
+    weights = load_weights(config, org_id=org_id, meeting_type=body.meeting_type)
     max_score = max_total_score(weights)
 
     result = body.result
@@ -171,7 +173,10 @@ async def delete_meeting(meeting_id: str):
 async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
     """共通の分析パイプライン"""
     config = request.app.state.config
-    weights = get_weights_for_type(config, meeting_data.meeting_type)
+    weights = load_weights(
+        config, org_id=meeting_data.org_id, meeting_type=meeting_data.meeting_type
+    )
+    penalty_weights = load_penalty_weights(config, org_id=meeting_data.org_id)
 
     # 文脈ウィンドウ生成
     contexts = build_contexts(
@@ -200,7 +205,7 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
             result.scores,
             result.penalties,
             weights,
-            config.penalty_weights,
+            penalty_weights,
         )
 
         evaluated.append(
@@ -226,7 +231,7 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
         )
 
     # ルールベース補正（重複・冗長の追加補正）
-    evaluated = apply_rule_corrections(evaluated, weights, config.penalty_weights)
+    evaluated = apply_rule_corrections(evaluated, weights, penalty_weights)
 
     # 集計
     summary = build_meeting_summary(

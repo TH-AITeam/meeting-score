@@ -66,6 +66,7 @@ class MeetingInput(BaseModel):
     """会議データ入力"""
 
     meeting_id: str
+    org_id: str | None = None
     title: str
     goal: str
     agenda: list[str] = Field(default_factory=list)

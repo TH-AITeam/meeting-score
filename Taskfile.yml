@@ -99,6 +99,12 @@ tasks:
     cmds:
       - uv run python -m evals.cli {{.MODEL_FLAG}} stability --meeting {{.SAMPLE}} --n {{.N}} --out {{.OUT_PATH}}
 
+  # ---------- training ----------
+  retrain:weights:
+    desc: "組織別の軸重みプロファイルを更新（cron からは毎日 03:00 JST 実行想定）"
+    cmds:
+      - uv run --project backend python scripts/retrain_weights_per_org.py {{if .ORG_ID}}--org-id {{.ORG_ID}}{{end}}
+
   # ---------- CI 一括 ----------
   ci:
     desc: "CI と同じ lint + test を一括実行（フロントエンド含む）"
