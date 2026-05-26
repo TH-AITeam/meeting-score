@@ -17,11 +17,11 @@ type SpeakerMode = 'cards' | 'focus'
  * ユーザーに「実際に何 MB 削減できたか」を可視化する。
  */
 export type MediaStats = {
-  /** 元動画サイズ (MB) */
-  originalMB: number
-  /** 抽出後音声サイズ (MB) */
-  extractedMB: number
-  /** 削減率 (0-100、小数 1 桁) */
+  /** 元動画サイズ (bytes) */
+  originalBytes: number
+  /** 抽出後音声サイズ (bytes) */
+  extractedBytes: number
+  /** 元動画サイズ基準の削減率。負値の場合は抽出後音声の方が大きい。 */
   reductionPct: number
 }
 
@@ -36,13 +36,11 @@ type AppState =
   | { phase: 'results'; data: MeetingSummary; tab: ResultTab }
 
 function computeMediaStats(originalBytes: number, extractedBytes: number): MediaStats {
-  const originalMB = originalBytes / (1024 * 1024)
-  const extractedMB = extractedBytes / (1024 * 1024)
-  const reductionPct = originalMB > 0 ? (1 - extractedMB / originalMB) * 100 : 0
+  const reductionPct = originalBytes > 0 ? (1 - extractedBytes / originalBytes) * 100 : 0
   return {
-    originalMB: Math.round(originalMB * 10) / 10,
-    extractedMB: Math.round(extractedMB * 10) / 10,
-    reductionPct: Math.round(reductionPct * 10) / 10,
+    originalBytes,
+    extractedBytes,
+    reductionPct,
   }
 }
 

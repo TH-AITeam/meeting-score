@@ -33,9 +33,19 @@ interface Props {
   mediaStats?: MediaStats
 }
 
-function formatSize(mb: number): string {
-  if (mb < 1) return `${(mb * 1024).toFixed(0)} KB`
-  return `${mb.toFixed(1)} MB`
+function trimTrailingZero(value: string): string {
+  return value.endsWith('.0') ? value.slice(0, -2) : value
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${trimTrailingZero((bytes / 1024).toFixed(1))} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function formatReduction(pct: number): string {
+  const rounded = Math.abs(pct).toFixed(1)
+  return pct >= 0 ? `削減 -${rounded}%` : `増加 +${rounded}%`
 }
 
 export default function LoadingView({ step, progress, mediaStats }: Props) {
@@ -93,12 +103,12 @@ export default function LoadingView({ step, progress, mediaStats }: Props) {
           }}
         >
           <span className="wf-note" style={{ margin: 0 }}>動画</span>
-          <strong>{formatSize(mediaStats.originalMB)}</strong>
+          <strong>{formatSize(mediaStats.originalBytes)}</strong>
           <span aria-hidden>→</span>
           <span className="wf-note" style={{ margin: 0 }}>抽出音声</span>
-          <strong>{formatSize(mediaStats.extractedMB)}</strong>
+          <strong>{formatSize(mediaStats.extractedBytes)}</strong>
           <span style={{ color: 'var(--accent)', fontWeight: 700 }}>
-            (-{mediaStats.reductionPct.toFixed(1)}%)
+            ({formatReduction(mediaStats.reductionPct)})
           </span>
         </div>
       )}
