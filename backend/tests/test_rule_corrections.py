@@ -104,7 +104,7 @@ def test_no_override_when_correcting_with_reference():
     evaluated = [
         _make_eu(
             "u001",
-            "CSVインポートのバリデーションは詳細エラーハンドリングまで初回に入れたいです。",
+            "CSVインポートのバリデーションは詳細エラーハンドリングまで初回に入れる案です。",
             speaker="A",
             speech_type="提案",
         ),
@@ -117,6 +117,66 @@ def test_no_override_when_correcting_with_reference():
     ]
     corrected = apply_rule_corrections(evaluated)
     assert corrected[1].penalties.override == 0
+
+
+def test_override_not_exempted_by_unanswered_question():
+    """問いかけ直後でも答えていない別提案は減点される"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "ここまでのリリース範囲で合意でよいですか\uff1f",
+            speaker="A",
+            speech_type="意思決定促進",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_no_override_for_question_answer_with_prior_overlap():
+    """問いかけに対して直前内容へ答えている提案は減点されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "対象ユーザーは社内利用と社外利用のどちらを先にやりますか\uff1f",
+            speaker="A",
+            speech_type="質問",
+        ),
+        _make_eu(
+            "u002",
+            "社内利用を先にやるべきです。社外向けはセキュリティ要件が重いです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == 0
+
+
+def test_override_not_exempted_by_non_invitation_desire_statement():
+    """願望・宣言文の直後に別論点を被せた場合は減点される"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "テスト期間を1週間は確保したいです。",
+            speaker="A",
+            speech_type="提案",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
 
 
 def test_override_not_exempted_by_generic_reply_words():
@@ -151,6 +211,26 @@ def test_override_not_exempted_by_broad_prior_words():
         _make_eu(
             "u002",
             "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_override_not_exempted_by_generic_contrast_marker():
+    """一般的な逆接語だけでは直前への応答として免除されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "ただ、通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
             speaker="B",
             speech_type="提案",
         ),

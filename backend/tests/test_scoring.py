@@ -184,7 +184,7 @@ def test_load_config_defaults_when_penalties_missing(tmp_path: Path):
     assert cfg.penalty_weights.verbosity == 1.0
     assert cfg.penalty_weights.off_topic == 1.0
     assert cfg.penalty_weights.unsupported_assertion == 1.0
-    assert cfg.penalty_weights.override == 1.0
+    assert cfg.penalty_weights.override == 0.5
 
 
 def test_load_config_env_overrides_llm_section(tmp_path: Path, monkeypatch):

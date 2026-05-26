@@ -27,33 +27,12 @@ _ASSERTIVE_SPEECH_TYPES = {
     SpeechType.PROPOSAL.value,
     SpeechType.DECISION_PUSH.value,
 }
-_PRIOR_INVITATION_MARKERS = (
-    "?",
-    "\uff1f",
-    "ませんか",
-    "ましょうか",
-    "どうですか",
-    "いかがですか",
-    "いかがでしょうか",
-    "したいのですが",
-    "したいですが",
-)
-
 _REPLY_MARKERS = (
     "同意",
     "賛成",
     "反対",
     "確かに",
     "たしかに",
-    "ただ",
-    "一方",
-    "とはいえ",
-    "しかし",
-    "でも",
-    "ですが",
-    "ではなく",
-    "じゃなく",
-    "むしろ",
     "今の",
     "先ほど",
     "さっき",
@@ -135,11 +114,6 @@ def _has_explicit_speaker_reference(text: str, speaker: str) -> bool:
     return any(f"{name}{suffix}" in text for suffix in _SPEAKER_REFERENCE_SUFFIXES)
 
 
-def _is_prior_invitation(text: str) -> bool:
-    """直前発言が回答・提案を促す形なら True を返す。"""
-    return any(marker in text for marker in _PRIOR_INVITATION_MARKERS)
-
-
 def _check_override(target: EvaluatedUtterance, prior: EvaluatedUtterance | None) -> int:
     """直前の他者発言を無視して自説を被せた発言を検出する (0 or -1)"""
     if prior is None:
@@ -151,17 +125,15 @@ def _check_override(target: EvaluatedUtterance, prior: EvaluatedUtterance | None
     if len(target.text) < _OVERRIDE_MIN_TEXT_LENGTH:
         return 0
 
-    # 司会・他者から論点提示や提案依頼を受けた直後は、自然な応答として扱う。
-    if _is_prior_invitation(prior.text):
-        return 0
-
-    # 直前発言への明示的な参照・同意・反論・訂正がある場合は、正当な論点修正として扱う。
-    if _has_explicit_speaker_reference(target.text, prior.speaker) or any(
-        marker in target.text for marker in _REPLY_MARKERS
+    # 直前発言への明示的な参照・同意・反論・訂正、または語彙重なりがある場合だけ
+    # 正当な応答・論点修正として扱う。問いかけ直後でも、応答証拠なしなら減点する。
+    has_reply_marker = any(marker in target.text for marker in _REPLY_MARKERS)
+    has_prior_overlap = _bigram_jaccard(target.text, prior.text) >= _OVERRIDE_REPLY_OVERLAP_RATIO
+    if (
+        _has_explicit_speaker_reference(target.text, prior.speaker)
+        or has_reply_marker
+        or has_prior_overlap
     ):
-        return 0
-
-    if _bigram_jaccard(target.text, prior.text) >= _OVERRIDE_REPLY_OVERLAP_RATIO:
         return 0
 
     return -1
