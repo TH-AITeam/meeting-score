@@ -23,6 +23,7 @@ export const PENALTY_LABELS: Record<string, string> = {
   verbosity: '冗長',
   off_topic: '脱線',
   unsupported_assertion: '根拠薄',
+  override: '上書き',
 }
 
 export function scoreClass(score: number): string {

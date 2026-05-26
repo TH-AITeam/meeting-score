@@ -6,17 +6,22 @@ from app.scoring.weights import PenaltyWeights
 
 
 def _make_eu(
-    uid: str, text: str, penalties: Penalties | None = None, **score_kwargs
+    uid: str,
+    text: str,
+    penalties: Penalties | None = None,
+    speaker: str = "A",
+    speech_type: str = "情報共有",
+    **score_kwargs,
 ) -> EvaluatedUtterance:
     scores = Scores(**{k: v for k, v in score_kwargs.items() if k in Scores.model_fields})
     if penalties is None:
         penalties = Penalties()
     return EvaluatedUtterance(
         utterance_id=uid,
-        speaker="A",
+        speaker=speaker,
         timestamp="00:00:00",
         text=text,
-        speech_type="情報共有",
+        speech_type=speech_type,
         scores=scores,
         penalties=penalties,
         total_score=0.0,
@@ -72,6 +77,46 @@ def test_different_topics_not_duplicate():
     corrected = apply_rule_corrections(evaluated)
     # 別の論点なので重複減点されない
     assert corrected[1].penalties.duplication == 0
+
+
+def test_override_detection_for_unanswered_proposal():
+    """直前の他者発言を受けずに別提案を被せた発言は減点される"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーション範囲を決めないと見積もりが出せません。",
+            speaker="A",
+            speech_type="懸念提示",
+        ),
+        _make_eu(
+            "u002",
+            "通知機能を初回に入れるべきです。毎朝リマインドを送れば利用率が上がります。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override <= -1
+
+
+def test_no_override_when_correcting_with_reference():
+    """直前を引用して論点修正する発言は上書き減点されない"""
+    evaluated = [
+        _make_eu(
+            "u001",
+            "CSVインポートのバリデーションは詳細エラーハンドリングまで初回に入れたいです。",
+            speaker="A",
+            speech_type="提案",
+        ),
+        _make_eu(
+            "u002",
+            "そのバリデーション範囲については、初回はフォーマットチェックだけに絞るべきです。",
+            speaker="B",
+            speech_type="提案",
+        ),
+    ]
+    corrected = apply_rule_corrections(evaluated)
+    assert corrected[1].penalties.override == 0
 
 
 def test_recalculates_total():

@@ -12,6 +12,7 @@
   + 冗長 × pw_verbosity
   + 論点逸脱 × pw_off_topic
   + 根拠薄い断言 × pw_unsupported_assertion
+  + 上書き発言 × pw_override
 
 penalty 値は元々負値 (0〜-3)、penalty_weights は正の倍率。
 """
@@ -58,6 +59,7 @@ def calculate_total_score(
         + penalties.verbosity * penalty_weights.verbosity
         + penalties.off_topic * penalty_weights.off_topic
         + penalties.unsupported_assertion * penalty_weights.unsupported_assertion
+        + penalties.override * penalty_weights.override
     )
 
     return round(total, 1)

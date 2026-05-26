@@ -9,7 +9,7 @@ LLM 評価後に、ルールベースで重複・冗長を追加補正し、
 
 from __future__ import annotations
 
-from app.schemas.models import EvaluatedUtterance, Penalties
+from app.schemas.models import EvaluatedUtterance, Penalties, SpeechType
 from app.scoring.calculator import calculate_total_score
 from app.scoring.weights import PenaltyWeights, ScoringWeights
 
@@ -19,6 +19,50 @@ _VERBOSITY_CHAR_THRESHOLD_STRONG = 200
 
 # 重複判定: 短い発言で加点もない場合に既出テキストと照合
 _DUPLICATE_OVERLAP_RATIO = 0.6
+
+# 上書き判定: 直前発言とほぼ語彙接点がない場合だけ拾う、緩めの初期値。
+_OVERRIDE_REPLY_OVERLAP_RATIO = 0.08
+_OVERRIDE_MIN_TEXT_LENGTH = 12
+_ASSERTIVE_SPEECH_TYPES = {
+    SpeechType.PROPOSAL.value,
+    SpeechType.DECISION_PUSH.value,
+}
+_PRIOR_INVITATION_MARKERS = (
+    "?",
+    "？",
+    "ませんか",
+    "ましょう",
+    "したい",
+    "どうですか",
+    "いかが",
+    "確認",
+    "次に",
+)
+
+_REPLY_MARKERS = (
+    "同意",
+    "賛成",
+    "反対",
+    "確かに",
+    "たしかに",
+    "ただ",
+    "一方",
+    "とはいえ",
+    "しかし",
+    "でも",
+    "ですが",
+    "ではなく",
+    "じゃなく",
+    "むしろ",
+    "今の",
+    "先ほど",
+    "さっき",
+    "踏まえ",
+    "受けて",
+    "について",
+    "観点",
+    "論点",
+)
 
 
 def _bigrams(text: str) -> set[str]:
@@ -85,6 +129,31 @@ def _check_verbosity(target: EvaluatedUtterance) -> int:
     return 0
 
 
+def _check_override(target: EvaluatedUtterance, prior: EvaluatedUtterance | None) -> int:
+    """直前の他者発言を無視して自説を被せた発言を検出する (0 or -1)"""
+    if prior is None:
+        return 0
+    if target.speaker == prior.speaker:
+        return 0
+    if target.speech_type not in _ASSERTIVE_SPEECH_TYPES:
+        return 0
+    if len(target.text) < _OVERRIDE_MIN_TEXT_LENGTH:
+        return 0
+
+    # 司会・他者から論点提示や提案依頼を受けた直後は、自然な応答として扱う。
+    if any(marker in prior.text for marker in _PRIOR_INVITATION_MARKERS):
+        return 0
+
+    # 直前発言への明示的な参照・同意・反論・訂正がある場合は、正当な論点修正として扱う。
+    if prior.speaker in target.text or any(marker in target.text for marker in _REPLY_MARKERS):
+        return 0
+
+    if _bigram_jaccard(target.text, prior.text) >= _OVERRIDE_REPLY_OVERLAP_RATIO:
+        return 0
+
+    return -1
+
+
 def apply_rule_corrections(
     evaluated: list[EvaluatedUtterance],
     weights: ScoringWeights | None = None,
@@ -93,21 +162,25 @@ def apply_rule_corrections(
     """ルールベースで重複・冗長を追加補正し、総合スコアを再計算する"""
     corrected: list[EvaluatedUtterance] = []
     prior_texts: list[str] = []
+    prior_utterance: EvaluatedUtterance | None = None
 
     for eu in evaluated:
         dup_adj = _check_duplication(eu, prior_texts)
         verb_adj = _check_verbosity(eu)
+        override_adj = _check_override(eu, prior_utterance)
 
-        needs_update = dup_adj != 0 or verb_adj != 0
+        needs_update = dup_adj != 0 or verb_adj != 0 or override_adj != 0
 
         if needs_update:
             new_dup = max(eu.penalties.duplication + dup_adj, -3)
             new_verb = max(eu.penalties.verbosity + verb_adj, -3)
+            new_override = max(eu.penalties.override + override_adj, -3)
             new_penalties = Penalties(
                 duplication=new_dup,
                 verbosity=new_verb,
                 off_topic=eu.penalties.off_topic,
                 unsupported_assertion=eu.penalties.unsupported_assertion,
+                override=new_override,
             )
             new_total = calculate_total_score(eu.scores, new_penalties, weights, penalty_weights)
             eu = eu.model_copy(
@@ -119,5 +192,6 @@ def apply_rule_corrections(
 
         corrected.append(eu)
         prior_texts.append(eu.text)
+        prior_utterance = eu
 
     return corrected

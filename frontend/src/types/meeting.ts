@@ -29,6 +29,7 @@ export interface Penalties {
   verbosity: number
   off_topic: number
   unsupported_assertion: number
+  override: number
 }
 
 export interface EvaluatedUtterance {
