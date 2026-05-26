@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
+import fcntl
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -31,6 +34,7 @@ INITIAL_MIN_PAIRS = STAGE2_MIN_PAIRS
 INCREMENTAL_MIN_NEW_PAIRS = 100
 INCREMENTAL_MAX_AGE = timedelta(days=7)
 EVAL_GATE_TOLERANCE = 0.01
+ORG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 
 
 @dataclass(frozen=True)
@@ -66,9 +70,33 @@ def load_registry(path: Path) -> dict[str, Any]:
     return data
 
 
+@contextlib.contextmanager
+def registry_lock(path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_suffix(path.suffix + ".lock")
+    with lock_path.open("w", encoding="utf-8") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
 def save_registry(path: Path, registry: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump(registry, allow_unicode=True, sort_keys=True), encoding="utf-8")
+
+
+def validate_org_id(org_id: str) -> None:
+    if not ORG_ID_RE.fullmatch(org_id):
+        raise ValueError(f"invalid org_id for filesystem path: {org_id!r}")
+
+
+def safe_child_path(root: Path, *parts: str) -> Path:
+    resolved_root = root.resolve()
+    candidate = resolved_root.joinpath(*parts).resolve()
+    candidate.relative_to(resolved_root)
+    return candidate
 
 
 def org_entry(registry: dict[str, Any], org_id: str) -> dict[str, Any] | None:
@@ -90,7 +118,12 @@ def version_number(version: str | None) -> int:
 
 
 def count_pairs(session: Session, org_id: str) -> int:
-    stmt = select(func.count()).select_from(PairwiseFeedback).where(PairwiseFeedback.org_id == org_id)
+    stmt = (
+        select(func.count())
+        .select_from(PairwiseFeedback)
+        .where(PairwiseFeedback.org_id == org_id)
+        .where(PairwiseFeedback.winner.in_(["A", "B"]))
+    )
     return int(session.exec(stmt).one())
 
 
@@ -103,7 +136,7 @@ def latest_adapter_path(adapters_root: Path, org_id: str, entry: dict[str, Any] 
     version = active_version(entry)
     if not version:
         return None
-    return adapters_root / org_id / version
+    return safe_child_path(adapters_root, org_id, version)
 
 
 def current_pairwise_acc(entry: dict[str, Any] | None) -> float | None:
@@ -124,12 +157,17 @@ def eligible_plan(
 ) -> OrgPlan | None:
     entry = org_entry(registry, org_id)
     current_version = active_version(entry)
+    next_version = f"v{version_number(current_version) + 1}"
+    held = (entry or {}).get("held_candidate") or {}
+    if held.get("version") == next_version and int(held.get("pair_count", -1)) == pair_count:
+        return None
+
     if not current_version:
         if pair_count < INITIAL_MIN_PAIRS:
             return None
         return OrgPlan(
             org_id=org_id,
-            next_version="v1",
+            next_version=next_version,
             pair_count=pair_count,
             reason="initial",
             current_adapter=None,
@@ -146,7 +184,7 @@ def eligible_plan(
     reason = "new_pairs" if enough_new_pairs else "weekly"
     return OrgPlan(
         org_id=org_id,
-        next_version=f"v{version_number(current_version) + 1}",
+        next_version=next_version,
         pair_count=pair_count,
         reason=reason,
         current_adapter=latest_adapter_path(adapters_root, org_id, entry),
@@ -196,7 +234,9 @@ def build_feedback_dataset(session: Session, org_id: str, output_path: Path) -> 
     return digest.hexdigest()
 
 
-def default_trainer(plan: OrgPlan, dataset_path: Path, adapter_dir: Path, base_model: str, dataset_hash: str) -> Path:
+def default_trainer(
+    plan: OrgPlan, dataset_path: Path, adapter_dir: Path, base_model: str, dataset_hash: str
+) -> Path:
     cmd = [
         sys.executable,
         str(REPO_ROOT / "training" / "dpo_train_per_org.py"),
@@ -224,7 +264,7 @@ def default_evaluator(_: OrgPlan, adapter_dir: Path, __: str) -> dict[str, Any]:
         metrics = meta.get("eval_metrics") or {}
         if metrics:
             return metrics
-    return {"pairwise_acc": 1.0, "source": "skipped"}
+    return {"source": "missing_eval_metrics"}
 
 
 def update_registry(
@@ -250,6 +290,7 @@ def update_registry(
 
 
 def hold_deployment(
+    registry: dict[str, Any],
     adapter_dir: Path,
     *,
     plan: OrgPlan,
@@ -261,7 +302,7 @@ def hold_deployment(
         "org_id": plan.org_id,
         "candidate_version": plan.next_version,
         "status": "held_for_review",
-        "reason": "pairwise_acc_regression",
+        "reason": "pairwise_acc_regression_or_missing",
         "current_pairwise_acc": plan.current_pairwise_acc,
         "candidate_eval_metrics": eval_metrics,
         "base_model": base_model,
@@ -273,13 +314,24 @@ def hold_deployment(
         json.dumps(meta, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    entry = registry.setdefault("organizations", {}).setdefault(plan.org_id, {})
+    entry["held_candidate"] = {
+        "version": plan.next_version,
+        "adapter_path": str(adapter_dir),
+        "created_at": meta["created_at"],
+        "eval_metrics": eval_metrics,
+        "base_model": base_model,
+        "pair_count": plan.pair_count,
+        "dataset_hash": dataset_hash,
+        "reason": meta["reason"],
+    }
 
 
 def passes_eval_gate(plan: OrgPlan, eval_metrics: dict[str, Any]) -> bool:
-    if plan.current_pairwise_acc is None:
-        return True
     candidate = eval_metrics.get("pairwise_acc", eval_metrics.get("pairwise_accuracy"))
     if candidate is None:
+        return False
+    if plan.current_pairwise_acc is None:
         return True
     return float(candidate) >= plan.current_pairwise_acc - EVAL_GATE_TOLERANCE
 
@@ -296,55 +348,63 @@ def run_retraining(
 ) -> list[dict[str, Any]]:
     at = at or now_utc()
     db.init_db()
-    registry = load_registry(registry_path)
     cfg = load_config()
     results: list[dict[str, Any]] = []
 
-    with Session(db.get_engine()) as session:
-        for org_id in list_training_orgs(session):
-            pair_count = count_pairs(session, org_id)
-            plan = eligible_plan(
-                org_id=org_id,
-                pair_count=pair_count,
-                registry=registry,
-                adapters_root=adapters_root,
-                at=at,
-            )
-            if plan is None:
-                results.append({"org_id": org_id, "status": "skipped", "pair_count": pair_count})
-                continue
-            if dry_run:
-                results.append({"org_id": org_id, "status": "eligible", "plan": plan.reason})
-                continue
+    with registry_lock(registry_path):
+        registry = load_registry(registry_path)
+        with Session(db.get_engine()) as session:
+            for org_id in list_training_orgs(session):
+                try:
+                    validate_org_id(org_id)
+                    pair_count = count_pairs(session, org_id)
+                    plan = eligible_plan(
+                        org_id=org_id,
+                        pair_count=pair_count,
+                        registry=registry,
+                        adapters_root=adapters_root,
+                        at=at,
+                    )
+                    if plan is None:
+                        results.append({"org_id": org_id, "status": "skipped", "pair_count": pair_count})
+                        continue
+                    if dry_run:
+                        results.append({"org_id": org_id, "status": "eligible", "plan": plan.reason})
+                        continue
 
-            dataset_path = data_root / org_id / f"{plan.next_version}.jsonl"
-            dataset_hash = build_feedback_dataset(session, org_id, dataset_path)
-            adapter_dir = adapters_root / org_id / plan.next_version
-            trained_dir = trainer(plan, dataset_path, adapter_dir, cfg.llm_model, dataset_hash)
-            eval_metrics = evaluator(plan, trained_dir, cfg.llm_model)
+                    dataset_path = safe_child_path(data_root, org_id, f"{plan.next_version}.jsonl")
+                    dataset_hash = build_feedback_dataset(session, org_id, dataset_path)
+                    adapter_dir = safe_child_path(adapters_root, org_id, plan.next_version)
+                    trained_dir = trainer(plan, dataset_path, adapter_dir, cfg.llm_model, dataset_hash)
+                    eval_metrics = evaluator(plan, trained_dir, cfg.llm_model)
 
-            if not passes_eval_gate(plan, eval_metrics):
-                hold_deployment(
-                    trained_dir,
-                    plan=plan,
-                    eval_metrics=eval_metrics,
-                    base_model=cfg.llm_model,
-                    dataset_hash=dataset_hash,
-                )
-                results.append({"org_id": org_id, "status": "held", "version": plan.next_version})
-                continue
+                    if not passes_eval_gate(plan, eval_metrics):
+                        hold_deployment(
+                            registry,
+                            trained_dir,
+                            plan=plan,
+                            eval_metrics=eval_metrics,
+                            base_model=cfg.llm_model,
+                            dataset_hash=dataset_hash,
+                        )
+                        save_registry(registry_path, registry)
+                        results.append({"org_id": org_id, "status": "held", "version": plan.next_version})
+                        continue
 
-            update_registry(
-                registry,
-                plan=plan,
-                adapter_dir=trained_dir,
-                base_model=cfg.llm_model,
-                dataset_hash=dataset_hash,
-                eval_metrics=eval_metrics,
-                at=at,
-            )
-            save_registry(registry_path, registry)
-            results.append({"org_id": org_id, "status": "deployed", "version": plan.next_version})
+                    update_registry(
+                        registry,
+                        plan=plan,
+                        adapter_dir=trained_dir,
+                        base_model=cfg.llm_model,
+                        dataset_hash=dataset_hash,
+                        eval_metrics=eval_metrics,
+                        at=at,
+                    )
+                    save_registry(registry_path, registry)
+                    results.append({"org_id": org_id, "status": "deployed", "version": plan.next_version})
+                except Exception as exc:
+                    results.append({"org_id": org_id, "status": "failed", "error": str(exc)})
+                    continue
     return results
 
 

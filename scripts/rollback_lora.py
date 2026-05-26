@@ -4,15 +4,19 @@
 from __future__ import annotations
 
 import argparse
+import json
+import re
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+ORG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 
 
-def load_registry(path: Path) -> dict:
+def load_registry(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"registry not found: {path}")
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -20,17 +24,59 @@ def load_registry(path: Path) -> dict:
     return data
 
 
+def validate_org_id(org_id: str) -> None:
+    if not ORG_ID_RE.fullmatch(org_id):
+        raise ValueError(f"invalid org_id for filesystem path: {org_id!r}")
+
+
+def safe_child_path(root: Path, *parts: str) -> Path:
+    resolved_root = root.resolve()
+    candidate = resolved_root.joinpath(*parts).resolve()
+    candidate.relative_to(resolved_root)
+    return candidate
+
+
+def _load_training_meta(adapter_path: Path) -> dict[str, Any]:
+    meta_path = adapter_path / "training_meta.json"
+    if not meta_path.exists():
+        return {}
+    return json.loads(meta_path.read_text(encoding="utf-8"))
+
+
+def _metric_value(metrics: dict[str, Any]) -> Any:
+    return metrics.get("pairwise_acc", metrics.get("pairwise_accuracy"))
+
+
 def rollback(registry_path: Path, adapters_root: Path, org_id: str, version: str) -> None:
+    validate_org_id(org_id)
     registry = load_registry(registry_path)
     orgs = registry.setdefault("organizations", {})
     if org_id not in orgs:
         raise ValueError(f"org not found in registry: {org_id}")
-    adapter_path = adapters_root / org_id / version
+    adapter_path = safe_child_path(adapters_root, org_id, version)
     if not adapter_path.exists():
         raise FileNotFoundError(f"adapter version not found: {adapter_path}")
-    orgs[org_id]["active_version"] = version
-    orgs[org_id]["adapter_path"] = str(adapter_path)
-    orgs[org_id]["rolled_back_at"] = datetime.now(tz=UTC).isoformat()
+
+    meta = _load_training_meta(adapter_path)
+    entry = orgs[org_id]
+    entry["active_version"] = version
+    entry["adapter_path"] = str(adapter_path)
+    entry["rolled_back_at"] = datetime.now(tz=UTC).isoformat()
+    entry.pop("held_candidate", None)
+
+    metrics = meta.get("eval_metrics") or {}
+    entry["eval_metrics"] = metrics
+    entry["base_model"] = meta.get("base_model", entry.get("base_model"))
+    entry["dataset_hash"] = meta.get("dataset_hash", entry.get("dataset_hash"))
+    if "pair_count" in meta:
+        entry["pair_count"] = meta["pair_count"]
+    else:
+        entry.pop("pair_count", None)
+    if _metric_value(metrics) is None:
+        entry["requires_eval_before_next_gate"] = True
+    else:
+        entry.pop("requires_eval_before_next_gate", None)
+
     registry_path.write_text(
         yaml.safe_dump(registry, allow_unicode=True, sort_keys=True),
         encoding="utf-8",
