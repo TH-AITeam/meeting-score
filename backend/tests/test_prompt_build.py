@@ -40,3 +40,13 @@ def test_build_prompt_contains_current_topic():
     """current_topic がプロンプトに含まれる"""
     prompt = _build_prompt(_make_ctx())
     assert "現在の議題: 議題1" in prompt
+
+
+def test_build_prompt_uses_unknown_topic_label_when_current_topic_empty():
+    """current_topic が空なら議題不明としてプロンプトに入る"""
+    ctx = _make_ctx()
+    ctx.current_topic = ""
+
+    prompt = _build_prompt(ctx)
+
+    assert "現在の議題: (議題不明)" in prompt
