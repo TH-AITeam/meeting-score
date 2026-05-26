@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 Winner = Literal["A", "B", "tie"]
 PairwiseSource = Literal["top5_reorder", "manual_pair"]
@@ -36,9 +36,16 @@ class FeedbackTopK(BaseModel):
 
     org_id: str
     meeting_id: str
-    corrected_top5: list[str]
-    original_top5: list[str]
+    corrected_top5: list[str] = Field(min_length=5, max_length=5)
+    original_top5: list[str] = Field(min_length=5, max_length=5)
     annotator: str | None = None
+
+    @field_validator("corrected_top5", "original_top5")
+    @classmethod
+    def validate_unique_utterances(cls, value: list[str]) -> list[str]:
+        if len(value) != len(set(value)):
+            raise ValueError("top5 lists must contain unique utterances")
+        return value
 
 
 class FeedbackAxisFlag(BaseModel):

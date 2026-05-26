@@ -99,11 +99,35 @@ def test_topk_no_change_generates_no_pairs(client):
     body = {
         "org_id": "org_001",
         "meeting_id": "m042",
-        "corrected_top5": ["u001", "u002", "u003"],
-        "original_top5": ["u001", "u002", "u003"],
+        "corrected_top5": ["u001", "u002", "u003", "u004", "u005"],
+        "original_top5": ["u001", "u002", "u003", "u004", "u005"],
     }
     res = client.post("/api/feedback/topk", json=body, headers=_headers("org_001"))
     assert res.json()["generated_pairs"] == 0
+
+
+@pytest.mark.parametrize(
+    ("corrected_top5", "original_top5"),
+    [
+        (["u001", "u002", "u003", "u004"], ["u001", "u002", "u003", "u004", "u005"]),
+        (
+            ["u001", "u002", "u003", "u004", "u005", "u006"],
+            ["u001", "u002", "u003", "u004", "u005"],
+        ),
+        (["u001", "u001", "u003", "u004", "u005"], ["u001", "u002", "u003", "u004", "u005"]),
+        (["u001", "u002", "u003", "u004", "u005"], ["u001", "u001", "u003", "u004", "u005"]),
+    ],
+)
+def test_topk_rejects_non_five_or_duplicate_items(client, corrected_top5, original_top5):
+    """Top5 訂正は各リストが5件固定かつ配列内ユニークでなければ拒否する。"""
+    body = {
+        "org_id": "org_001",
+        "meeting_id": "m042",
+        "corrected_top5": corrected_top5,
+        "original_top5": original_top5,
+    }
+    res = client.post("/api/feedback/topk", json=body, headers=_headers("org_001"))
+    assert res.status_code == 422
 
 
 # ---------- 認可 (X-Org-Id) ----------
