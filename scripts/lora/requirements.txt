@@ -1,0 +1,26 @@
+# Qwen3.5-9B bf16 LoRA (Unsloth) 学習用の依存。
+# backend/ とは別の独立した venv にインストールすることを推奨
+# (torch など重量級依存を backend に混ぜない)。
+#
+# RTX 5090 (Blackwell, sm_120) 向けの重要メモ:
+#   Blackwell は CUDA 12.8+ ビルドの PyTorch が必要。先に torch を
+#   cu128 ホイールで入れてから unsloth を入れること。
+#
+#   python -m venv scripts/lora/.venv-lora && source scripts/lora/.venv-lora/bin/activate
+#   pip install --upgrade pip
+#   pip install torch --index-url https://download.pytorch.org/whl/cu128
+#   pip install -r scripts/lora/requirements.txt
+#
+# Unsloth は torch/transformers/trl のバージョンに敏感なので、
+# 動かない場合は `pip install -U unsloth` で最新へ追従するのが確実。
+
+unsloth
+unsloth_zoo
+trl>=0.12
+transformers>=4.46
+datasets>=3.0
+accelerate>=1.0
+peft>=0.13
+bitsandbytes>=0.44   # adamw_8bit オプティマイザに必要
+wandb>=0.16          # 学習ログ（backend/.env の WANDB_API_KEY を使用）
+python-dotenv>=1.0   # backend/.env から WANDB_API_KEY を読み込む
