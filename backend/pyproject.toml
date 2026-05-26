@@ -17,6 +17,7 @@ dependencies = [
     "python-multipart>=0.0.9",
     "pyyaml>=6.0.1",
     "uvicorn[standard]>=0.29.0",
+    "wandb>=0.27.0",
 ]
 
 # Issue #19 の音声処理 (WhisperX + pyannote + librosa) は重い依存なので
