@@ -85,3 +85,59 @@ MODEL="$(pwd)/outputs/qwen35-9b-lora/merged_16bit" bash scripts/serve_local_llm.
 
 `backend/app/evaluators/local_evaluator.py`（OpenAI 互換クライアント）から
 この endpoint を指して評価に使う。
+
+## DPO 学習（Issue #15）
+
+SFT 済み LoRA に対し、ペアワイズ選好で **順位の納得感** を直接最適化する
+（絶対スコア精度ではなく「どちらの発言が会議を前進させたか」を学ぶ）。
+
+> 配置メモ: Issue #15 は `training/` 配下を想定していたが、既存の学習基盤が
+> `scripts/lora/`（train_lora / eval_lora、専用 venv）に集約されているため、
+> DPO もここに置いて規約・venv を共有する。
+
+### 1. DPO データを作る（`scripts/build_dpo_dataset.py`）
+
+`{prompt, chosen, rejected, meta}` 形式（winner=chosen / loser=rejected）。
+`prompt`/`chosen`/`rejected` は本番推論と同一プロンプト・本番スキーマ準拠 JSON。
+
+```bash
+# gold/合成ペア（#5/#7）から
+python scripts/build_dpo_dataset.py --pairs data/annotations/gold/v1/pairs.jsonl
+
+# gold 未整備時のブートストラップ: 既存 distill ラベルのスコア差からペアを合成
+python scripts/build_dpo_dataset.py --synthesize-from-labels
+# -> data/dpo/v1/{train,val}.jsonl
+```
+
+> 本来は各ペアを **SFT モデルで再評価** して chosen/rejected JSON を作る（#15）。
+> 現状は GPU 無しでも回るよう既存ラベルを評価 JSON として流用する。SFT モデルでの
+> 再評価は vLLM 配信 + `--eval-source` 拡張の将来作業。
+
+### 2. DPO を回す（`scripts/lora/dpo_train.py`）
+
+設定は `scripts/lora/configs/dpo_v1.yaml`（β=0.1 / lr=5e-7 / epochs=1）。
+**先に SFT（train_lora.py）を済ませて `outputs/qwen35-9b-lora` を用意**しておくこと。
+
+```bash
+source scripts/lora/.venv-lora/bin/activate
+python scripts/lora/dpo_train.py                 # configs/dpo_v1.yaml 既定
+python scripts/lora/dpo_train.py --beta 0.05     # β を振って eval
+python scripts/lora/dpo_train.py --save-merged   # vLLM 配信用 16bit マージ
+# -> outputs/qwen35-9b-dpo
+```
+
+β は 0.05〜0.2 で振る（大きすぎると SFT 性能を破壊）。trl の `DPOTrainer` を
+Unsloth の `PatchDPOTrainer` で最適化し、参照モデルはアダプタ無効化で代用（省メモリ）。
+
+### 3. SFT 単独 vs SFT+DPO を比較（`scripts/lora/eval_pairwise.py`）
+
+完了条件の指標（ペアワイズ accuracy / Top-5 Jaccard）を測る。各アダプタで実行して差分を見る。
+
+```bash
+python scripts/lora/eval_pairwise.py --adapter outputs/qwen35-9b-lora   # SFT
+python scripts/lora/eval_pairwise.py --adapter outputs/qwen35-9b-dpo    # SFT+DPO
+```
+
+完了条件: ペアワイズ accuracy が SFT-only より **+3pt 以上** / Top-5 Jaccard 改善 /
+人手スポットチェックで「Top に来る発言の納得感が上がった」。これらは
+**gold ペア（#5）+ 学習済み SFT モデル（#14）+ GPU** が揃って初めて測れる。

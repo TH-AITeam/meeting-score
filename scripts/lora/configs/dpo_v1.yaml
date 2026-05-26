@@ -1,0 +1,40 @@
+# DPO 学習設定 v1 (Issue #15)
+# scripts/lora/dpo_train.py が読み込む。CLI 引数で個別に上書き可能。
+#
+# 方針: SFT 済み LoRA から初期化し、ペアワイズ選好で「順位の納得感」を最適化する。
+# β は SFT 性能を壊さない範囲で小さめ、lr も DPO 標準の極小値にする。
+
+# ベースモデル（SFT と同一系統。ADR 0001 / Issue #17 の採用モデルに合わせる）
+model_id: Qwen/Qwen3.5-9B
+# SFT 済み LoRA アダプタ（ここから DPO を始める）。train_lora.py の出力先。
+sft_adapter: outputs/qwen35-9b-lora
+output_dir: outputs/qwen35-9b-dpo
+
+# データ（build_dpo_dataset.py の出力）
+train: data/dpo/v1/train.jsonl
+val: data/dpo/v1/val.jsonl
+
+# DPO ハイパーパラメータ（Issue #15 指定値）
+beta: 0.1           # 0.05〜0.2 で振って eval。大きいと SFT を壊す
+learning_rate: 5.0e-7
+num_train_epochs: 1
+loss_type: sigmoid  # 標準 DPO。必要なら ipo / kto_pair へ切替検討
+
+# LoRA / 系列長（SFT と揃える）
+lora_r: 16
+lora_alpha: 16
+lora_dropout: 0.0
+max_seq_len: 4096
+max_prompt_len: 3072
+
+# 最適化・バッチ（RTX 5090 32GB 目安。OOM 時は max_seq_len を下げる）
+per_device_batch_size: 1
+grad_accum: 8
+warmup_ratio: 0.05
+weight_decay: 0.0
+seed: 3407
+
+# ロギング
+logging_steps: 5
+save_steps: 100
+eval_steps: 100
