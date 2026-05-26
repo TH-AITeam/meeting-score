@@ -10,7 +10,7 @@
 #   bash scripts/serve_local_llm.sh
 #
 #   # モデル/ポート上書き
-#   MODEL="Qwen/Qwen2.5-7B-Instruct" PORT=8000 bash scripts/serve_local_llm.sh
+#   MODEL="Qwen/Qwen2.5-7B-Instruct" PORT=8001 bash scripts/serve_local_llm.sh
 #
 #   # GPU メモリ割合を変える
 #   GPU_MEM_UTIL=0.85 bash scripts/serve_local_llm.sh
@@ -40,7 +40,7 @@ PYTHON="${PYTHON:-python}"
 command -v "$PYTHON" >/dev/null 2>&1 || PYTHON="python3"
 
 MODEL="${MODEL:-Qwen/Qwen2.5-7B-Instruct}"
-PORT="${PORT:-8000}"
+PORT="${PORT:-8001}"
 HOST="${HOST:-0.0.0.0}"
 GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.85}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"

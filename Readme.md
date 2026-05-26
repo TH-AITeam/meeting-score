@@ -386,28 +386,92 @@ project/
 * スキーマ: Pydantic
 * API: FastAPI など
 * UI: 軽量な Web UI
-* LLM 呼び出し: OpenAI API or モック
+* LLM 呼び出し: **ローカル推論 (vLLM など OpenAI 互換サーバ) を既定**。OpenAI Responses API は蒸留・ベンチマーク用途の optional。テスト用のモックも併存。
 
 ---
 
-# OpenAI 設定
+# LLM バックエンド設定 (Issue #17)
 
-実行時は `OPENAI_API_KEY` を設定してください。
-`.env` に次のように書いても読み込まれます。
+本プロジェクトは **ローカル推論バックエンド (vLLM 等の OpenAI 互換サーバ)** を既定とします。
+OpenAI クラウド (Responses API) への依存は撤去され、`OPENAI_API_KEY` なしで全機能が動作します。
 
-```env
-OPENAI_API_KEY=your_api_key_here
-```
+| バックエンド | 用途 | 設定 |
+|---|---|---|
+| `local` (既定) | 本番運用・通常の評価フロー | `llm.backend: "local"` + `llm.endpoint` + `llm.model` |
+| `openai` (optional) | 蒸留データ生成 (Issue #12) / ベンチマーク比較 | `llm.backend: "openai"` + `OPENAI_API_KEY` |
 
-既定の評価モデルは `gpt-5.4-mini` です。必要なら `config.yaml` の `llm.model` で変更できます。
+## Quick Start (ローカル推論で動かす)
 
-依存関係の同期は `uv` 前提にしています。
+### 1. 推論サーバ (vLLM) を起動
+
+GPU が手元にある場合:
 
 ```bash
-uv sync
-uv run pytest -q
-uv run python run.py
+# 採用モデル: unsloth/Qwen3.6-35B-A3B-NVFP4 (詳細は docs/adr/0001-judgment-model.md)
+bash scripts/serve_local_llm.sh
 ```
+
+別ホスト (例: SSH 先の RTX 5090) で動かす場合は `docs/local_inference_setup.md` を参照。
+
+### 2. 設定を確認
+
+`backend/config.yaml` の既定値:
+
+```yaml
+llm:
+  backend: "local"
+  model: "qwen3.6-35b-nvfp4"           # vLLM の --served-model-name と一致
+  endpoint: "http://localhost:8001/v1"  # 別ホストならここを書き換え
+  api_key: null
+  timeout: 60
+```
+
+`.env` で環境変数として上書きしたい場合は `backend/.env.example` を `.env` にコピーして編集。
+
+### 3. アプリを起動
+
+```bash
+# 依存関係の同期 (初回のみ)
+task setup
+
+# バックエンド + フロントエンド同時起動
+task dev
+```
+
+正常に動けば `OPENAI_API_KEY` を設定しなくても評価 API がレスポンスを返します。
+
+## OpenAI 経路を使う場合 (optional)
+
+蒸留データ生成 (Issue #12) や OpenAI クラウドとのベンチマーク比較で OpenAI を叩く場合のみ:
+
+```bash
+# .env に OPENAI_API_KEY を設定
+echo "OPENAI_API_KEY=sk-..." >> backend/.env
+
+# config.yaml で backend を切り替え
+# llm.backend: "openai"
+# llm.model: "gpt-4o-mini"
+
+uv run --project backend python run.py
+```
+
+CLI から一時的に OpenAI を使うこともできます:
+
+```bash
+uv run --project backend python -m evals.cli \
+    --backend openai --model gpt-4o-mini run \
+    --dataset ../data/annotations/gold/v1 \
+    --out ../reports/eval/openai_baseline.json
+```
+
+## トラブルシューティング
+
+- **`llm.backend=local の場合は llm.endpoint を config.yaml に設定してください` エラー**
+  → `config.yaml` の `llm.endpoint` を実行環境の vLLM URL に書き換える
+- **推論サーバへの接続タイムアウト**
+  → `llm.timeout` を伸ばす (35B NVFP4 の p50 は ~7s)
+- **OpenAI を使わないのにテストで `openai` SDK がインポートされる**
+  → 正常。`openai` パッケージは LocalEvaluator がローカル推論サーバを叩くクライアントとしても使用するため、依存に残っています
 
 ---
 

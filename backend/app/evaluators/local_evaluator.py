@@ -58,7 +58,7 @@ class LocalEvaluator(Evaluator):
         推論サーバが配信しているモデル名（例: "Qwen/Qwen2.5-7B-Instruct"）。
         Issue #17 で選定したモデルを config 経由で渡す。
     endpoint:
-        OpenAI 互換エンドポイント (例: "http://localhost:8000/v1")。
+        OpenAI 互換エンドポイント (例: "http://localhost:8001/v1")。
     api_key:
         サーバ側で必要な場合のみ指定。vLLM は既定で任意文字列で良い。
     max_tokens / max_retries / timeout:

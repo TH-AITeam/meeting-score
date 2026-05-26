@@ -1,11 +1,12 @@
 """スコアリングモジュールのテスト"""
 
+import os
 import textwrap
 from pathlib import Path
 
 from app.schemas.models import Penalties, Scores
 from app.scoring.calculator import calculate_total_score
-from app.scoring.weights import PenaltyWeights, load_config
+from app.scoring.weights import DEFAULT_OPENAI_LLM_MODEL, PenaltyWeights, load_config
 
 
 def test_calculate_total_score_basic():
@@ -177,6 +178,94 @@ def test_load_config_defaults_when_penalties_missing(tmp_path: Path):
     assert cfg.penalty_weights.verbosity == 1.0
     assert cfg.penalty_weights.off_topic == 1.0
     assert cfg.penalty_weights.unsupported_assertion == 1.0
+
+
+def test_load_config_env_overrides_llm_section(tmp_path: Path, monkeypatch):
+    """LLM_* 環境変数は config.yaml の llm セクションより優先される"""
+    cfg_path = tmp_path / "config.yaml"
+    cfg_path.write_text(
+        textwrap.dedent(
+            """\
+            llm:
+              backend: "local"
+              endpoint: "http://yaml.example/v1"
+              api_key: "yaml-key"
+              model: "qwen3.6-35b-nvfp4"
+            """
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("LLM_BACKEND", "local")
+    monkeypatch.setenv("LLM_ENDPOINT", "http://env.example/v1")
+    monkeypatch.setenv("LLM_API_KEY", "env-key")
+    monkeypatch.setenv("LLM_MODEL", "env-model")
+
+    cfg = load_config(cfg_path)
+
+    assert cfg.llm_backend == "local"
+    assert cfg.llm_endpoint == "http://env.example/v1"
+    assert cfg.llm_api_key == "env-key"
+    assert cfg.llm_model == "env-model"
+
+
+def test_load_config_openai_env_replaces_local_model(tmp_path: Path, monkeypatch):
+    """LLM_BACKEND=openai で local 用 model だけが残っても OpenAI 既定値に倒す"""
+    cfg_path = tmp_path / "config.yaml"
+    cfg_path.write_text(
+        textwrap.dedent(
+            """\
+            llm:
+              backend: "local"
+              model: "qwen3.6-35b-nvfp4"
+            """
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("LLM_BACKEND", "openai")
+
+    cfg = load_config(cfg_path)
+
+    assert cfg.llm_backend == "openai"
+    assert cfg.llm_model == DEFAULT_OPENAI_LLM_MODEL
+
+
+def test_load_config_reads_dotenv_next_to_config(tmp_path: Path):
+    """config.yaml と同じディレクトリの .env から LLM_* を読み込む"""
+    cfg_path = tmp_path / "config.yaml"
+    cfg_path.write_text(
+        textwrap.dedent(
+            """\
+            llm:
+              backend: "local"
+              endpoint: "http://yaml.example/v1"
+              model: "yaml-model"
+            """
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / ".env").write_text(
+        textwrap.dedent(
+            """\
+            LLM_ENDPOINT=http://dotenv.example/v1
+            LLM_MODEL=dotenv-model
+            """
+        ),
+        encoding="utf-8",
+    )
+    old_endpoint = os.environ.pop("LLM_ENDPOINT", None)
+    old_model = os.environ.pop("LLM_MODEL", None)
+
+    try:
+        cfg = load_config(cfg_path)
+        assert cfg.llm_endpoint == "http://dotenv.example/v1"
+        assert cfg.llm_model == "dotenv-model"
+    finally:
+        os.environ.pop("LLM_ENDPOINT", None)
+        os.environ.pop("LLM_MODEL", None)
+        if old_endpoint is not None:
+            os.environ["LLM_ENDPOINT"] = old_endpoint
+        if old_model is not None:
+            os.environ["LLM_MODEL"] = old_model
 
 
 def test_completion_criterion_duplication_doubled(tmp_path: Path):

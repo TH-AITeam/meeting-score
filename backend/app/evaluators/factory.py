@@ -1,6 +1,8 @@
-"""バックエンド切替 factory (Issue #12)。
+"""バックエンド切替 factory (Issue #12 + Issue #17)。
 
-config.llm.backend の値で OpenAI / Local を切り替えて Evaluator を返す。
+config.llm.backend の値で Local / OpenAI を切り替えて Evaluator を返す。
+既定は "local" (vLLM 等の OpenAI 互換サーバ)。OpenAI Responses API は
+蒸留・ベンチマーク用途の optional 経路。
 """
 
 from __future__ import annotations
@@ -10,6 +12,7 @@ from typing import TYPE_CHECKING, Literal
 from app.evaluators.base import Evaluator
 from app.evaluators.local_evaluator import LocalEvaluator
 from app.evaluators.openai_evaluator import OpenAIEvaluator
+from app.scoring.weights import resolve_llm_model_for_backend
 
 if TYPE_CHECKING:
     from app.scoring.weights import AppConfig
@@ -24,10 +27,11 @@ def create_evaluator(config: AppConfig) -> Evaluator:
     config.llm_backend == "openai" → OpenAIEvaluator
     config.llm_backend == "local"  → LocalEvaluator
     """
-    backend = (config.llm_backend or "openai").lower()
+    backend = (config.llm_backend or "local").lower()
+    model = resolve_llm_model_for_backend(backend, config.llm_model)
     if backend == "openai":
         return OpenAIEvaluator(
-            model=config.llm_model,
+            model=model,
             max_tokens=config.llm_max_tokens,
             max_retries=config.llm_max_retries,
             timeout=config.llm_timeout,
@@ -36,11 +40,11 @@ def create_evaluator(config: AppConfig) -> Evaluator:
         if not config.llm_endpoint:
             msg = (
                 "llm.backend=local の場合は llm.endpoint を config.yaml に設定してください "
-                "(例: http://localhost:8000/v1)"
+                "(例: http://localhost:8001/v1)"
             )
             raise ValueError(msg)
         return LocalEvaluator(
-            model=config.llm_model,
+            model=model,
             endpoint=config.llm_endpoint,
             api_key=config.llm_api_key,
             max_tokens=config.llm_max_tokens,

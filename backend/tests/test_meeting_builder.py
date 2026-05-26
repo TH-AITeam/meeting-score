@@ -196,10 +196,10 @@ def test_openai_meta_extractor_uses_placeholder_key_for_compatible_endpoint(
 
     monkeypatch.setitem(sys.modules, "openai", type("OpenAIModule", (), {"OpenAI": _FakeOpenAI}))
 
-    extractor = OpenAIMetaExtractor(model="dummy", endpoint="http://localhost:8000/v1")
+    extractor = OpenAIMetaExtractor(model="dummy", endpoint="http://localhost:8001/v1")
     extractor._get_client()
 
-    assert captured["base_url"] == "http://localhost:8000/v1"
+    assert captured["base_url"] == "http://localhost:8001/v1"
     assert captured["api_key"] == "EMPTY"
 
 
