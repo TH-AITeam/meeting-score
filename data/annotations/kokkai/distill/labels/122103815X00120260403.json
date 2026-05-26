@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "title": "安全保障委員会の初委員会（理事選任・防衛外務両大臣の所信聴取）",
+    "goal": "委員会の理事選任・国政調査承認を決定し、防衛・外務両大臣の所信と令和八年度防衛予算概要を聴取する",
+    "agenda": [
+      "委員長就任挨拶",
+      "理事の互選（八名の指名）",
+      "国政調査承認要求の決定",
+      "防衛大臣所信聴取",
+      "外務大臣所信聴取",
+      "令和八年度防衛省関係予算の概要説明",
+      "副大臣・大臣政務官の就任挨拶"
+    ],
+    "decision_points": [
+      "理事の選任方法と人選を委員長指名で決するか",
+      "国政調査承認要求を議長に求めるか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員長の開会宣言と就任挨拶であり、議事を実質的に前進させる内容を含まない定型的な進行発言である。"},
+    {"order": 4, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "国政調査承認要求を諮る議事進行で、衆議院規則の根拠を示し決定事項を明確にしているが、純粋な採決手続のため過度な加点はしない。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "調査を進める旨と防衛大臣からの所信聴取に移ることを告げる進行発言で、次の議題を示すにとどまる。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛大臣の所信で、中国空母の活動やレーダー照射、予算規模など具体的事実を多数示し安全保障環境のリスクと政策方向を明確化している。情報量は多く要点が長め。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":1,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣の所信で外交安全保障の課題と方針を網羅的に示し具体的事案にも触れるが、防衛大臣所信と環境認識の一部が重複し冗長気味である。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣の退席と予算概要説明への移行を告げる進行発言で、次の議題を示すにとどまる。"},
+    {"order": 11, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":3,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛副大臣が令和八年度予算の重点分野と歳出予算額や継続費など具体的数字を示し、予算の内容を明確に説明している。説明が長く密度はやや薄い。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "説明終了と副大臣・政務官の発言に移る進行発言で、次の手続を示すにとどまる。"},
+    {"order": 15, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務副大臣の就任挨拶のみで、議論を前進させる実質的内容を含まない。"},
+    {"order": 17, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛大臣政務官の就任挨拶のみで、議論を前進させる実質的内容を含まない。"},
+    {"order": 19, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛大臣政務官の就任挨拶のみで、議論を前進させる実質的内容を含まない。"},
+    {"order": 21, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶のみで、議論を前進させる実質的内容を含まない。"},
+    {"order": 23, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶のみで、議論を前進させる実質的内容を含まない。"},
+    {"order": 25, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶のみで、議論を前進させる実質的内容を含まない。"}
+  ]
+}

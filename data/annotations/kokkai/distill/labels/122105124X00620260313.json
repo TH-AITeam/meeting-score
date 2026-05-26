@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "title": "高校無償化法案・35人学級法案の討論・採決と附帯決議",
+    "goal": "高等学校等就学支援金改正案と公立義務教育標準法改正案を委員会で採決し、それぞれに附帯決議を付すか決定する",
+    "agenda": [
+      "高等学校等就学支援金改正案の討論",
+      "高等学校等就学支援金改正案の採決",
+      "就学支援金改正案への附帯決議の趣旨説明と採決",
+      "公立義務教育標準法改正案の採決",
+      "標準法改正案への附帯決議の趣旨説明と採決",
+      "委員会報告書作成の委員長一任"
+    ],
+    "decision_points": [
+      "高等学校等就学支援金改正案を可決するか",
+      "就学支援金改正案に附帯決議を付すか",
+      "公立義務教育標準法改正案を可決するか",
+      "標準法改正案に附帯決議を付すか",
+      "委員会報告書の作成を委員長に一任するか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "議題提示と討論開始を告げる議事進行の定型発言で、論点の実質的整理や決定前進への寄与は小さい。"},
+    {"order": 2, "speech_type": "懸念提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":1,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":-1}, "reason": "反対討論として公立衰退・公私の不公平・外国籍生徒の基準曖昧・格差拡大の4つの論点を提示し議論を明確化したが、「思われます」など根拠の弱い断言も含む。"},
+    {"order": 4, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "採決開始を宣言する純粋な議事進行の定型句であり、論点提示はなく決定前進への加点は最小限にとどめる。"},
+    {"order": 5, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起立多数により可決を宣言し法案の採決結果を確定させた進行発言で、決定の節目だが定型の採決宣言である。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "五派共同提案による附帯決議動議の提出を案内し趣旨説明者を指名する議事進行で、次の手続きを明確にした。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":2,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "就学支援金改正の附帯決議案を9項目朗読し、検証委員会設置・格差是正・授業料抑制策など政府が配慮すべき具体的論点と措置を明示した。"},
+    {"order": 8, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明終了と動議採決開始を告げる定型の議事進行で、論点提示はない。"},
+    {"order": 9, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議の可決を確定させた採決宣言だが、起立確認のやり直しの説明が重複的でやや冗長。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣が附帯決議の趣旨を留意し対処する旨を表明した儀礼的な所信表明で、具体的内容には踏み込まない。"},
+    {"order": 13, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "次の標準法改正案を議題とし討論申出なしのため採決に入る旨を案内する議事進行で、議題転換を明確にした。"},
+    {"order": 14, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起立総員で標準法改正案の可決を宣言した採決結果の確定発言で、定型の進行句である。"},
+    {"order": 15, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "標準法改正案への附帯決議動議の提出を案内し趣旨説明者を指名する議事進行で、次手続きを示した。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":2,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "標準法改正の附帯決議案を8項目朗読し、35人学級の財源確保・加配定数維持・教員確保・チーム担任制など具体的な配慮事項と措置を明示した。"},
+    {"order": 17, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明終了と動議採決開始を告げる定型の議事進行で、論点提示はない。"},
+    {"order": 18, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起立総員で附帯決議の可決を確定させ、続けて大臣発言を許可する採決宣言の進行発言である。"},
+    {"order": 19, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣が附帯決議の趣旨を留意し対処する旨を表明した儀礼的発言で、order10とほぼ同内容の繰り返し。"}
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "title": "衆院環境委員会の所信聴取・令和8年度予算概要説明",
+    "goal": "環境大臣の所信表明と令和8年度環境省予算・公害紛争処理事務の概要を聴取し、今後の委員会審議の前提を共有する",
+    "agenda": [
+      "環境大臣の所信表明（復興、循環経済、気候変動対策、自然再興、環境外交、公害健康被害、原子力防災）",
+      "令和8年度環境省所管予算及び環境保全経費の概要説明",
+      "環境副大臣・大臣政務官の担当所信",
+      "令和7年における公害紛争の処理に関する事務の概要と令和8年度歳出予算案の説明"
+    ],
+    "decision_points": [
+      "理事の選任（委員長指名）",
+      "国政調査承認要求の議長への承認要求"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {
+      "order": 1,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "委員長就任の挨拶と開会宣言という定型的な議事進行であり、具体的な論点提示や決定への寄与はない。"
+    },
+    {
+      "order": 4,
+      "speech_type": "意思決定促進",
+      "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "国政調査承認要求の調査事項を列挙して諮るもので、決めるべき事項を提示しているが、純粋な議事進行・採決前の定型手続きにとどまる。"
+    },
+    {
+      "order": 6,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "調査を進める旨と大臣所信の聴取に移ることを告げる進行発言で、議題を明示する程度の寄与にとどまる。"
+    },
+    {
+      "order": 7,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 2, "decision_progress": 1, "risk_detection": 1, "actionability": 1, "groundedness": 2, "novelty": 1, "summarization": 1},
+      "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "大臣所信として復興・循環経済・気候変動・自然再興・原子力防災等の取組と提出予定法案を具体的に示し、今後の審議の論点と方向性を明確化している。網羅的だがやや冗長。"
+    },
+    {
+      "order": 8,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 1},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "所信表明の終了を告げ予算説明へ移る進行発言で、次の議題を示す程度の寄与にとどまる。"
+    },
+    {
+      "order": 9,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 1, "groundedness": 3, "novelty": 1, "summarization": 1},
+      "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "令和8年度予算を一般会計・特別会計・復興特会・環境保全経費まで具体的な金額と内訳で説明し、審議の判断材料を提供している。担当所信の前段はやや冗長。"
+    },
+    {
+      "order": 10,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "副大臣・政務官の発言を順次許可する進行発言で、次の発言者を示す程度にとどまる。"
+    },
+    {
+      "order": 11,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 1, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "副大臣の担当分野表明で、気候変動・自然再興や提出法案に触れるが大臣所信の内容と重複し新規の論点提示はない。"
+    },
+    {
+      "order": 13,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の担当分野と決意表明にとどまる就任挨拶で、審議の論点や決定への実質的寄与はない。"
+    },
+    {
+      "order": 15,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の担当分野表明と決意表明にとどまる就任挨拶で、既出の所信内容の範囲を出ず実質的寄与はない。"
+    },
+    {
+      "order": 17,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "先の発言の言い間違い（内閣府防災→原子力防災）を訂正するだけの発言で、議論への寄与はない。"
+    },
+    {
+      "order": 18,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "公害紛争処理事務の概要説明聴取へ移る進行発言で、次の議題を示す程度の寄与にとどまる。"
+    },
+    {
+      "order": 19,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 0, "groundedness": 3, "novelty": 1, "summarization": 1},
+      "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "令和7年の公害紛争事件の係属・終結件数や具体的裁定事例、令和8年度歳出予算額を数値で示し、事実に基づく報告として情報を整理している。"
+    }
+  ]
+}

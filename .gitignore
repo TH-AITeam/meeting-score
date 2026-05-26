@@ -44,3 +44,5 @@ data/eval_video/meeting_*/
 *.mkv
 *.avi
 *.webm
+# Large aggregate Kokkai JSONL is split into data/kokkai/meeting_20250522_20260522/part_*.jsonl for GitHub size limits.
+data/kokkai/meeting_20250522_20260522.jsonl

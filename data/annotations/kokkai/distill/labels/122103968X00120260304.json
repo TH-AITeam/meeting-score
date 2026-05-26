@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "衆院外務委員会の所信聴取・予算概要説明回",
+    "goal": "外務委員会の冒頭手続を行い、外務大臣の外交所信と令和八年度外務省予算の概要説明を聴取する",
+    "agenda": [
+      "理事の互選・指名",
+      "国政調査承認要求の決定",
+      "外務大臣の外交政策所信表明",
+      "令和八年度外務省関係予算の概要説明",
+      "副大臣・政務官の就任挨拶"
+    ],
+    "decision_points": [
+      "理事八名の指名を委員長一任とするか",
+      "国政調査承認要求を議長に求めるか"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "委員長就任の儀礼的挨拶と開会宣言であり、議論を実質的に前進させる内容はない。"},
+    {"order": 4, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "国政調査承認要求を諮る純粋な議事進行で、規則条項に触れて手続を進めるが定型的な採決諮りであり決定寄与は限定的。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣からの所信聴取に移ることを告げる進行発言で、次の議題を明確化するにとどまる。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "外交所信表明として日米同盟・中国・北朝鮮・中東等の具体的懸案と方針を網羅的に提示し、論点を明確化している。事実に基づくが質疑前の一方的説明のため決定寄与は限定的。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "所信聴取の終了を告げ予算概要説明へ移る進行発言で、次の議題を示すにとどまる。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "令和八年度予算案の総額やODA予算など具体的数値と五本の柱を提示し根拠性は高いが、所信と重なる情勢認識の繰り返しがある。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "予算説明の終了を告げ副大臣・政務官の発言を許可する進行発言で、議論への実質寄与はない。"},
+    {"order": 11, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "副大臣就任の儀礼的挨拶であり、会議目的への実質的貢献はない。"},
+    {"order": 13, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官就任の儀礼的挨拶で、前の副大臣挨拶とほぼ同型の決意表明にとどまる。"},
+    {"order": 15, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官就任の儀礼的挨拶で、直前の挨拶群とほぼ同型の決意表明の繰り返しにとどまる。"}
+  ]
+}

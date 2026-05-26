@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "title": "参院外交防衛委員会の開会・委員会構成と外交防衛所信表明",
+    "goal": "委員会の理事補欠選任と国政調査承認を決定し、外務・防衛両大臣以下の所信・挨拶を聴取して今国会の審議体制を整える",
+    "agenda": ["委員長挨拶と委員の異動報告", "理事の選任・補欠選任の決定", "国政調査に関する件の承認", "外務大臣の外交所信表明", "防衛大臣の防衛所信表明", "副大臣・大臣政務官の就任挨拶"],
+    "decision_points": ["理事の補欠選任を委員長一任で行うか", "今期国会において外交・防衛等に関する国政調査を行うか"],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員会開会宣言と委員長就任挨拶であり、議事を実質的に前進させる論点提示はない定型的な進行発言である。"},
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "委員の辞任・補欠選任を具体的氏名で報告する事務連絡で、事実列挙はあるが議論を動かす寄与はなく、名簿の羅列がやや冗長である。"},
+    {"order": 4, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事補欠選任を委員長一任とする諮りで決めるべき事項を提示しているが、純粋な議事進行・採決の宣言に近く decision_progress は限定的である。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣等からの発言を順次許可する進行発言で、次に所信表明が行われる流れを明確にする程度の寄与にとどまる。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-2,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣の外交所信で、対中・対北朝鮮・ロ朝協力など具体的事象を挙げて懸念と外交方針を整理し論点を提示しているが、所信表明ゆえ網羅的で冗長であり個別の決定前進には乏しい。"},
+    {"order": 11, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-2,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛大臣の所信で、尖閣周辺や空母活動など具体的事案とGDP比2%前倒し・三文書改定方針を示し論点と方向性を明確化しているが、所信ゆえ長大で個別事項の決定には至らない。"},
+    {"order": 13, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務副大臣の就任挨拶であり、抱負を述べるのみで議論を前進させる実質的内容はない。"},
+    {"order": 15, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務副大臣の就任挨拶で、前者と同様の定型的抱負にとどまり新規性なく類似の言い回しが重なる。"},
+    {"order": 17, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛副大臣の就任挨拶であり、定型的な抱負の表明で議論への実質寄与はなく内容も類型的である。"},
+    {"order": 19, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶で、定型的な抱負にとどまり他の挨拶と同種の繰り返しである。"},
+    {"order": 21, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-2,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶で、先行する政務官挨拶とほぼ同一構成の定型表現の繰り返しであり新規性がない。"},
+    {"order": 23, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-2,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶で、直前の政務官挨拶とほぼ同型の定型的抱負の言い換えにすぎない。"},
+    {"order": 25, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛大臣政務官の就任挨拶で、定型的な抱負を述べるのみで議論への実質寄与はなく他の挨拶と類型的に重複する。"}
+  ]
+}

@@ -1,0 +1,362 @@
+{
+  "meta": {
+    "title": "愛知・名古屋アジア大会特措法案の参院委員会審査・採決",
+    "goal": "愛知・名古屋アジア競技大会及びアジアパラ競技大会特別措置法案を質疑のうえ委員会で採決し可否を決定する",
+    "agenda": [
+      "政府参考人出席要求等の議事手続",
+      "法案の趣旨説明",
+      "特措法・国の補助が必要となった背景と過去大会との比較",
+      "大規模国際イベント招致ガイドラインの内容とパブコメ",
+      "東京オリパラでの国の財政支出規模",
+      "大会経費の不透明性と組織委員会・自治体の説明責任",
+      "法案の採決"
+    ],
+    "decision_points": [
+      "本特別措置法案を委員会として可決すべきか否か",
+      "審査報告書の作成を委員長に一任するか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {
+      "order": 2,
+      "speech_type": "情報共有",
+      "scores": {
+        "issue_clarification": 0,
+        "decision_progress": 1,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": 0,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "政府参考人の出席を諮る純粋な議事進行であり、審査の前提を整える手続きにとどまる。"
+    },
+    {
+      "order": 4,
+      "speech_type": "情報共有",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 1,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": 0,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "法案を議題に上げ趣旨説明聴取へ移る進行発言で、審議対象を明確化する程度の寄与。"
+    },
+    {
+      "order": 5,
+      "speech_type": "情報共有",
+      "scores": {
+        "issue_clarification": 2,
+        "decision_progress": 2,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 2,
+        "novelty": 1,
+        "summarization": 1
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "法案の提案趣旨と国の補助・郵便葉書特例・電波法特例という三つの具体的内容を提示し、審議の論点と判断材料を明確化した趣旨説明。"
+    },
+    {
+      "order": 6,
+      "speech_type": "情報共有",
+      "scores": {
+        "issue_clarification": 0,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": 0,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "趣旨説明終了と質疑入りを告げる定型の議事進行で、内容的な前進はない。"
+    },
+    {
+      "order": 7,
+      "speech_type": "質問",
+      "scores": {
+        "issue_clarification": 2,
+        "decision_progress": 2,
+        "risk_detection": 1,
+        "actionability": 0,
+        "groundedness": 2,
+        "novelty": 2,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "過去九回の特措法や前回オリンピック特措法に補助条文がない事実を踏まえ、なぜ今回国の補助が必要かを具体的根拠と比較で問い、判断材料を引き出す質疑。"
+    },
+    {
+      "order": 8,
+      "speech_type": "根拠提示",
+      "scores": {
+        "issue_clarification": 2,
+        "decision_progress": 2,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 2,
+        "novelty": 1,
+        "summarization": 1
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "物価高や開催一年前という時限性、議連検討・自治体意見を踏まえ国有財産無償使用を除外し財政支援に絞った経緯を具体的に答弁し、立法趣旨を裏づけた。"
+    },
+    {
+      "order": 9,
+      "speech_type": "懸念提示",
+      "scores": {
+        "issue_clarification": 2,
+        "decision_progress": 1,
+        "risk_detection": 2,
+        "actionability": 1,
+        "groundedness": 2,
+        "novelty": 2,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "予算が当初の三、四倍に膨張した報道や過去大会のガバナンス・未払問題を挙げ、招致ガイドライン策定という具体提案とパブコメ有無を問うてリスクと改善策を提示した。"
+    },
+    {
+      "order": 10,
+      "speech_type": "情報共有",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 1,
+        "risk_detection": 0,
+        "actionability": 1,
+        "groundedness": 1,
+        "novelty": 1,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "招致・運営の手引を作成中でHPで公開し意見を受け付ける旨を答弁し、ガイドラインの内容と公開方針という判断材料を示した。"
+    },
+    {
+      "order": 11,
+      "speech_type": "提案",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 0,
+        "risk_detection": 0,
+        "actionability": 1,
+        "groundedness": 0,
+        "novelty": 1,
+        "summarization": 1
+      },
+      "penalties": {
+        "duplication": -1,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "ガイドラインへの国民意見反映を提案する締めの発言だが、前の答弁内容の評価と要望が中心で新たな前進は限定的。"
+    },
+    {
+      "order": 12,
+      "speech_type": "質問",
+      "scores": {
+        "issue_clarification": 2,
+        "decision_progress": 2,
+        "risk_detection": 1,
+        "actionability": 0,
+        "groundedness": 3,
+        "novelty": 2,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "特措法に国の補助を明記した例は1964年東京・1972年札幌のみで2021年東京オリパラは明記なしでも支出した事実を具体的に整理し、補助額を問うて論点を鋭く明確化した。"
+    },
+    {
+      "order": 13,
+      "speech_type": "根拠提示",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 2,
+        "risk_detection": 0,
+        "actionability": 0,
+        "groundedness": 3,
+        "novelty": 1,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": 0,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "東京オリパラの国負担額をパラ約380億円・コロナ対策250億円で計630億円と具体的数値で答弁し、議論の事実基盤を提供した。"
+    },
+    {
+      "order": 14,
+      "speech_type": "懸念提示",
+      "scores": {
+        "issue_clarification": 2,
+        "decision_progress": 2,
+        "risk_detection": 3,
+        "actionability": 0,
+        "groundedness": 3,
+        "novelty": 2,
+        "summarization": 1
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "会計検査院による総額1兆4238億円・国負担1869億円等の数値を挙げ、特措法明記がなくとも支出可能と論証しつつ、経費が不透明で議会軽視という重要な見落としを具体的に指摘した。"
+    },
+    {
+      "order": 15,
+      "speech_type": "根拠提示",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 2,
+        "risk_detection": 1,
+        "actionability": 0,
+        "groundedness": 3,
+        "novelty": 1,
+        "summarization": 0
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": 0,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "東京オリパラが2016年12月のV1以降毎年12月に経費を公表しV5まで出した経緯を具体的に答弁し、情報公開の前例という比較材料を提示した。"
+    },
+    {
+      "order": 16,
+      "speech_type": "懸念提示",
+      "scores": {
+        "issue_clarification": 2,
+        "decision_progress": 2,
+        "risk_detection": 3,
+        "actionability": 1,
+        "groundedness": 3,
+        "novelty": 1,
+        "summarization": 1
+      },
+      "penalties": {
+        "duplication": -1,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "東京オリパラが5年間毎年公表したのに対しアジア大会は招致から9年間経費詳細を一度も公表せず当初1050億が3700億に膨張した事実を対比し、説明責任を果たすべきと提案して重大リスクを明示した。"
+    },
+    {
+      "order": 17,
+      "speech_type": "情報共有",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 2,
+        "risk_detection": 0,
+        "actionability": 1,
+        "groundedness": 1,
+        "novelty": 1,
+        "summarization": 1
+      },
+      "penalties": {
+        "duplication": -1,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "衆院委で情報公開・説明を組織委に求める決議をした旨を答弁し、提出者として自治体の努力を期待すると応答してリスク懸念に一定の対応方針を示した。"
+    },
+    {
+      "order": 18,
+      "speech_type": "懸念提示",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 2,
+        "risk_detection": 2,
+        "actionability": 0,
+        "groundedness": 2,
+        "novelty": 1,
+        "summarization": 2
+      },
+      "penalties": {
+        "duplication": -1,
+        "verbosity": -1,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "経費が当初の3倍超に膨張し、建設費未払問題のGLイベンツ社との関係も浮上したと指摘し、ずさんな計画への国費投入に賛同できないとの反対意見を根拠を伴い表明して立場を明確化した。"
+    },
+    {
+      "order": 19,
+      "speech_type": "意思決定促進",
+      "scores": {
+        "issue_clarification": 1,
+        "decision_progress": 3,
+        "risk_detection": 0,
+        "actionability": 1,
+        "groundedness": 0,
+        "novelty": 0,
+        "summarization": 1
+      },
+      "penalties": {
+        "duplication": 0,
+        "verbosity": 0,
+        "off_topic": 0,
+        "unsupported_assertion": 0
+      },
+      "reason": "質疑終局・討論省略・採決へと進め多数で原案可決すべきものと決定した採決進行で、会議目的である意思決定を実質的に完結させた。"
+    }
+  ]
+}

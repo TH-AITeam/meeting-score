@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "title": "地域活性化・こども・デジタル特別委員会の所信聴取と予算説明",
+    "goal": "両国務大臣の所信表明と令和八年度関係予算の概要を聴取し、今後の委員会審議の前提を共有する",
+    "agenda": [
+      "理事の辞任許可と補欠選任",
+      "松本デジタル大臣の所信表明（マイナンバー・医療DX・AI等）",
+      "黄川田大臣の所信表明（こども政策・地方創生）",
+      "令和八年度内閣官房・内閣府・デジタル庁関係予算の概要説明",
+      "令和八年度こども家庭庁・地方創生関係予算の概要説明",
+      "副大臣・政務官の就任挨拶"
+    ],
+    "decision_points": [
+      "理事辞任の許可",
+      "理事補欠選任を委員長指名で行うこと"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {
+      "order": 2,
+      "speech_type": "意思決定促進",
+      "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "理事辞任の決定宣言と補欠選任を委員長指名で行う旨の議事進行であり、純粋な進行・採決宣言なので寄与は限定的。"
+    },
+    {
+      "order": 4,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "調査を進める旨と所信聴取への移行を告げる進行発言で、議題の切り替えを示すにとどまる。"
+    },
+    {
+      "order": 5,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 2, "decision_progress": 1, "risk_detection": 0, "actionability": 1, "groundedness": 2, "novelty": 1, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "デジタル所信表明で、マイナ保険証利用率63.2％やAI環境18万人等の具体的数値を伴い施策方針を整理しているが、決定を伴わない情報共有で網羅的ゆえやや冗長。"
+    },
+    {
+      "order": 7,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 2, "decision_progress": 1, "risk_detection": 1, "actionability": 1, "groundedness": 2, "novelty": 1, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "こども政策・地方創生の所信表明で、いじめ・自殺者数の過去最多や夏までの政策パッケージ等を示し論点を整理しているが、決定はなく多岐にわたりやや冗長。"
+    },
+    {
+      "order": 8,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "所信表明の終了と予算説明への移行を告げる進行発言にとどまる。"
+    },
+    {
+      "order": 9,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 0, "groundedness": 2, "novelty": 1, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "デジタル庁予算総額5,198億円や各経費の内訳など具体的数値を示す予算概要説明で、根拠性は高いが審議の判断材料提示にとどまる。"
+    },
+    {
+      "order": 11,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 0, "groundedness": 2, "novelty": 1, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "地方創生・こども家庭庁予算（約7兆4,956億円等）を具体的数値で説明する予算概要で、根拠性は高いが情報共有の域。"
+    },
+    {
+      "order": 12,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "予算説明の終了と政務官発言への移行を告げる進行発言にとどまる。"
+    },
+    {
+      "order": 13,
+      "speech_type": "雑談/脱線",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の就任挨拶のみで、議論や決定への実質的寄与はない。"
+    },
+    {
+      "order": 15,
+      "speech_type": "雑談/脱線",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の就任挨拶のみで、議論や決定への実質的寄与はない。"
+    }
+  ]
+}

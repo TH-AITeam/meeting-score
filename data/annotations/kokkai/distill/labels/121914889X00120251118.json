@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title": "参院内閣委員会の開会・大臣所信聴取と人事院給与勧告報告",
+    "goal": "委員会の構成（理事選任・国政調査承認）を整え、各国務大臣の所信を聴取し、人事院から給与勧告等の説明を受ける",
+    "agenda": [
+      "委員長挨拶・委員異動報告・理事の選任",
+      "国政調査に関する件の決定",
+      "各国務大臣の所信表明（治安・経済・経済安保・官房・男女共同参画・万博等）",
+      "内閣官房副長官・副大臣・政務官の挨拶",
+      "人事院による国家公務員給与改定の勧告・報告の聴取"
+    ],
+    "decision_points": [
+      "理事の選任（委員長一任）の可否",
+      "今期国会における内閣の重要政策及び警察等に関する調査を行うことの可否"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "開会宣言と委員長就任の挨拶という定型的な議事進行であり、論点や決定への実質的寄与はない。"},
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員の異動報告という事務的な情報共有のみで、議論を前進させる内容はない。"},
+    {"order": 3, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事の選任・補欠選任を諮り委員長一任への異議を確認しており、構成決定の手続を進める議事進行である。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "国務大臣の発言を許可する進行であり、次に所信聴取という議事段階を示すのみで実質的寄与は小さい。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "特殊詐欺被害が令和六年を上回る等の具体データを挙げつつ治安・領土・海洋等の施策方針を表明しており、所信として論点と取組を整理している。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "行革・公務員制度・サイバー安全保障の方針と法案提出予定を共有しているが、具体的データは乏しく一般的な所信表明にとどまる。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":-1}, "reason": "成長戦略・物価高対応・社会保障等の幅広い方針を表明するが、抽象的な決意表明が多く論拠が薄い断言も含み、やや冗長である。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "経済安保推進法の施行三年後見直しや重要土地等調査法の見直し規定など具体的な制度課題とリスクに触れて方針を示している。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":-1}, "reason": "官房長官として危機管理・安保三文書改定・沖縄基地負担軽減等を表明するが、決意表明的な記述が多く具体性に欠ける。"},
+    {"order": 18, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "男女共同参画・障害者・交通安全等の計画と来年の機構設立等の具体施策を共有するが網羅的で情報密度は薄い。"},
+    {"order": 20, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大阪・関西万博の来場約2900万人・最大280億円黒字見込みという具体数値を挙げ成果と今後の検証方針を簡潔に報告している。"},
+    {"order": 23, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "内閣官房副長官の就任挨拶のみで、議論や決定への実質的寄与はない。"},
+    {"order": 25, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "副大臣の就任挨拶と担当分野の紹介のみで実質的な貢献はない。"},
+    {"order": 27, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "副大臣の就任挨拶で他の挨拶と定型が重複し、議論への寄与はない。"},
+    {"order": 29, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "副大臣の就任挨拶で定型句の繰り返しであり、実質的寄与はない。"},
+    {"order": 31, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "副大臣の就任挨拶で定型の繰り返しであり、議論や決定に寄与しない。"},
+    {"order": 33, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "副大臣の就任挨拶で定型句の重複であり、実質的寄与はない。"},
+    {"order": 36, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "政務官の就任挨拶で定型句の繰り返しであり、議論への寄与はない。"},
+    {"order": 38, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "政務官の就任挨拶で定型の重複であり、実質的寄与はない。"},
+    {"order": 40, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "政務官の就任挨拶で定型句の繰り返しであり、議論への寄与はない。"},
+    {"order": 42, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "政務官の就任挨拶で定型の重複であり、実質的寄与はない。"},
+    {"order": 44, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "政務官の就任挨拶で定型句の繰り返しであり、議論や決定への寄与はない。"},
+    {"order": 47, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "調査を議題とし人事院からの給与勧告の説明聴取へ移ることを明示しており、次に扱う論点を明確化する進行である。"},
+    {"order": 48, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":2,"groundedness":3,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "月例給3.62%引上げ・ボーナス4.65月分・比較企業規模100人以上への見直し等の具体データを示し、人材マネジメント改革の四本柱を整理して勧告の早期実施を求めており根拠が厚い。"}
+  ]
+}
