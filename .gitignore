@@ -22,6 +22,11 @@ nohup.out
 
 # stored meeting data (may contain personal information)
 data/stored_meetings/
+# フィードバック収集 DB (SQLite ローカル / Issue #78)。組織のフィードバックは
+# 個人情報を含みうるためコミットしない。本番は Docker 管理の PostgreSQL を使う。
+data/feedback.db
+data/feedback.db-wal
+data/feedback.db-shm
 # eval / benchmark の生 JSON は基本ローカル保持。
 # Issue #18 / #19 のエビデンスとしてコミットしたい場合のみ `git add -f reports/...` で明示追加する。
 reports/
