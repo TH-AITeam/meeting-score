@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "title": "運輸事業振興助成法改正案の委員会審議・採決",
+    "goal": "運輸事業の振興の助成に関する法律改正案を委員会で審議し、修正案・原案・附帯決議の採決を行って成案を決定する",
+    "agenda": [
+      "委員及び理事の異動・補欠選任",
+      "運輸事業振興助成法改正案の趣旨説明",
+      "れいわ新選組による修正案の提出と趣旨説明",
+      "原案及び修正案に対する討論",
+      "修正案・原案・附帯決議案の採決"
+    ],
+    "decision_points": [
+      "理事の補欠選任を委員長一任とするか",
+      "れいわ新選組提出の修正案を可決するか",
+      "改正案の原案を可決するか",
+      "附帯決議案を委員会決議とするか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "開会宣言と委員異動の事務報告にとどまり、議論を実質的に前進させる内容はない。"},
+    {"order": 2, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事補欠選任の議事手続きを進める進行発言で、決定の手続き補助にはなるが論点提示はない。"},
+    {"order": 4, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "本日の議題である改正案を上程し趣旨説明聴取へ進める進行発言で、審議対象を明確にしている。"},
+    {"order": 5, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "改正案の趣旨説明として軽油引取税の当分の間税率廃止という経緯と法案の三つの措置を具体的に提示し、審議の論点を明確化している。"},
+    {"order": 6, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "質疑終局を宣言し修正案発言へ移す進行発言で、議事の流れを整理しているが実質的論点提示はない。"},
+    {"order": 7, "speech_type": "提案", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":2,"groundedness":2,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "担い手不足や燃料高騰という具体的課題を根拠に、有効期限撤廃と交付金増額検討という新たな選択肢を修正案として提示し議論を前進させている。"},
+    {"order": 8, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "討論への移行を宣言する進行発言で、賛否表明を促すが論点自体は提示していない。"},
+    {"order": 9, "speech_type": "根拠提示", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":1,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "原案賛成・修正案反対の立場を労働環境や燃料高騰の懸念を論拠に表明し採決判断材料を提供しているが、論拠は修正案と一部重複する。"},
+    {"order": 10, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "討論終局と修正案採決手続きの進行発言で、議事を進めるが論点提示はない。"},
+    {"order": 11, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "修正案否決を宣言し原案採決へ移る採決宣言で、定型的な議事進行にとどまる。"},
+    {"order": 12, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "原案可決を宣言する採決宣言で、決定結果を確定する進行発言だが論点提示は伴わない。"},
+    {"order": 13, "speech_type": "提案", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":1,"actionability":2,"groundedness":1,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議案を朗読し、予算執行の公平中立やトラック適正化二法の検討など政府への具体的要請事項を提示している。"},
+    {"order": 14, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議案の採決手続きを進める進行発言で、定型的な議事進行にとどまる。"},
+    {"order": 15, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議の可決を宣言し大臣発言へ移す採決宣言で、定型的な進行発言にとどまる。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "決議の趣旨を尊重する旨の儀礼的な大臣所信表明で、具体的な行動内容は示されていない。"}
+  ]
+}

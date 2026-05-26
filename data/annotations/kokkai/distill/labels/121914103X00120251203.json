@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "参院決算委員会・令和6年度決算等の概要説明聴取",
+    "goal": "令和六年度決算外二件と会計検査院報告の概要説明を聴取し、委員会の調査・審議の前提を整える",
+    "agenda": [
+      "委員長挨拶および委員の異動・理事補欠選任",
+      "国政調査承認の決定",
+      "財務大臣による令和六年度決算の概要説明",
+      "会計検査院長による決算検査報告・国有財産検査報告の説明",
+      "会計検査院法第三十条の二に基づく報告(P-1運用・情報セキュリティ・国際機関拠出)の説明"
+    ],
+    "decision_points": [
+      "理事の補欠選任を委員長指名に一任するか",
+      "国家財政の経理及び国有財産の管理に関する調査を行うか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "開会宣言と委員長就任挨拶であり、定型的な議事進行で実質的な論点や決定への寄与はない。"},
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員の異動の事務報告で、名簿読み上げにとどまり議論を前進させる内容ではない。"},
+    {"order": 3, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事補欠選任を委員長指名に一任することを諮る議事進行で、決定事項を提示してはいるが定型的な手続にとどまる。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "令和六年度決算外二件を議題に供し財務大臣に説明を促す進行で、審議対象を明確化する程度の寄与にとどまる。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":3,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "財務大臣が歳入歳出の具体的数値や三百十九件の不当事項指摘など根拠ある決算概要を提示し、審議の判断材料を提供している。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "会計検査院長に説明を促す進行で、次の説明者と対象を示すにとどまる。"},
+    {"order": 10, "speech_type": "根拠提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":2,"actionability":0,"groundedness":3,"novelty":1,"summarization":2}, "penalties": {"duplication":0,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "会計検査院長が不当事項二百七十一件・八十六億円余など具体的件数と金額、意見表示事項を提示し、財政上のリスクを明示して審議の根拠を厚くしている。"},
+    {"order": 11, "speech_type": "要約", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "概要説明聴取の終了を告げ質疑は後日とする旨を整理し、次の進行を示している程度の寄与。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "会計検査院法第三十条の二に基づく報告を議題に供し説明を促す進行で、対象を明確化するにとどまる。"},
+    {"order": 13, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":3,"actionability":1,"groundedness":3,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":1,"off_topic":0,"unsupported_assertion":0}, "reason": "P-1の可動状況低調や情報セキュリティ対策不備、国際機関拠出金の管理不足など具体的検査結果と所見を根拠付きで提示し、重要な見落としやリスクを明示している。"}
+  ]
+}

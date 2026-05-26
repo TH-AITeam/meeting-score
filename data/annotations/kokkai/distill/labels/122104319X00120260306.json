@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "title": "衆院国交委の委員長就任挨拶・大臣所信表明・令和8年度予算概要説明",
+    "goal": "新委員長就任・理事選任・国政調査承認を行い、国土交通大臣の所信と令和八年度予算概要を聴取して今国会の審議の土台を整える",
+    "agenda": [
+      "委員長就任挨拶",
+      "理事の互選・指名",
+      "国政調査承認要求",
+      "国土交通大臣の所信表明（安全安心・経済成長・地域づくりの三本柱、IR整備）",
+      "令和八年度国土交通省関係予算の概要説明",
+      "副大臣・大臣政務官の就任挨拶"
+    ],
+    "decision_points": [
+      "理事八名を委員長指名で選任すること",
+      "本会期中の国政調査について議長の承認を求めること"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員長就任の儀礼的挨拶であり、論点や決定への実質的寄与はない。"},
+    {"order": 4, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "国政調査承認要求の対象事項を列挙し諮ったもので、議事の前提整理にはなるが定型的な進行発言で前進は限定的。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "調査に入り大臣の所信聴取へ移ることを告げる進行発言で、議題提示として軽い整理にとどまる。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣所信表明として三本柱と具体施策・数値（中期計画約二十兆円強、訪日四千万人等）を示し今国会の論点を明確化したが、討論ではなく方針共有で決定前進は限定的。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "所信表明の終了を告げ予算概要説明へ移る進行発言で、流れの整理にとどまる。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":3,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "令和八年度予算の国費総額や公共事業費等の具体数値と三本柱の配分方針を提示し、審議の判断材料を根拠を伴って共有している。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "予算概要説明の終了を告げ副大臣等の発言へ移る進行発言で、流れの整理にとどまる。"},
+    {"order": 11, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "副大臣の儀礼的な就任挨拶で、議論や決定への実質的寄与はない。"},
+    {"order": 13, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣政務官の儀礼的就任挨拶で、前者とほぼ同型の定型挨拶であり実質的寄与はない。"},
+    {"order": 15, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣政務官の儀礼的就任挨拶で、繰り返しの定型挨拶であり実質的寄与はない。"},
+    {"order": 17, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣政務官の儀礼的就任挨拶で、繰り返しの定型挨拶であり実質的寄与はない。"}
+  ]
+}

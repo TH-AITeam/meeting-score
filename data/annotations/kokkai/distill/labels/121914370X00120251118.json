@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "title": "参院財政金融委員会の開会・役員選任と所信挨拶",
+    "goal": "委員長就任挨拶、委員異動・理事補欠選任・国政調査承認を決し、財務大臣ら政府側の所信表明を聴取する",
+    "agenda": [
+      "委員長就任の挨拶",
+      "委員の異動報告",
+      "理事の辞任許可と補欠選任",
+      "国政調査に関する件の承認",
+      "財務大臣の財政・金融に関する所信表明",
+      "副大臣・政務官の就任挨拶"
+    ],
+    "decision_points": [
+      "理事の辞任を許可するか",
+      "理事の補欠選任を委員長一任とするか",
+      "財政及び金融等に関する調査(国政調査)を行うか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員会開会と委員長就任の定型挨拶であり、議論や論点の前進には寄与していない。"},
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員異動の事実報告で、具体名を挙げた情報共有にとどまり実質的な意思決定への寄与は乏しい。"},
+    {"order": 4, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事辞任の決定宣言と補欠選任を委員長一任で諮る純粋な議事進行であり、定型句のため意思決定寄与は低めとする。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政府側の発言順序を示す進行発言で、誰が発言するかを明確にした点をわずかに評価する。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "財務大臣の所信表明で、物価高の下押しリスクや総合経済対策・補正予算編成方針など具体的政策論点を提示し、当委員会の審議の枠組みを明確化している。"},
+    {"order": 11, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "財務副大臣の就任挨拶のみで、政策内容や論点を含まず議論を前進させていない。"},
+    {"order": 13, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "同様の就任挨拶で前発言とほぼ定型が重複しており、実質的寄与はない。"},
+    {"order": 15, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "内閣府副大臣の定型的な就任挨拶で、内容に新規性も論点の前進もない。"},
+    {"order": 17, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官の就任挨拶で、繰り返しの定型挨拶にとどまり議論への寄与はない。"},
+    {"order": 19, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官の定型就任挨拶で、前出の挨拶と実質同内容であり寄与はない。"},
+    {"order": 21, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "内閣府政務官の就任挨拶で、定型挨拶の繰り返しにとどまり議論を前進させていない。"}
+  ]
+}

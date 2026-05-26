@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "title": "衆院憲法審査会の今後の議論の方向性に関する自由討議",
+    "goal": "国民投票法改正・緊急事態条項・条文起草委員会設置など今後の憲法論議の進め方について各会派の方向性と論点を共有・整理する",
+    "agenda": [
+      "国民投票法改正と広報協議会・偽情報対策の在り方",
+      "条文起草等に関する小委員会の設置の是非",
+      "議員任期延長を含む緊急事態条項の条文化",
+      "憲法九条・自衛隊明記をめぐる議論",
+      "臨時会召集期限・解散権など統治機構の論点",
+      "衆参両院の憲法審査会の連携と審査会開催の頻度"
+    ],
+    "decision_points": [
+      "条文起草等に関する小委員会を設置するか、構成をどうするか",
+      "国民投票法の公選法並び三項目を速やかに法整備するか",
+      "緊急事態条項の骨子案を条文化する段階に進めるか",
+      "今後も定例日に審査会を開催し続けるか"
+    ],
+    "meeting_type": "brainstorming"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "会議の開会と自由討議の進行方法・発言ルールを説明する定型的な議事進行であり、本日のテーマを示している点で論点提示にとどまる。"},
+    {"order": 2, "speech_type": "提案", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":2,"groundedness":2,"novelty":2,"summarization":2}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "各党の共通点を列挙して国民投票法改正・広報協議会の論点を整理し、海外調査の事例を根拠に小委員会設置という具体的な次ステップを提案して議論を前進させた。"},
+    {"order": 4, "speech_type": "懸念提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "三分の二要件や前回改正の折衝経緯、ルクセンブルクの視察事例など具体的根拠を示し、起草委員会の政党色というリスクを指摘して論点を深めた。"},
+    {"order": 6, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":1,"actionability":2,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":-1}, "reason": "連立合意や党の提言を根拠に条文起草委員会の早期設置と九条・緊急事態条項の条文化を強く促したが、「論点は出尽くした」等の断定的な主張も含む。"},
+    {"order": 8, "speech_type": "提案", "scores": {"issue_clarification":3,"decision_progress":2,"risk_detection":2,"actionability":2,"groundedness":2,"novelty":2,"summarization":2}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "取りまとめる論点と継続検討する論点を意図的に仕分けるなど六項目に整理して提案し、多層的アプローチや具体的目標を示して議論の方向を明確化した。"},
+    {"order": 10, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "公明党の立場を整理した上で、小委員会の構成や設置先例について法制局に具体的な質問を投げ、判断材料を引き出そうとした。"},
+    {"order": 11, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":0,"groundedness":3,"novelty":2,"summarization":2}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "過去の小委員会設置の経緯と賛否の先例を年次・委員数まで具体的に答弁し、強い事実根拠で小委員会設置の判断材料を提供した。"},
+    {"order": 12, "speech_type": "要約", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":2}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "答弁を受けて先例の趣旨を整理し、両筆頭の議論を見守るという党の姿勢を示したが、新たな論点の追加はなく要約にとどまる。"},
+    {"order": 14, "speech_type": "懸念提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":-1,"unsupported_assertion":-1}, "reason": "毎週開催や起草委員会のなし崩しの進め方への反対を述べ意思決定プロセスを問うたが、台湾有事発言など本テーマから逸れる主張や根拠の弱い断定が目立つ。"},
+    {"order": 15, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "幹事懇では提案があったと申し上げただけだとする会長の短い事実確認の回答で、議論を前進させる要素は乏しい。"},
+    {"order": 16, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起草委員会の意思決定プロセスを重ねて問い、手続の透明性という論点を維持したが、前発言の繰り返しの要素がある。"},
+    {"order": 17, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "合意形成を重んじて丁寧に進めるという審査会の運営方針を説明したが、具体的な手続の明確化には踏み込まない一般的な回答。"},
+    {"order": 20, "speech_type": "懸念提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":-2,"unsupported_assertion":-1}, "reason": "改憲反対の立場を歴代政権の経緯や沖縄の基地配備の具体例を挙げて主張したが、台湾有事・軍備強化など本日のテーマから大きく逸れた内容が中心。"},
+    {"order": 22, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":3,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "米英仏加豪の偽情報・外国干渉対策の法制を年次・条文まで具体的に示し、表現の自由との関係を整理した上で広報協議会の事実提示の許容性という新たな論点を提供した。"},
+    {"order": 23, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員各位による発言段階への移行を告げる定型的な議事進行であり、貢献は限定的。"},
+    {"order": 24, "speech_type": "提案", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":2,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "広報協議会が臨時・期間限定組織であるという制約を指摘し、公選法並び三項目の廃案法案の再提出という具体行動を提案して議論を前進させた。"},
+    {"order": 25, "speech_type": "提案", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":-1}, "reason": "外国干渉対策や起草委員会の手続逆転リスクを指摘し、立憲主義深化・解散権・国政調査権・同性婚など優先すべき論点を具体的に列挙して論点を広げた。"},
+    {"order": 26, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":2,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "党のテーマを述べた上で、立憲が起草委員会に参加するよう山花幹事に直接問い、合意形成に向けた具体的働きかけを行った。"},
+    {"order": 27, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "海外調査や賀詞奉呈の例を挙げて起草委員会が政党色を帯びてはならない理由を説明し、現状は時期尚早とする根拠を明確に示して質問に答えた。"},
+    {"order": 28, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":-1}, "reason": "機は熟していると主張し条文案提示の次ステップへ進むよう促したが、既出の主張の繰り返しと断定的表現が含まれる。"},
+    {"order": 29, "speech_type": "提案", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":-1,"unsupported_assertion":0}, "reason": "まず国民が改憲を望むかを事実・データで議論し合意を得るという論点整理を提案し、具体的条文提示の意義を述べたが、医師時代の体験談など冗長で逸れる部分もある。"},
+    {"order": 30, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":-1,"unsupported_assertion":-1}, "reason": "違憲審査の充実を山花幹事に提案・質問したが、生活保護バッシングの長い経緯説明など本テーマから逸れる根拠の弱い主張が多い。"},
+    {"order": 31, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "審査会が憲法運用の調査権限を持つことを示し、具体的提案があれば検討し得ると応じつつ、賛否を闘わせる場であるという立場を明確にした。"},
+    {"order": 32, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":-1}, "reason": "七十日限定説の崩壊で改憲の立法事実が崩れているとして見解を問うたが、既出主張の繰り返しと断定的な前提が含まれる。"},
+    {"order": 33, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "七十日限定説の議論が選挙困難事態の存否と連動することを整理し、自党は選挙全面停止事態の有無という前段の議論をしていると論点を明確にした。"},
+    {"order": 35, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "四年にわたる骨子案取りまとめの経緯を踏まえ機は熟したとして起草委員会設置を促し、自衛隊明記や同性婚を含む二十四条改正を具体的に論じた。"},
+    {"order": 36, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":0,"groundedness":3,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "自民党WTの取りまとめや参院法制局答弁を具体的に引用し、七十日限定説・権能限定説の崩壊を根拠に任期延長改憲の論拠喪失を主張、五十三条召集の事実関係も具体的に提示した。"}
+  ]
+}

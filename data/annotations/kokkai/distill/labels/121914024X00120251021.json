@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "title": "参院議運委：常任委員長交代・特別委員会設置・会期・本会議議事の決定",
+    "goal": "内閣総辞職後の参議院議運委として、理事・委員長補欠選任、特別委員会・調査会・小委員会の設置、会期、本会議の議事順序を決定する",
+    "agenda": [
+      "内閣総辞職の報告",
+      "理事および常任委員長の辞任・補欠選任",
+      "特別委員会の設置（一部に反対意見あり、起立採決）",
+      "調査会・小委員会の設置と小委員長選任",
+      "情報監視審査会委員の辞任・補欠選任",
+      "今期国会の会期決定",
+      "本日の本会議の議事順序の確認"
+    ],
+    "decision_points": [
+      "理事・常任委員長・小委員長・情報監視審査会委員の補欠選任を承認するか",
+      "八つの特別委員会の設置を承認するか（沖縄北方・地方、ODA、デジタルAIを含む）",
+      "三調査会および小委員会を設置するか",
+      "今期国会の会期を五十八日間とするか",
+      "本会議の議事順序を事務総長説明どおり進めるか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "内閣総辞職という議事の前提となる事実を正確に報告しており、以降の人事・議事の必要性を基礎づける情報共有である。"},
+    {"order": 3, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事の補欠選任を議題として諮る議事進行で、人事決定を前に進めるが定型的な手続発言にとどまる。"},
+    {"order": 5, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "常任委員長辞任・補欠選任を議題に設定し事務総長報告を求める進行発言で、論点提示は最小限。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員長辞任申出と各会派からの後任推薦という決定材料を共有しており、人事決定の前提情報を提供している。"},
+    {"order": 9, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "特別委員会の件を議題とし意見表明を促す進行発言で、後続の討論の場を開いたが内容的寄与は小さい。"},
+    {"order": 10, "speech_type": "懸念提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "質疑回数（ODA三回・地方デジタル五回）や職員数・人件費など具体的データを挙げて三委員会設置に反対し、行財政改革の観点から論点を明確化した実質的討論。やや長いが根拠は強い。"},
+    {"order": 11, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "異議のない五特別委員会を切り分けて理事会申合せどおり採決にかけており、決定を実際に前進させる進行だが定型句中心。"},
+    {"order": 12, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "反対意見のあった三委員会を分離して起立採決に付しており、争点を踏まえた決定手続を進めたが進行係の発言にとどまる。"},
+    {"order": 14, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "三調査会の設置を理事会申合せどおり諮る定型的な議事進行発言。"},
+    {"order": 16, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "小委員会設置を理事会申合せどおり諮る定型的な議事進行発言。"},
+    {"order": 19, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "小委員長を指名し今後の取扱いを委員長一任とする手続を確定する進行で、人事を具体化するが定型的。"},
+    {"order": 21, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "情報監視審査会委員の辞任・補欠選任を議題に設定する定型的な進行発言。"},
+    {"order": 22, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員辞任の申出と各会派の後任推薦を報告し、人事決定の前提情報を提供している。"},
+    {"order": 25, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "本会議議事の件を議題とし事務総長説明を求める定型的な進行発言。"},
+    {"order": 26, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "本会議の議事順序と四回に分けた採決方法を詳細に整理して説明し、特別委員会設置で意見が割れる点を反映した手順を明確化している。長めだが手続を理解しやすくした。"},
+    {"order": 29, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "再開後に理事の補欠選任を諮る定型的な議事進行発言。"},
+    {"order": 32, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "衆議院議長からの会期協議内容（十二月十七日まで五十八日間）と各委員長に異論がなかった経緯を具体的に報告し、会期決定の判断材料を明確に提供している。"},
+    {"order": 35, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "再開後の本会議議事の件を議題とし事務総長説明を求める定型的な進行発言。"},
+    {"order": 36, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "会期採決と内閣総理大臣指名（記名投票・過半数・決選投票）の手順、両院不一致時の休憩対応まで整理して説明し、再開後の議事を明確化している。"},
+    {"order": 38, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "議事進行を確定し予鈴・本鈴時刻やベル調整の留意点を伝えて休憩に入る定型的な締めの進行発言。"}
+  ]
+}

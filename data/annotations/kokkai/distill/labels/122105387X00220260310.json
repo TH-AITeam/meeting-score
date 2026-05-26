@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "title": "復興特別委員会での復興大臣所信・予算・規制委活動報告聴取",
+    "goal": "復興大臣の所信、令和八年度復興庁予算の概要、原子力規制委員会の活動状況の説明を聴取し委員会審議の前提を共有する",
+    "agenda": [
+      "理事辞任・補欠選任及び委員会運営に関する手続",
+      "参考人出頭要求の取扱い",
+      "復興大臣の所信",
+      "令和八年度復興庁関係予算の概要",
+      "副大臣・政務官の担当事項の表明",
+      "原子力規制委員会の活動状況"
+    ],
+    "decision_points": [
+      "理事辞任の許可と補欠選任の取扱い",
+      "参考人出頭要求の委員長一任の可否"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "開会宣言と黙祷の儀礼的な進行であり、会議目的への実質的な貢献はない。"},
+    {"order": 4, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事辞任の決定宣言と補欠選任の取扱いを諮る純粋な議事進行であり、判断補助に留まる。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "アドバイザリー・ボード設置の事実報告であり、前例に基づく情報共有に留まる。"},
+    {"order": 7, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "参考人出頭要求の取扱いを委員長一任とする手続を諮るもので、運営事項の判断を進める定型進行。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "調査議題への移行と所信聴取の宣言で、議事の対象を示すに留まる進行発言。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "復興大臣所信として廃炉・ALPS処理水・帰還困難区域・F-REI等の取組と課題を具体的に説明し、視察や認定実績など根拠を伴う。長文だが論点を整理している。"},
+    {"order": 11, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "次の予算概要説明への移行を告げる進行発言で、議題を示すに留まる。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "令和八年度復興庁予算を費目別の具体的金額とともに説明しており、審議の判断材料として根拠性が高い。"},
+    {"order": 13, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "説明終了の確認と次の発言者紹介の進行発言で、実質的な貢献はない。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "副大臣の就任挨拶と担当事項の表明に留まり、議論を前進させる内容はない。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "副大臣の挨拶と担当表明で、他の挨拶と同型の定型発言であり追加価値が乏しい。"},
+    {"order": 18, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官の挨拶と担当表明で、定型的な繰り返しに留まる。"},
+    {"order": 20, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官の挨拶と担当表明で、他と同型の定型発言。"},
+    {"order": 22, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官の挨拶と担当表明で、定型的な繰り返しに留まる。"},
+    {"order": 24, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官の挨拶と担当表明で、他の挨拶と同型の定型発言。"},
+    {"order": 25, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "原子力規制委員会活動状況の説明聴取への移行を告げる進行発言で、議題を示すに留まる。"},
+    {"order": 26, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "規制委の審査実績・廃炉監視・ALPS処理水モニタリング・IRRS勧告等を件数や具体例を挙げて報告し、論点整理と根拠性が高い。長文ではある。"}
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "title": "財政関連四法案（特例公債・復興財源・所得税・関税定率）の委員会討論・採決",
+    "goal": "特例公債法・復興財源確保法・所得税法等・関税定率法等の各改正案を討論の上、委員会で採決し附帯決議を付すか決定する",
+    "agenda": [
+      "四法案の一括討論入り",
+      "所得税法等改正案（防衛特別所得税・一人親控除・設備投資促進税制等）への賛否討論",
+      "特例公債法改正案（赤字国債五年延長・行財政改革）への賛否討論",
+      "復興財源確保法改正案への賛否討論",
+      "関税定率法等改正案への賛否討論",
+      "各法案の採決",
+      "各法案への附帯決議の提案・採決"
+    ],
+    "decision_points": [
+      "特例公債法改正案を可決すべきか",
+      "復興財源確保法改正案を可決すべきか",
+      "所得税法等改正案を可決すべきか",
+      "関税定率法等改正案を可決すべきか",
+      "各法案に附帯決議を付すか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "開会と四法案の議題設定・質疑終局を宣言する定型的な議事進行で、審議対象を明示しているが論点提示はない。"},
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "討論入りと討論者の指名を行う純粋な議事進行で、会議を実質的に動かす内容ではない。"},
+    {"order": 3, "speech_type": "懸念提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":-1}, "reason": "四法案への賛否を理由付きで明示し、防衛財源の代替確保や毎年度国会審議化など具体的論拠を伴う反対討論。ただし審議で明らかになったとする断定がやや根拠薄い。"},
+    {"order": 5, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "第五条新設や自民・国民民主の合意書など具体的経緯を根拠に四法案全賛成の理由を整理した賛成討論で、判断材料を提示している。"},
+    {"order": 7, "speech_type": "懸念提示", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":-1}, "reason": "供給能力論や出国税のインバウンド数値を用いた独自視点の討論で新規性はあるが、消費税＝第二法人税など根拠の弱い断定的主張も含む。"},
+    {"order": 9, "speech_type": "根拠提示", "scores": {"issue_clarification":3,"decision_progress":2,"risk_detection":2,"actionability":2,"groundedness":3,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "一人親控除の所得要件や2014年の類似制度・減収額四千百億円など具体的データと前例を用い、効果検証や代替案まで踏み込んだ論拠の強い反対討論。"},
+    {"order": 11, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "特例公債法改正案の採決に入る宣言で、採決手続の進行であり論拠を伴わない定型句。"},
+    {"order": 12, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起立多数による可決を宣言し決定が確定したが、進行係の採決宣言であり実質議論はない。"},
+    {"order": 13, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議動議の提出と趣旨説明者の指名を行う議事進行で、次の手続を示すにとどまる。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":2,"groundedness":1,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "特例公債法の附帯決議案を朗読し、財政規律維持や単年度の説明責任など政府が配慮すべき具体的事項を明示している。"},
+    {"order": 15, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明終了と附帯決議動議の採決を行う定型的な議事進行。"},
+    {"order": 16, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起立総員で附帯決議可決を宣言し政府発言を促す進行で、決定は確定するが定型句。"},
+    {"order": 17, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議の趣旨に沿って配意する旨の儀礼的な政府答弁で、具体的内容を伴わない。"},
+    {"order": 18, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "復興財源確保法改正案の採決に入る進行で、前出の採決手続と同型の定型句。"},
+    {"order": 19, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "復興財源確保法の可決宣言と所得税法案の採決を続けて行う進行で、決定は確定するが定型的繰り返し。"},
+    {"order": 20, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "所得税法等改正案の起立多数可決を宣言する採決宣言で、決定確定だが進行係の定型句。"},
+    {"order": 21, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "所得税法案への附帯決議動議の提出と趣旨説明者指名を行う進行で、先行の動議提出と同型。"},
+    {"order": 22, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":2,"groundedness":1,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "所得税法案の附帯決議案を朗読し、基礎控除見直しやインボイス八割控除、賃上げ促進税制など政府が配慮すべき具体的事項を多数明示している。"},
+    {"order": 23, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明終了と附帯決議採決を行う定型的進行で、先行と同型の繰り返し。"},
+    {"order": 24, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起立総員で附帯決議可決を宣言し政府発言を促す進行で、定型的繰り返し。"},
+    {"order": 25, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議の趣旨を踏まえ配意する旨の儀礼的政府答弁で、前出答弁とほぼ同文。"},
+    {"order": 26, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "関税定率法等改正案の採決に入る進行で、先行採決と同型の定型句。"},
+    {"order": 27, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "関税定率法案の起立総員可決を宣言する採決宣言で、決定確定だが定型句。"},
+    {"order": 28, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "関税定率法案への附帯決議動議の提出と趣旨説明者指名を行う進行で、先行の動議提出と同型。"},
+    {"order": 29, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":2,"groundedness":1,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "関税定率法案の附帯決議案を朗読し、国内産業配慮や税関体制強化など政府が配慮すべき具体的事項を明示している。"},
+    {"order": 30, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明終了と附帯決議採決を行う定型的進行で、先行と同型の繰り返し。"},
+    {"order": 31, "speech_type": "意思決定促進", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起立総員で附帯決議可決を宣言し政府発言を促す進行で、定型的繰り返し。"},
+    {"order": 32, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "附帯決議の趣旨に沿い配意する旨の儀礼的政府答弁で、前出答弁とほぼ同文。"}
+  ]
+}

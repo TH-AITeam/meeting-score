@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "title": "衆院外務委員会の開会・委員会構成と外相所信表明",
+    "goal": "外務委員会の理事補欠選任・国政調査承認要求を決定し、外務大臣の外交政策所信を聴取する",
+    "agenda": ["委員長就任挨拶", "理事の辞任許可と補欠選任", "国政調査承認要求の決定", "外務大臣による外交政策所信表明", "副大臣・政務官の就任挨拶"],
+    "decision_points": ["理事辞任の許可", "理事の補欠選任", "国政調査承認要求を議長に求めるか"],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 1, "novelty": 0, "summarization": 0}, "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0}, "reason": "委員長就任の定型挨拶で、国際情勢に触れるが委員会の議題を前進させる実質的内容はない。"},
+    {"order": 3, "speech_type": "意思決定促進", "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 1, "groundedness": 1, "novelty": 0, "summarization": 0}, "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "理事辞任の確認と補欠選任の手続を進める議事進行であり、純粋な進行宣言のため過度な加点はしない。"},
+    {"order": 5, "speech_type": "意思決定促進", "scores": {"issue_clarification": 1, "decision_progress": 1, "risk_detection": 0, "actionability": 1, "groundedness": 1, "novelty": 0, "summarization": 0}, "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "国政調査承認要求を議題として明示し採決にかける議事進行で、論点提示はあるが定型進行のため加点は控えめ。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0}, "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "大臣・副大臣らの発言順を案内する純粋な議事進行で、実質的貢献はない。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification": 2, "decision_progress": 1, "risk_detection": 1, "actionability": 1, "groundedness": 2, "novelty": 1, "summarization": 1}, "penalties": {"duplication": 0, "verbosity": -2, "off_topic": 0, "unsupported_assertion": -1}, "reason": "外務大臣の所信表明で外交課題と方針を体系的に提示し論点を明確化するが、施策の羅列で具体的行動や根拠の深さに乏しく冗長。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0}, "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "外務副大臣の就任挨拶で、議論を前進させる実質的内容を含まない定型発言。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0}, "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "外務副大臣の就任挨拶で、前の挨拶とほぼ同型の定型発言であり実質的貢献はない。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0}, "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "政務官の就任挨拶で、他の挨拶と同型の定型発言であり議論を動かす内容はない。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0}, "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "政務官の就任挨拶で、繰り返しの定型発言であり実質的貢献はない。"},
+    {"order": 18, "speech_type": "情報共有", "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0}, "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0}, "reason": "政務官の就任挨拶で、他と同型の定型発言であり議論を前進させる内容はない。"}
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "title": "参院総務委員会・行政書士法改正案の審査と採決",
+    "goal": "特定行政書士の業務範囲拡大等を内容とする行政書士法改正案を質疑のうえ採決し可決すべきものと決定する",
+    "agenda": [
+      "委員異動・理事補欠選任・政府参考人出席要求などの議事手続",
+      "行政書士法改正案の趣旨説明",
+      "特定行政書士の業務範囲拡大と実態把握の仕組み",
+      "行政書士の職責規定新設とマイナンバーカード取得任意性",
+      "他士業との業務範囲・罰則の整理に関する質疑",
+      "改正案の採決"
+    ],
+    "decision_points": [
+      "行政書士法改正案を可決すべきものと決定するか",
+      "理事の補欠選任を委員長指名に一任するか",
+      "政府参考人の出席を求めるか",
+      "審査報告書の作成を委員長に一任するか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事補欠選任を委員長指名に一任する旨を諮る純粋な議事進行で、論点提示や実質的議論はない。"},
+    {"order": 4, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政府参考人の出席要求を諮る議事手続で、審査の準備にはなるが実質的な論点提示はない。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "法案を議題とし趣旨説明聴取に入る進行宣言で、議題設定はするが内容的な貢献は限定的。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "改正案の趣旨と五つの改正内容・施行期日を体系的に説明し、審議すべき論点を明確化しており審査の前提として有用。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明終了と質疑入りを告げる進行宣言で、実質的な内容貢献はない。"},
+    {"order": 9, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "実態調査に特定行政書士の活動実態の集計がない点を具体例で示し、業務範囲拡大に伴う実態把握の必要性という論点を提起している。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "実態把握の必要性を認め日行連や総務省に努力を求める答弁だが、具体的根拠や方策は乏しく一般的な見解にとどまる。"},
+    {"order": 11, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "前問を総務省に向け直し具体的な調査手法を問う質問で、議論を所管官庁の対応に展開させるが内容はやや重複的。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":2,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "約五千五百人の特定行政書士への実態調査や事例報告要請という具体的な調査方法を数値とともに示し、次の行動を明確化している。"},
+    {"order": 13, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "答弁内容を確認的に問い直し合意点を固める発言だが、新たな論点はなく確認にとどまる。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "適切な時期に依頼する旨を再確認する短い同意答弁で、前答弁の繰り返しに近い。"},
+    {"order": 15, "speech_type": "懸念提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "日行連調査が五年ごと・総務省は毎年度独自調査という事実を示し、日行連任せでなく総務省独自の調査検討を求める具体的指摘を行っている。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "職責規定の趣旨を説明しつつマイナンバーカード取得の任意性を踏まえた丁寧な対応の必要性を認める答弁で、論点に一定の整理を与える。"},
+    {"order": 17, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "答弁を受けて総務省に注意を促し、マイナンバーカード代理申請委託事業の概要・予算・実績を問う具体的な質問へ展開している。"},
+    {"order": 18, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":3,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委託事業の予算約二・九億円、申請受付七万一千二百九十件など具体的な数値データを提示しており根拠性が高い。"},
+    {"order": 19, "speech_type": "懸念提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":1,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":-1,"unsupported_assertion":-1}, "reason": "マイナポイントを邪道とした当時大臣発言に触れ取得任意性への注意を求めるが、本法案の審査からはやや逸れた政治的主張で根拠も伝聞的。"},
+    {"order": 20, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "約一万種類に及ぶ行政文書の整理・簡素化という新しい観点を提起し、書類の要否見直しという具体的な検討課題を問うている。"},
+    {"order": 21, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "手続簡素化は各所管省庁の検討事項としつつ、入札参加資格審査の共通化など総務省の具体的取組例を示して答えている。"},
+    {"order": 22, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "遺言書・会社定款作成を司法書士の独占業務に統一する案という新しい提案的観点を示し制度の明確化を問うている。"},
+    {"order": 23, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "行政書士と司法書士の業務範囲の違いを整理し、利用者選択を残す観点から一方への統一は適当でないと根拠を示して論点を明確化している。"},
+    {"order": 24, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "補助金は行政書士・助成金は社労士という違いを示し、業務範囲の整理統一を問う新たな提案的質問へ展開している。"},
+    {"order": 25, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "雇用関係助成金は社労士独占、その他は行政書士独占という根拠を示し専門性に応じた区分の合理性を整理して答えている。"},
+    {"order": 26, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "企業内行政書士を認める柔軟なサービス提供の観点を新たに提起し、第十条の二の制約理由を問うている。"},
+    {"order": 27, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "企業雇用での書類作成は制限されないが業として行えるのは行政書士等に限る理由を制度趣旨に基づいて整理し、質問者の誤解を解いている。"},
+    {"order": 28, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "士業ごとに独占業務違反の罰則が異なる理由を問い、罰則統一による分かりやすさ向上という観点を提起している。"},
+    {"order": 29, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "各士業の罰則を具体的な刑罰内容で対比し、立法時に横並びと業務の性質を踏まえて定められたとの根拠を示して答えている。"},
+    {"order": 30, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "謝意を述べて質問を終える締めの発言で、論点提示や進展への寄与はない。"},
+    {"order": 31, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "質疑終局・討論省略・採決へと議事を進め全会一致での可決と審査報告書一任を確定させた進行発言で、最終決定の手続を前進させたが定型の進行宣言である。"}
+  ]
+}

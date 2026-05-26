@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title": "災害対策・東日本大震災復興に係る所信聴取と地震防災対策特措法改正案審議",
+    "goal": "防災・復興に関する大臣所信と令和八年度予算の説明を聴取し、地震防災対策特別措置法改正案を採決する",
+    "agenda": [
+      "防災担当・国土強靱化・復興各大臣の所信聴取",
+      "令和八年度防災関係予算及び復興庁関係予算の説明",
+      "地震防災対策特別措置法改正案の趣旨説明",
+      "社会福祉施設耐震補強の実績・インクルーシブ防災をめぐる質疑",
+      "改正案に対する討論と採決"
+    ],
+    "decision_points": [
+      "地震防災対策特別措置法改正案を可決すべきか否か",
+      "審査報告書の作成を委員長に一任するか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員会の開会宣言と黙祷の進行であり、議事を実質的に動かす内容ではない定型的な開会発言。"},
+    {"order": 3, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "調査を議題とし所信聴取に移る進行発言で、次の議題を明示するのみの定型的な議事進行。"},
+    {"order": 4, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "防災担当大臣の所信表明で、防災庁設置や予算施策の方向性を具体的に共有しているが、決定を直接前進させるものではない。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "防災庁設置・国土強靱化の所信表明で施策方針を共有しているが、前発言と災害頻発の認識など重複部分があり情報共有の域にとどまる。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "次の所信聴取者を指名する定型的な議事進行発言。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "復興大臣の所信で、廃炉・ALPS処理水・F-REI等の具体的進捗や課題を事例を交えて共有しており根拠性が比較的高い情報共有。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "予算説明に移ることを告げ説明者を指名する定型的な議事進行発言。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "令和八年度防災関係予算の総括表と主要施策を具体的な金額を挙げて説明する予算情報共有。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "国土強靱化推進室・防災庁設置準備室・防災庁の予算案を具体的金額で説明する予算情報共有。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "令和八年度復興庁予算の総額と主要施策別の計上額を具体的に説明する予算情報共有。"},
+    {"order": 15, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "所信・予算説明の聴取終了と質疑は後日とする旨を告げる定型的な議事進行発言。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "改正案を議題とし趣旨説明聴取へ移る進行発言で、審議対象を明確にする定型的な議事進行。"},
+    {"order": 17, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "改正案の趣旨説明で、法の制定経緯・有効期限・延長理由を経緯や前例を踏まえて提示し、採決の判断材料を整理して論点を明確化している。"},
+    {"order": 18, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明聴取終了と質疑開始を告げる定型的な議事進行発言。"},
+    {"order": 19, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "地防法三条八号の木造障害者施設耐震工事の国費かさ上げ実績が二十年間ゼロという具体的事実を挙げ、制度が機能していない論点を鋭く提起している。"},
+    {"order": 20, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":-1}, "reason": "実績ゼロの理由を自治体からの申請がないことや耐震化が進んだためと説明するが、推測的な要因提示にとどまり根拠は限定的。"},
+    {"order": 22, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":1,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "制度のミスマッチを指摘しつつ災害弱者が放置されるリスクを示し、要支援者名簿整備やインクルーシブ防災への政府方針を問い論点を広げている。"},
+    {"order": 23, "speech_type": "根拠提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "個別避難計画や防災会議の女性委員割合の具体数値を挙げて取組を答弁しているが、質問の核心であるインクルーシブ防災の抜本策には踏み込まず情報共有的。"},
+    {"order": 24, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "ドイツBBKや米国FEMAの人員・予算・体制を具体的数値で示し、海外比較から日本の防災政策の弱点という新たな論点を強い根拠で提起している。"},
+    {"order": 26, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "防災基本計画の理念を述べ多様なニーズへの対応を強調するが、前答弁と重複し具体的な改善策の提示に乏しい一般的な答弁。"},
+    {"order": 27, "speech_type": "要約", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "インクルーシブ防災で災害弱者の命を守るべきと主張を集約して質疑を締めくくるが、新たな論拠の追加はなく既出主張の要約にとどまる。"},
+    {"order": 28, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "質疑終局を認め討論に入る旨を告げる定型的な議事進行発言。"},
+    {"order": 29, "speech_type": "根拠提示", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "反対討論として阪神・淡路大震災の証言や実績ゼロの経緯を挙げ、制度がニーズと乖離している論拠を示して採決への明確な賛否判断材料を提供している。"},
+    {"order": 30, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":2,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "討論終局を認め採決に入り、挙手多数による可決と審査報告書の委員長一任を確定させる採決進行で、議案決定を形式的に前進させている。"}
+  ]
+}

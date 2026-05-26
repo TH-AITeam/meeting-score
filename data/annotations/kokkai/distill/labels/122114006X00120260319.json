@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "title": "参院環境委員会の所信聴取・予算説明と各委員会業務報告",
+    "goal": "環境大臣の所信、令和8年度環境省予算、公害等調整委員会・原子力規制委員会の業務概要を聴取し、調査の前提情報を共有する",
+    "agenda": [
+      "委員・理事の異動報告と理事補欠選任",
+      "国政調査(環境及び公害問題)の決定",
+      "石原環境大臣の所信聴取",
+      "令和8年度環境省予算及び環境保全経費の説明",
+      "公害等調整委員会の業務及び予算説明",
+      "原子力規制委員会の業務説明"
+    ],
+    "decision_points": [
+      "三上理事の辞任を許可するか",
+      "理事の補欠選任を委員長一任とするか",
+      "今期国会で環境及び公害問題に関する調査を行うか"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "開会宣言と委員異動の事務報告であり、議事を前進させる実質的な貢献はほぼない定型進行。"},
+    {"order": 3, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事辞任の決定確認と補欠選任の手続を進める議事進行であり、純粋な進行採決のため貢献は限定的。"},
+    {"order": 7, "speech_type": "論点整理", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "調査を議題とし所信聴取に移行する旨を明示し、以降の審議の論点と進行を明確化した進行発言。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":2,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣の所信表明として循環経済・気候変動・自然再興・原子力防災など主要施策と提出法案を具体的に提示し、今後の審議論点を網羅的に共有しているが情報量が多く各論は概略にとどまる。"},
+    {"order": 9, "speech_type": "論点整理", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "次の予算説明へ移行する指名のみの定型進行で、実質的な内容はない。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":3,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "令和8年度予算の一般会計・特別会計・復興特会の具体的な金額と内訳を提示し、審議の判断材料となる根拠ある情報を共有している。"},
+    {"order": 11, "speech_type": "論点整理", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "公害等調整委員会の説明へ移行する指名のみの定型進行で、実質的内容はない。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":3,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "公害紛争処理の係属・終結件数や具体的な裁定事例、令和8年度歳出予算額を数値と事例で示し、根拠の強い業務報告となっている。"},
+    {"order": 13, "speech_type": "論点整理", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "原子力規制委員会の説明へ移行する指名のみの定型進行で、実質的内容はない。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":2,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "適合性審査の処理基数や浜岡の不正行為への対応、ALPS処理水モニタリング、IRRS勧告など具体的事実とリスク事項を根拠を伴って報告している。"}
+  ]
+}

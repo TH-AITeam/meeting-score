@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "title": "行政書士法改正案（特定行政書士業務拡大）の委員会起草・採決",
+    "goal": "行政書士法の一部を改正する法律案の草案を委員会の成案と決定し、委員会提出法律案として可決するか採決する",
+    "agenda": [
+      "政府参考人出席の決定",
+      "行政書士法改正案の起草趣旨・内容説明",
+      "災害時の行政書士派遣の実態と財政支援のあり方",
+      "特定行政書士の不服申立て代理業務の拡大範囲",
+      "業務制限規定への文言追加（報酬要件明確化）の趣旨",
+      "起草案の採決"
+    ],
+    "decision_points": [
+      "政府参考人の出席を認めるか",
+      "行政書士法改正草案を委員会の成案と決定し委員会提出法案とするか",
+      "法案提出手続を委員長一任とするか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "会議開会と政府参考人出席を諮る議事進行の定型発言で、論点提示はなく会議の前進寄与は限定的。"},
+    {"order": 3, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "五派共同提案による起草動議の提出を告げ趣旨説明者を指名する進行発言で、審議対象を明確化している。"},
+    {"order": 4, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "起草案の趣旨と五項目の改正内容・施行日を具体的に説明し、採決対象の論点を明確化して審議を前進させている。"},
+    {"order": 5, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "趣旨説明終了と発言者指名を告げるだけの純粋な議事進行で、実質的貢献はない。"},
+    {"order": 6, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "能登地震時の通知を踏まえ派遣人数把握の有無を具体的に質問。事実に基づくが議題は法案本体より災害支援に寄り気味。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":3,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "市別の派遣延べ人数や従事業務を具体的数値で回答し、データに基づく事実提示として根拠性が高い。"},
+    {"order": 8, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":-1,"unsupported_assertion":-1}, "reason": "財政措置の有無を問う質問だが「ボランティアはあり得ない」と根拠薄く断定的で、議題も法案本体からやや逸れる。"},
+    {"order": 9, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":3,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "通知が連合会の自主財源ボランティアである経緯と専門性を要する取組には個別に財政措置がある旨を具体的に説明し論点を整理した。"},
+    {"order": 10, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":1,"summarization":0}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":-1,"unsupported_assertion":0}, "reason": "災害時のボランティア依存の不備を指摘し財政支援の考えを提案者に問うが、前段と重複気味で法案採決の本筋からは外れる。"},
+    {"order": 11, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":-2,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "前回答の繰り返しを認めつつ専門性を要する支援には個別の財政支援が必要との見解を示すが、新規情報は乏しい。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":-1,"unsupported_assertion":0}, "reason": "指摘の重要性を認め検討する旨の儀礼的応答で、具体的方針や決定前進はない。"},
+    {"order": 13, "speech_type": "懸念提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":-1,"unsupported_assertion":0}, "reason": "沖縄の行政書士不足という具体例で供給不足リスクを示し国の財政出動を提言。質疑締めくくりだが法案採決の本筋からは逸れる。"},
+    {"order": 15, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "2014年改正の経緯を整理した上で本法案で特定行政書士が何をできるようになるかを問い、法案の核心論点を明確化した。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "現行法の制約と改正後の業務範囲拡大を生活保護・補助金等の具体例で対比説明し、法案の効果を明確化して審議を前進させた。"},
+    {"order": 17, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":3,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "改正効果を要約確認した上で裁決件数と認容率の具体的統計を示し、行政書士関与の効果を問う根拠の強い質疑。"},
+    {"order": 18, "speech_type": "根拠提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":-1}, "reason": "資料散逸や期間徒過の事例を挙げ改正の救済効果を説明するが、網羅調査は困難とし伝聞・推測（認容されるのではないか）にとどまる。"},
+    {"order": 19, "speech_type": "懸念提示", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "誇大広告・過大請求のリスクや特定行政書士数の実態を示し制度把握の必要性を指摘、さらに第十九条の文言追加の効果を問う有益な質疑。"},
+    {"order": 20, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":0,"actionability":0,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "文言追加は現行法の解釈明確化であり違法・合法の線引きを変えないと明言し、懸念点を解消して論点を整理した。"},
+    {"order": 21, "speech_type": "要約", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":0,"groundedness":1,"novelty":0,"summarization":2}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "答弁を確認し行政不服審査の趣旨をまとめた上で住民運動への影響を及ぼすべきでないと意見表明して質疑を締めくくった。"}
+  ]
+}

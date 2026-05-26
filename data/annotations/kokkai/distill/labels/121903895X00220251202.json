@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "title": "沖縄及び北方問題特別委員会の大臣所信・人事決定",
+    "goal": "理事の辞任・補欠選任を決定し、所管大臣・副大臣・政務官の所信表明と挨拶を行う",
+    "agenda": ["理事辞任の許可", "理事補欠選任", "沖縄振興・基地負担軽減に関する沖縄北方対策担当大臣の所信", "外交・安全保障・北方領土問題に関する外務大臣の所信", "副大臣・政務官の就任挨拶"],
+    "decision_points": ["理事高村正大の辞任を許可するか", "理事の補欠を委員長指名で選任するか"],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 2, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事辞任を決定し補欠選任の手続に進める議事進行の発言だが、純粋な進行・採決宣言であり論点を実質的に動かしたものではない。"},
+    {"order": 4, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "両大臣の発言順序を示す進行発言であり、次に何が行われるかを明確化するのみで議論の前進には直接寄与しない。"},
+    {"order": 5, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "沖縄振興予算二千八百二十九億円や観光収入過去最高など具体的数値・施策を伴う所信表明で、政府方針と課題を明示し論点を整理している。やや長い。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "外交・安全保障、尖閣・北方領土・対ロ制裁など外務大臣としての所信を具体的方針とともに提示し、論点を明確化している。やや長い。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "副大臣・政務官の発言順を示す議事進行発言で、進行整理にとどまり議論の中身を前進させない。"},
+    {"order": 9, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "副大臣の就任挨拶のみで、具体的論点や判断材料を含まず会議を前進させていない。"},
+    {"order": 11, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "前の就任挨拶とほぼ同型の定型的な挨拶で、新規の情報や論点を含まない。"},
+    {"order": 13, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "繰り返される定型的な就任挨拶で実質的な内容がなく、既出と同型の言い回しにとどまる。"},
+    {"order": 15, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政務官の定型的な就任挨拶で、論点や判断材料を含まず前発言と同型の繰り返しである。"},
+    {"order": 17, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "定型的な就任挨拶のみで実質的内容がなく、既出の挨拶とほぼ同一構成である。"},
+    {"order": 19, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "定型的な就任挨拶で新規性がなく、前の政務官挨拶の繰り返しにとどまる。"},
+    {"order": 21, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "定型的な就任挨拶のみで実質的内容を欠き、既出の挨拶と同型の繰り返しである。"}
+  ]
+}

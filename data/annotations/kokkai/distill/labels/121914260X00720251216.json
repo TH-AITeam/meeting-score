@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "title": "高次脳機能障害者支援法案の参院厚労委審議・採決",
+    "goal": "高次脳機能障害者支援法案について質疑を行い、委員会で可決すべきものと決定し本会議に上程する",
+    "agenda": [
+      "法案四条・五条の実効性確保（ロジックモデル・PDCAサイクル）に関する国・都道府県の責務",
+      "法案十条の施策進捗の公表と自治体への助言",
+      "当事者団体からの要望（訓練費負担軽減・リハビリ期間延長・子供と家族の支援）",
+      "未診断・孤立する当事者や対応医師の実態把握",
+      "ピアサポーターの育成・配置と医療との一体的整備",
+      "法案の趣旨説明と採決"
+    ],
+    "decision_points": [
+      "高次脳機能障害者支援法案を委員会として可決すべきものと決定するか",
+      "審査報告書の作成を委員長に一任するか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 2, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "政府参考人出席要求の議事手続きの定型進行であり、審議の前提を整える程度の寄与にとどまる。"},
+    {"order": 4, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "調査を議題とし質疑開始を宣する進行発言で、議題の所在を示す程度の整理にとどまる。"},
+    {"order": 5, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "法案四条二項の実効性確保について条文と当事者の経緯を踏まえロジックモデル活用とPDCA実行を具体的に問い、論点を明確化した。冒頭の謝辞がやや冗長。"},
+    {"order": 6, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "条文の趣旨を踏まえロジックモデルとPDCA実行に取り組む政府の姿勢を明確に答弁し、法施行方針の確認に寄与した。"},
+    {"order": 7, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "五条二項の都道府県の取組について国の助言・支援を具体的に問い論点を明確化したが、四条二項と構造が同様で一部重複する。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "五条二項に基づく自治体への助言・支援に努める方針を答弁したが、前答弁と同趣旨でやや重複する。"},
+    {"order": 9, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "十条一項の進捗公表の意義を当事者・国会の監視という観点から整理し、関連する医療法附帯決議も引いて論点を提示した。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "十条一項の公表規定を踏まえ国と自治体の適時公表によるPDCAの端緒づくりを具体的に答弁し、質問四番への先回り回答も含めた。"},
+    {"order": 11, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":2,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "自治体への公表フォーマット提供など必要な助言を行うかを再確認しアクションを具体化したが、既出論点の念押しで重複・冗長気味。"},
+    {"order": 12, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "自治体に有効活用される指導を行う旨を簡潔に確認したが、新規情報は乏しい。"},
+    {"order": 13, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣に実効性確保への決意を問う締めの質問で、法案の意義を整理しているが根拠提示は薄い。"},
+    {"order": 14, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣が早期発見・リハビリ・家族支援の切れ目ない実行と支援拠点機関・ロジックモデル活用の方針を具体的に表明し決意を示した。"},
+    {"order": 16, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":2,"actionability":1,"groundedness":3,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "当事者団体の具体的要望（訓練費の自己負担・リハビリ期間180日の限界・子供と家族支援）を実例を挙げて提示し、現場の課題を明確にした。引用が長め。"},
+    {"order": 17, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "利用者負担やリハビリ診療報酬の課題を受け止め検討する旨を答弁したが、具体策には踏み込まず一般的な対応にとどまる。"},
+    {"order": 18, "speech_type": "要約", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "国の責務を踏まえ当事者の声を聞き取り組むよう要望して質疑を締めくくる整理発言。"},
+    {"order": 19, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":3,"actionability":2,"groundedness":3,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "厚労科研の調査で約2〜3割が未診断という根拠と自身の経験を示し、医療アクセス断絶という重要な見落としを指摘して実態把握を求めた。やや長い。"},
+    {"order": 20, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "複数診療科にまたがり実態把握が困難という現状を認めつつ、支援拠点機関の研修や地域支援ネットワーク構築の取組を具体的に答弁した。"},
+    {"order": 22, "speech_type": "懸念提示", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":3,"actionability":2,"groundedness":3,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "ネットワーク事業の実施が8自治体にとどまるとの具体データで答弁の不十分さを突き、ピアサポーター配置実態が未把握というリスクを提示し計画策定を求めた。"},
+    {"order": 23, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":2,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "ピアサポートの重要性を認め、障害者ピアサポート研修事業の活用や支援拠点機関との連携検討を答弁したが、配置の明確な方針提示には至らない。"},
+    {"order": 25, "speech_type": "質問", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "支援拠点へのピアサポーター配置を当事者経験を添えて重ねて求めたが、前問の念押しで一部重複する。"},
+    {"order": 26, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "配置についても検討されるべきと答弁したが法政策の着実な実行が先という一般論にとどまり、前答弁と重なる。"},
+    {"order": 27, "speech_type": "質問", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":2,"groundedness":2,"novelty":2,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "40年診てきた医師の知見を引き、医療とピアを一体で整備・連携させる方針を明確に示すよう求め、論点を統合した。やや長い。"},
+    {"order": 28, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":1,"novelty":0,"summarization":1}, "penalties": {"duplication":-1,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "医療体制とピアサポート双方の整備の重要性を認め方向性を整理して答弁したが、既出の取組の要約にとどまる。"},
+    {"order": 30, "speech_type": "要約", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":2}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "医療とピアサポートを一体的に進める仕組みを計画に位置付けるよう要点を整理して質疑を締めくくった。"},
+    {"order": 32, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "法案を議題とし趣旨説明聴取に移る進行発言で、審議の段取りを進める程度の寄与。"},
+    {"order": 33, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":2,"risk_detection":1,"actionability":1,"groundedness":3,"novelty":1,"summarization":1}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "患者数約23万人の推計や基本理念・支援施策・実施体制・検討条項・施行日まで法案の骨子を根拠を示して体系的に説明し、採決の判断材料を整えた。"},
+    {"order": 34, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":3,"risk_detection":0,"actionability":1,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "質疑・討論を経て採決を宣し全会一致で原案可決すべきものと決定づけたが、論拠を伴う討論ではなく採決宣言の定型進行である点を考慮した。"}
+  ]
+}

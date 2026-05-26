@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "title": "衆院安全保障委員会の委員会構成と大臣所信表明",
+    "goal": "委員長挨拶・理事補欠選任・国政調査承認を決定し、防衛・外務大臣の所信表明と政務三役の就任挨拶を行う",
+    "agenda": [
+      "委員長就任挨拶",
+      "理事辞任と理事補欠選任",
+      "国政調査承認要求",
+      "防衛大臣の所信表明",
+      "外務大臣の所信表明",
+      "副大臣・大臣政務官の就任挨拶"
+    ],
+    "decision_points": [
+      "理事辞任を許可するか",
+      "理事補欠を委員長指名で選任するか",
+      "国政調査承認要求を行うか"
+    ],
+    "meeting_type": "decision"
+  },
+  "labels": [
+    {"order": 1, "speech_type": "情報共有", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "委員長就任の定型挨拶と開会宣言であり、議論を実質的に前進させる内容はない。"},
+    {"order": 3, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "理事辞任の議決と理事補欠選任の議題を提示し採決へ進める議事進行で、論点提示は最小限。"},
+    {"order": 5, "speech_type": "意思決定促進", "scores": {"issue_clarification":1,"decision_progress":1,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "国政調査承認要求の議題を諮り採決へ進める定型的な議事進行で、実質的な討論はない。"},
+    {"order": 7, "speech_type": "情報共有", "scores": {"issue_clarification":1,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "大臣等の発言順序を案内する進行発言で、次に所信表明へ移ることを示すのみ。"},
+    {"order": 8, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":0,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛大臣の所信表明で、安保環境の具体的事案やGDP比2%前倒し・三文書改定など方針を事例とともに提示し論点を整理しているが、採決を伴わない一方向の表明で網羅的なため冗長気味。"},
+    {"order": 10, "speech_type": "情報共有", "scores": {"issue_clarification":2,"decision_progress":1,"risk_detection":1,"actionability":1,"groundedness":2,"novelty":1,"summarization":0}, "penalties": {"duplication":-1,"verbosity":-1,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣の所信表明で日米同盟・近隣諸国・核軍縮など外交方針を具体的に示すが、防衛大臣と安保環境認識が重複し、広範で冗長な点がある。"},
+    {"order": 12, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛副大臣の就任挨拶のみで、議論への実質的貢献はない。"},
+    {"order": 16, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務副大臣の就任挨拶のみで、議論への実質的貢献はない。"},
+    {"order": 18, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "防衛大臣政務官の就任挨拶のみで、議論への実質的貢献はない。"},
+    {"order": 20, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶のみで、議論への実質的貢献はない。"},
+    {"order": 22, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶のみで、議論への実質的貢献はない。"},
+    {"order": 24, "speech_type": "雑談/脱線", "scores": {"issue_clarification":0,"decision_progress":0,"risk_detection":0,"actionability":0,"groundedness":0,"novelty":0,"summarization":0}, "penalties": {"duplication":0,"verbosity":0,"off_topic":0,"unsupported_assertion":0}, "reason": "外務大臣政務官の就任挨拶のみで、議論への実質的貢献はない。"}
+  ]
+}

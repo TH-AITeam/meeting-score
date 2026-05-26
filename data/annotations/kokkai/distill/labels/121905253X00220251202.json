@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "title": "拉致問題特別委員会での政府の現状報告と新任挨拶",
+    "goal": "理事の辞任・補欠選任を処理し、拉致問題に関する政府の現状と取組について各大臣・副大臣・政務官から報告・所信表明を受ける",
+    "agenda": [
+      "理事の辞任許可と補欠選任",
+      "拉致問題担当大臣による現状報告（首脳外交・啓発活動）",
+      "外務大臣による日朝関係・核ミサイル情勢の報告",
+      "国家公安委員会委員長による警察の捜査・国際手配状況の報告",
+      "各副大臣・政務官の就任挨拶と決意表明"
+    ],
+    "decision_points": [
+      "理事辞任の許可",
+      "委員長による理事補欠選任の指名"
+    ],
+    "meeting_type": "progress"
+  },
+  "labels": [
+    {
+      "order": 2,
+      "speech_type": "意思決定促進",
+      "scores": {"issue_clarification": 0, "decision_progress": 1, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "理事辞任の決定宣言と補欠選任の手続を進める純粋な議事進行であり、論点提示はなく決定寄与は最小限。"
+    },
+    {
+      "order": 4,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 1, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": 0, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "各大臣・政務官の発言順序を案内する進行発言で、以後の報告の段取りを示すにとどまる。"
+    },
+    {
+      "order": 5,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 2, "decision_progress": 1, "risk_detection": 1, "actionability": 1, "groundedness": 2, "novelty": 1, "summarization": 1},
+      "penalties": {"duplication": 0, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "日米首脳会談やASEAN・APECでの働きかけ、啓発活動の具体策など事実を伴う現状報告で論点を整理しているが、決定や具体的行動の合意には至らずやや冗長。"
+    },
+    {
+      "order": 7,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 2, "decision_progress": 1, "risk_detection": 1, "actionability": 0, "groundedness": 2, "novelty": 1, "summarization": 1},
+      "penalties": {"duplication": -1, "verbosity": -1, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "日朝平壌宣言やG7外相会合など具体的な外交経緯を示し外務省の立場を明確化しているが、担当大臣報告と最重要課題などの認識が重複する。"
+    },
+    {
+      "order": 9,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 2, "decision_progress": 1, "risk_detection": 1, "actionability": 0, "groundedness": 3, "novelty": 1, "summarization": 0},
+      "penalties": {"duplication": -1, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "拉致容疑事案十三件十九人や工作員十人の国際手配など具体的な数値・捜査状況を提示し根拠性が高いが、認識部分は他の報告と重複する。"
+    },
+    {
+      "order": 11,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -2, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "副大臣の就任挨拶で、担当大臣の発言を引用し決意を述べるのみで新規情報がなく重複が目立つ。"
+    },
+    {
+      "order": 13,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -2, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "外務副大臣の就任挨拶で、既出の経緯と決意表明の繰り返しにとどまり議論を前進させない。"
+    },
+    {
+      "order": 15,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -2, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の定型的な就任挨拶で、補佐の決意を述べるのみで新規性も具体性もない。"
+    },
+    {
+      "order": 17,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -2, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の就任挨拶で、国際連携の重要性と決意の定型表現を繰り返すのみで貢献は乏しい。"
+    },
+    {
+      "order": 19,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -2, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の就任挨拶で、既出の認識と決意表明の繰り返しにとどまる。"
+    },
+    {
+      "order": 21,
+      "speech_type": "情報共有",
+      "scores": {"issue_clarification": 0, "decision_progress": 0, "risk_detection": 0, "actionability": 0, "groundedness": 0, "novelty": 0, "summarization": 0},
+      "penalties": {"duplication": -2, "verbosity": 0, "off_topic": 0, "unsupported_assertion": 0},
+      "reason": "政務官の就任挨拶で、主体的取組と国際連携の決意を定型的に述べるのみで新規情報がない。"
+    }
+  ]
+}
