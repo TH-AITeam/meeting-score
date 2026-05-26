@@ -116,7 +116,7 @@ def build_prompt(ctx: EvaluationContext) -> str:
         meeting_goal=ctx.meeting_goal,
         agenda="、".join(ctx.agenda) if ctx.agenda else "(なし)",
         decision_points="、".join(ctx.decision_points) if ctx.decision_points else "(なし)",
-        current_topic=ctx.current_topic if ctx.current_topic else "(未設定)",
+        current_topic=ctx.current_topic if ctx.current_topic else "(議題不明)",
         before_utterances=_format_utterances(ctx.before_utterances),
         target_speaker=ctx.target_utterance.speaker,
         target_timestamp=ctx.target_utterance.timestamp,

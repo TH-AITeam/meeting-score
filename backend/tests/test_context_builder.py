@@ -53,19 +53,13 @@ def test_context_includes_meeting_info():
     assert contexts[0].decision_points == ["決定1"]
 
 
-def test_current_topic_estimated():
-    """アジェンダから現在の議題が推定される"""
+def test_current_topic_not_estimated_from_agenda_without_transitions():
+    """topic_transitions がなければアジェンダから現在議題を推定しない"""
     meeting = _make_meeting(6)
     meeting.agenda = ["議題A", "議題B", "議題C"]
     contexts = build_contexts(meeting)
 
-    # 6発言 / 3議題 = 2発言ずつ
-    assert contexts[0].current_topic == "議題A"
-    assert contexts[1].current_topic == "議題A"
-    assert contexts[2].current_topic == "議題B"
-    assert contexts[3].current_topic == "議題B"
-    assert contexts[4].current_topic == "議題C"
-    assert contexts[5].current_topic == "議題C"
+    assert [ctx.current_topic for ctx in contexts] == [""] * 6
 
 
 def test_current_topic_empty_agenda():
@@ -101,8 +95,9 @@ def test_current_topic_from_utterance_topic():
     contexts = build_contexts(meeting)
     # u001 は発言の topic フィールドを優先
     assert contexts[0].current_topic == "明示議題X"
-    # u002, u003 はフォールバック推定
-    assert contexts[1].current_topic != ""
+    # u002, u003 は明示的な議題情報がないため空文字
+    assert contexts[1].current_topic == ""
+    assert contexts[2].current_topic == ""
 
 
 def test_current_topic_from_topic_transitions():
