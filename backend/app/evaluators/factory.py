@@ -21,11 +21,22 @@ Backend = Literal["openai", "local"]
 SUPPORTED_BACKENDS: tuple[Backend, ...] = ("openai", "local")
 
 
-def create_evaluator(config: AppConfig) -> Evaluator:
+def create_evaluator(
+    config: AppConfig,
+    *,
+    model_override: str | None = None,
+    fallback_model: str | None = None,
+) -> Evaluator:
     """AppConfig から Evaluator を生成する。
 
     config.llm_backend == "openai" → OpenAIEvaluator
     config.llm_backend == "local"  → LocalEvaluator
+
+    model_override / fallback_model (Issue #83):
+        組織別 LoRA アダプタへのルーティング用。local バックエンドのとき
+        model_override をリクエストのモデル名に使い、ロード失敗時は
+        fallback_model（通常はベースモデル）に切り替える。アダプタは
+        local 推論専用のため openai バックエンドでは無視する。
     """
     backend = (config.llm_backend or "local").lower()
     model = resolve_llm_model_for_backend(backend, config.llm_model)
@@ -44,12 +55,13 @@ def create_evaluator(config: AppConfig) -> Evaluator:
             )
             raise ValueError(msg)
         return LocalEvaluator(
-            model=model,
+            model=model_override or model,
             endpoint=config.llm_endpoint,
             api_key=config.llm_api_key,
             max_tokens=config.llm_max_tokens,
             max_retries=config.llm_max_retries,
             timeout=config.llm_timeout,
+            fallback_model=fallback_model,
         )
 
     msg = f"未対応の llm.backend: {backend!r}。対応バックエンド: {', '.join(SUPPORTED_BACKENDS)}"

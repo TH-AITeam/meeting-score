@@ -49,6 +49,22 @@ MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
 GUIDED_BACKEND="${GUIDED_BACKEND:-}"
 SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-${MODEL}}"
 
+# 組織別 LoRA マルチアダプタ配信 (Issue #83)。
+#   ENABLE_LORA=1 で --enable-lora を付与。MAX_LORAS は同時ロード上限
+#   (GPU 80GB なら 8 程度が無難)。LORA_MODULES は起動時登録するアダプタ
+#   ("org_001=adapters/org_001/v3 org_002=...")。未指定なら adapters/registry.yaml
+#   の active_version から自動生成する。未ロード組織は初回リクエスト時に
+#   vLLM 拡張 API (/v1/load_lora_adapter) でロードし、上限超過は LRU で押し出す。
+ENABLE_LORA="${ENABLE_LORA:-0}"
+MAX_LORAS="${MAX_LORAS:-8}"
+LORA_MODULES="${LORA_MODULES:-}"
+if [[ "${ENABLE_LORA}" == "1" && -z "${LORA_MODULES}" ]]; then
+  LORA_MODULES="$(PYTHONPATH="$REPO_ROOT/backend" "$PYTHON" -c "
+from app.evaluators.adapter_resolver import AdapterResolver
+print(' '.join(AdapterResolver(base_model='${MODEL}').lora_modules()))
+" 2>/dev/null || true)"
+fi
+
 echo "============================================"
 echo "  vLLM OpenAI 互換サーバ起動"
 echo "============================================"
@@ -58,11 +74,20 @@ echo "  GPU_MEM_UTIL  : ${GPU_MEM_UTIL}"
 echo "  MAX_MODEL_LEN : ${MAX_MODEL_LEN}"
 echo "  GUIDED        : ${GUIDED_BACKEND:-default(xgrammar)}"
 echo "  Served as     : ${SERVED_MODEL_NAME}"
+echo "  ENABLE_LORA   : ${ENABLE_LORA} (max=${MAX_LORAS})"
+echo "  LORA_MODULES  : ${LORA_MODULES:-(なし)}"
 echo "============================================"
 
 GUIDED_ARGS=""
 if [[ -n "${GUIDED_BACKEND}" ]]; then
   GUIDED_ARGS="--guided-decoding-backend ${GUIDED_BACKEND}"
+fi
+LORA_ARGS=""
+if [[ "${ENABLE_LORA}" == "1" ]]; then
+  LORA_ARGS="--enable-lora --max-loras ${MAX_LORAS}"
+  if [[ -n "${LORA_MODULES}" ]]; then
+    LORA_ARGS="${LORA_ARGS} --lora-modules ${LORA_MODULES}"
+  fi
 fi
 # shellcheck disable=SC2086
 exec "$PYTHON" -m vllm.entrypoints.openai.api_server \
@@ -72,4 +97,5 @@ exec "$PYTHON" -m vllm.entrypoints.openai.api_server \
     --gpu-memory-utilization "${GPU_MEM_UTIL}" \
     --max-model-len "${MAX_MODEL_LEN}" \
     ${GUIDED_ARGS} \
+    ${LORA_ARGS} \
     --served-model-name "${SERVED_MODEL_NAME}"
