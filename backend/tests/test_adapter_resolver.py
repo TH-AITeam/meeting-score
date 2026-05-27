@@ -211,3 +211,156 @@ def test_evaluate_fails_without_fallback():
     result = ev.evaluate(_ctx())
     assert result.evaluation_failed
     assert client.calls == ["org_001"]  # フォールバック先が無い
+
+
+# ---------- ensure_lora_loaded: 選択前に vLLM へロード (Issue #83 P1) ----------
+
+
+def test_ensure_lora_loaded_success_and_cache():
+    from app.evaluators.lora_loader import ensure_lora_loaded, reset_loaded_cache
+
+    reset_loaded_cache()
+    calls: list[tuple[str, dict]] = []
+
+    def post(url, payload, timeout):
+        calls.append((url, payload))
+        return 200, "ok"
+
+    assert ensure_lora_loaded("http://x/v1", "org_a", "/p/org_a/v1", post=post) is True
+    assert calls[0][0] == "http://x/v1/load_lora_adapter"
+    assert calls[0][1] == {"lora_name": "org_a", "lora_path": "/p/org_a/v1"}
+    # 2 回目はキャッシュされ POST されない
+    assert ensure_lora_loaded("http://x/v1", "org_a", "/p/org_a/v1", post=post) is True
+    assert len(calls) == 1
+
+
+def test_ensure_lora_loaded_already_loaded_is_success():
+    from app.evaluators.lora_loader import ensure_lora_loaded, reset_loaded_cache
+
+    reset_loaded_cache()
+    assert (
+        ensure_lora_loaded("http://x/v1", "o", "/p", post=lambda *_a: (400, "LoRA already loaded"))
+        is True
+    )
+
+
+def test_ensure_lora_loaded_failure_and_exception():
+    from app.evaluators.lora_loader import ensure_lora_loaded, reset_loaded_cache
+
+    reset_loaded_cache()
+    assert ensure_lora_loaded("http://x/v1", "o", "/p", post=lambda *_a: (500, "err")) is False
+
+    def boom(*_a):
+        raise RuntimeError("connection refused")
+
+    assert ensure_lora_loaded("http://x/v1", "o", "/p", post=boom) is False
+
+
+def test_ensure_lora_loaded_no_path():
+    from app.evaluators.lora_loader import ensure_lora_loaded
+
+    assert ensure_lora_loaded("http://x/v1", "o", None) is False
+
+
+# ---------- /api/analyze ルーティング (Issue #83 P1/P2 のレビュー反映) ----------
+
+
+class _StubResolver:
+    def __init__(self, choice):
+        self._choice = choice
+
+    def resolve(self, org_id):
+        return self._choice
+
+
+class _StubEvaluator:
+    def evaluate(self, ctx):
+        from app.evaluators.base import EvaluationResult
+        from app.schemas.models import Penalties, Scores
+
+        return EvaluationResult(
+            speech_type="情報共有",
+            scores=Scores(decision_progress=2),
+            penalties=Penalties(),
+            reason="ok",
+            evaluation_failed=False,
+        )
+
+
+def _analyze_payload(org_id: str) -> dict:
+    return {
+        "meeting_id": "m1",
+        "title": "t",
+        "goal": "g",
+        "org_id": org_id,
+        "utterances": [
+            {"utterance_id": "u1", "speaker": "A", "timestamp": "00:01", "text": "発言1"},
+            {"utterance_id": "u2", "speaker": "B", "timestamp": "00:02", "text": "発言2"},
+        ],
+    }
+
+
+def test_route_adapter_used_only_after_successful_load(monkeypatch):
+    """P1: アダプタはロード成功時のみ採用。失敗時はベース (model_override=None)。"""
+    from fastapi.testclient import TestClient
+
+    from app.api import routes
+    from app.api.main import app
+    from app.evaluators.adapter_resolver import AdapterChoice
+
+    choice = AdapterChoice(
+        org_id="org_a", kind="adapter", model="org_a", version="v1", adapter_path="/p/org_a/v1"
+    )
+    monkeypatch.setattr(routes, "_get_adapter_resolver", lambda config: _StubResolver(choice))
+
+    captured: dict = {}
+
+    def fake_create(config, *, model_override=None, fallback_model=None):
+        captured["model_override"] = model_override
+        return _StubEvaluator()
+
+    monkeypatch.setattr(routes, "create_evaluator", fake_create)
+
+    # ロード失敗 → アダプタ不採用 (ベース)
+    monkeypatch.setattr(routes, "ensure_lora_loaded", lambda *a, **k: False)
+    with TestClient(app) as c:
+        assert c.post("/api/analyze", json=_analyze_payload("org_a")).status_code == 200
+    assert captured["model_override"] is None
+
+    # ロード成功 → アダプタ採用
+    monkeypatch.setattr(routes, "ensure_lora_loaded", lambda *a, **k: True)
+    with TestClient(app) as c:
+        assert c.post("/api/analyze", json=_analyze_payload("org_a")).status_code == 200
+    assert captured["model_override"] == "org_a"
+
+
+def test_route_weights_profile_applied_on_openai_backend(monkeypatch):
+    """P2: 重みプロファイルはバックエンド非依存。openai でも適用される。"""
+    import dataclasses
+
+    from fastapi.testclient import TestClient
+
+    from app.api import routes
+    from app.api.main import app
+    from app.evaluators.adapter_resolver import AdapterChoice
+    from app.scoring.weights import ScoringWeights
+
+    choice = AdapterChoice(
+        org_id="org_b", kind="weights_profile", model="base", weights_profile_path="/p/org_b.yaml"
+    )
+    monkeypatch.setattr(routes, "_get_adapter_resolver", lambda config: _StubResolver(choice))
+    monkeypatch.setattr(routes, "create_evaluator", lambda config, **k: _StubEvaluator())
+
+    called: dict = {}
+
+    def fake_load_profile(path):
+        called["path"] = path
+        return ScoringWeights()
+
+    monkeypatch.setattr(routes, "_load_weights_profile", fake_load_profile)
+
+    with TestClient(app) as c:
+        # backend を openai に差し替えても重みプロファイルが適用されること
+        c.app.state.config = dataclasses.replace(c.app.state.config, llm_backend="openai")
+        assert c.post("/api/analyze", json=_analyze_payload("org_b")).status_code == 200
+    assert called.get("path") == "/p/org_b.yaml"

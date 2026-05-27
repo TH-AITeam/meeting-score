@@ -19,6 +19,7 @@ from app.evaluators.adapter_resolver import (
     KIND_WEIGHTS_PROFILE,
     AdapterResolver,
 )
+from app.evaluators.lora_loader import ensure_lora_loaded
 from app.ingest.loader import load_meeting_from_dict, load_meeting_from_file
 from app.reporting.reporter import format_meeting_summary_for_ui
 from app.schemas.models import EvaluatedUtterance, MeetingInput, MeetingType
@@ -206,22 +207,31 @@ async def _run_analysis(
     weights = get_weights_for_type(config, meeting_data.meeting_type)
 
     # 組織別 LoRA アダプタ / 重みプロファイルのルーティング (Issue #83)。
-    # org_id はリクエストボディ or X-Org-Id ヘッダから。アダプタは local 推論専用。
+    # org_id はリクエストボディ or X-Org-Id ヘッダから。
     if org_id is None:
         org_id = request.headers.get("X-Org-Id")
     model_override: str | None = None
     fallback_model: str | None = None
-    if org_id and (config.llm_backend or "local").lower() == "local":
+    if org_id:
         choice = _get_adapter_resolver(config).resolve(org_id)
-        if choice.kind == KIND_ADAPTER:
-            # Case 1: 組織別アダプタで評価。ロード失敗時はベースモデルに降格。
-            model_override = choice.model
-            fallback_model = config.llm_model
-            logger.info(
-                "org=%s: アダプタ '%s' で評価 (fallback=%s)", org_id, model_override, fallback_model
-            )
-        elif choice.kind == KIND_WEIGHTS_PROFILE and choice.weights_profile_path:
-            # Case 2: アダプタ未作成 → ベースモデル + 組織別重みプロファイル。
+        is_local = (config.llm_backend or "local").lower() == "local"
+        if choice.kind == KIND_ADAPTER and is_local:
+            # Case 1: 組織別アダプタ (local 推論専用)。
+            # 選択する前に vLLM へロードする。registry hot-reload 後でも確実に登録し、
+            # ロードできた場合のみ採用 (失敗時はベースモデルのまま継続)。
+            if ensure_lora_loaded(config.llm_endpoint or "", choice.model, choice.adapter_path):
+                model_override = choice.model
+                fallback_model = config.llm_model
+                logger.info("org=%s: アダプタ '%s' で評価", org_id, model_override)
+            else:
+                logger.warning(
+                    "org=%s: アダプタ '%s' のロードに失敗。ベースモデルで評価します。",
+                    org_id,
+                    choice.model,
+                )
+        if choice.kind == KIND_WEIGHTS_PROFILE and choice.weights_profile_path:
+            # Case 2: ベースモデル + 組織別重みプロファイル。
+            # 重みはスコアリング段階に効くためバックエンド (local/openai) 非依存で適用する。
             try:
                 weights = _load_weights_profile(choice.weights_profile_path)
                 logger.info(
