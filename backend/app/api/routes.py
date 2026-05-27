@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import yaml
-from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Header, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel, ValidationError
 
 from app.aggregation.aggregator import build_meeting_summary
@@ -202,19 +202,31 @@ async def delete_meeting(meeting_id: str):
 
 
 @router.post("/admin/retrain_weights")
-async def retrain_weights(org_id: str = Query(...)):
+async def retrain_weights(
+    org_id: str = Query(...),
+    x_org_id: str = Header(..., alias="X-Org-Id"),
+):
     """指定組織の軸重みプロファイルを今すぐ再回帰する (cron の手動トリガ版)。
 
     実体は scripts/update_weight_profiles.py の update_org_profile。閾値未満や
     consent=false、回帰悪化 (rollback) の場合は書き出さず status で理由を返す。
     """
+    if x_org_id != org_id:
+        raise HTTPException(
+            status_code=403,
+            detail="X-Org-Id がリクエストの org_id と一致しません",
+        )
+
     repo_root = str(Path(__file__).resolve().parents[3])
     if repo_root not in sys.path:
         sys.path.insert(0, repo_root)
     # scripts/ は backend の mypy/パッケージ対象外。実行時に repo root 経由で解決する。
     from scripts.update_weight_profiles import update_org_profile  # type: ignore[import-not-found]
 
-    return update_org_profile(org_id)
+    try:
+        return update_org_profile(org_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 # ---------------------------------------------------------------------------

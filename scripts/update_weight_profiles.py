@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -57,6 +58,21 @@ ROLLBACK_MARGIN = 0.02  # 回帰が固定より これ以上悪化したら採�
 DEFAULT_MEETINGS_DIR = REPO_ROOT / "data" / "stored_meetings"
 DEFAULT_OUT_ROOT = REPO_ROOT / "data" / "feedback"
 DEFAULT_PROFILE_DIR = REPO_ROOT / "config" / "weights_profile"
+ORG_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
+
+
+def validate_org_id(org_id: str) -> None:
+    """org_id をファイルシステム上の子パスとして安全に使える形式へ制限する。"""
+    if not ORG_ID_RE.fullmatch(org_id):
+        raise ValueError(f"invalid org_id for filesystem path: {org_id!r}")
+
+
+def safe_child_path(root: Path, *parts: str) -> Path:
+    """root 配下に収まる子パスだけを返す。"""
+    resolved_root = root.resolve()
+    candidate = resolved_root.joinpath(*parts).resolve()
+    candidate.relative_to(resolved_root)
+    return candidate
 
 
 def enumerate_consenting_orgs() -> list[str]:
@@ -120,6 +136,8 @@ def update_org_profile(
     org_id は単一・必須 (組織混在禁止)。consent_to_train=false / 閾値未満 / 回帰悪化は
     プロファイルを書き出さず status で理由を返す。
     """
+    validate_org_id(org_id)
+
     consent, pairwise_rows, axis_rows = load_feedback_from_db(org_id, since)
     if not consent:
         return {"org_id": org_id, "status": "skipped_no_consent"}
@@ -147,13 +165,22 @@ def update_org_profile(
         val_ratio=0.0,
         seed=seed,
     )
-    pairs_path = out_root / org_id / "weights" / version / "pairs.jsonl"
+    pairs_path = safe_child_path(out_root, org_id, "weights", version, "pairs.jsonl")
     pairs = load_pairs_with_scores(pairs_path)
     if not pairs:
         return {
             "org_id": org_id,
             "status": "skipped_no_resolved_pairs",
             "n_pairs": n_feedback_pairs,
+        }
+    n_resolved_pairs = len(pairs)
+    if n_resolved_pairs < min_pairs:
+        return {
+            "org_id": org_id,
+            "status": "skipped_below_resolved_threshold",
+            "n_pairs": n_resolved_pairs,
+            "n_feedback_pairs": n_feedback_pairs,
+            "min_pairs": min_pairs,
         }
 
     diffs = np.array([np.array(win) - np.array(lose) for win, lose in pairs], dtype=float)
@@ -163,7 +190,7 @@ def update_org_profile(
 
     result: dict[str, Any] = {
         "org_id": org_id,
-        "n_pairs": len(pairs),
+        "n_pairs": n_resolved_pairs,
         "acc_regressed": round(acc_reg, 4),
         "acc_fixed": round(acc_fixed, 4),
     }
@@ -174,10 +201,10 @@ def update_org_profile(
         _append_history(profile_dir, {**result, "ts": datetime.now(tz=UTC).isoformat()})
         return result
 
-    profile_path = profile_dir / f"{org_id}.yaml"
+    profile_path = safe_child_path(profile_dir, f"{org_id}.yaml")
     profile_path.parent.mkdir(parents=True, exist_ok=True)
     profile_path.write_text(
-        render_profile_yaml(org_id, w, len(pairs), acc_reg, acc_fixed), encoding="utf-8"
+        render_profile_yaml(org_id, w, n_resolved_pairs, acc_reg, acc_fixed), encoding="utf-8"
     )
     result["status"] = "updated"
     result["profile"] = str(profile_path)

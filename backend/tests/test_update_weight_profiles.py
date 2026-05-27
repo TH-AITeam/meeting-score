@@ -52,6 +52,41 @@ def _seed_org(db, org_id: str, *, consent: bool, n_pairs: int) -> None:
         s.commit()
 
 
+def _seed_org_mixed_meetings(
+    db, org_id: str, *, consent: bool, valid_pairs: int, missing_pairs: int
+) -> None:
+    """解決できるペアと保存済み会議が無いペアを混ぜて投入する。"""
+    from sqlmodel import Session
+
+    from app.store.feedback_models import Organization, PairwiseFeedback
+
+    with Session(db.get_engine()) as s:
+        s.add(Organization(org_id=org_id, name=org_id, consent_to_train=consent))
+        for _ in range(valid_pairs):
+            s.add(
+                PairwiseFeedback(
+                    org_id=org_id,
+                    meeting_id="m1",
+                    utt_a="u_hi",
+                    utt_b="u_lo",
+                    winner="A",
+                    source="manual_pair",
+                )
+            )
+        for _ in range(missing_pairs):
+            s.add(
+                PairwiseFeedback(
+                    org_id=org_id,
+                    meeting_id="missing",
+                    utt_a="u_hi",
+                    utt_b="u_lo",
+                    winner="A",
+                    source="manual_pair",
+                )
+            )
+        s.commit()
+
+
 def _meetings_dir(tmp_path) -> Path:
     """u_hi(高スコア) / u_lo(低スコア) を持つ保存済み会議を作る。"""
     d = tmp_path / "meetings"
@@ -155,6 +190,26 @@ def test_updates_and_writes_profile(_isolated_db, tmp_path):
     assert (tmp_path / "profiles" / "history.jsonl").exists()
 
 
+def test_skips_when_resolved_pairs_are_below_threshold(_isolated_db, tmp_path):
+    """DB 行数が閾値以上でも、解決済みペアが閾値未満なら profile を書かない。"""
+    _seed_org_mixed_meetings(
+        _isolated_db, "org_sparse", consent=True, valid_pairs=49, missing_pairs=11
+    )
+    r = update_org_profile("org_sparse", min_pairs=50, **_common_kwargs(tmp_path))
+    assert r["status"] == "skipped_below_resolved_threshold"
+    assert r["n_pairs"] == 49
+    assert r["n_feedback_pairs"] == 60
+    assert not (tmp_path / "profiles" / "org_sparse.yaml").exists()
+
+
+def test_invalid_org_id_is_rejected_before_path_use(_isolated_db, tmp_path):
+    """../ を含む org_id は feedback/profile パスへ使う前に拒否する。"""
+    with pytest.raises(ValueError, match="invalid org_id"):
+        update_org_profile("../bad", min_pairs=1, **_common_kwargs(tmp_path))
+    assert not (tmp_path / "feedback").exists()
+    assert not (tmp_path / "profiles").exists()
+
+
 def test_org_isolation_only_target_written(_isolated_db, tmp_path):
     _seed_org(_isolated_db, "org_a", consent=True, n_pairs=60)
     _seed_org(_isolated_db, "org_b", consent=True, n_pairs=60)
@@ -180,11 +235,60 @@ def test_admin_retrain_route(monkeypatch):
         lambda org_id, **_k: {"org_id": org_id, "status": "updated", "n_pairs": 60},
     )
     with TestClient(app) as c:
-        res = c.post("/api/admin/retrain_weights", params={"org_id": "org_x"})
+        res = c.post(
+            "/api/admin/retrain_weights",
+            params={"org_id": "org_x"},
+            headers={"X-Org-Id": "org_x"},
+        )
     assert res.status_code == 200
     body = res.json()
     assert body["org_id"] == "org_x"
     assert body["status"] == "updated"
+
+
+def test_admin_retrain_route_requires_matching_org_header(monkeypatch):
+    """管理APIも暫定認可として X-Org-Id と対象 org_id の一致を求める。"""
+    import scripts.update_weight_profiles as upm
+    from fastapi.testclient import TestClient
+
+    from app.api.main import app
+
+    called = False
+
+    def fake_update(_org_id, **_k):
+        nonlocal called
+        called = True
+        return {"status": "updated"}
+
+    monkeypatch.setattr(upm, "update_org_profile", fake_update)
+    with TestClient(app) as c:
+        res = c.post(
+            "/api/admin/retrain_weights",
+            params={"org_id": "org_x"},
+            headers={"X-Org-Id": "org_y"},
+        )
+    assert res.status_code == 403
+    assert called is False
+
+
+def test_admin_retrain_route_returns_400_for_invalid_org(monkeypatch):
+    """org_id の形式不正は 500 ではなく 400 として返す。"""
+    import scripts.update_weight_profiles as upm
+    from fastapi.testclient import TestClient
+
+    from app.api.main import app
+
+    def fake_update(_org_id, **_k):
+        raise ValueError("invalid org_id for filesystem path")
+
+    monkeypatch.setattr(upm, "update_org_profile", fake_update)
+    with TestClient(app) as c:
+        res = c.post(
+            "/api/admin/retrain_weights",
+            params={"org_id": "org_x"},
+            headers={"X-Org-Id": "org_x"},
+        )
+    assert res.status_code == 400
 
 
 if __name__ == "__main__":
