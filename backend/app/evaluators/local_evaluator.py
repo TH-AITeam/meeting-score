@@ -76,6 +76,7 @@ class LocalEvaluator(Evaluator):
         max_retries: int = 3,
         timeout: float = 30.0,
         client: Any | None = None,
+        fallback_model: str | None = None,
     ) -> None:
         self._model = model
         self._endpoint = endpoint.rstrip("/")
@@ -84,6 +85,9 @@ class LocalEvaluator(Evaluator):
         self._max_retries = max_retries
         self._timeout = timeout
         self._injected_client = client
+        # 組織別 LoRA アダプタ (model) のロード失敗時に切り替えるベースモデル (Issue #83)。
+        # 障害時も必ずベースモデルで応答を返し、評価を止めない。
+        self._fallback_model = fallback_model
 
     def _get_client(self) -> Any:
         if self._injected_client is not None:
@@ -98,7 +102,7 @@ class LocalEvaluator(Evaluator):
 
     def evaluate(self, ctx: EvaluationContext) -> EvaluationResult:
         try:
-            from openai import APIError
+            from openai import APIError  # noqa: F401  (存在確認)
         except ImportError as e:  # pragma: no cover - sdk 不在のテスト環境
             logger.error("OpenAI SDK の読み込みに失敗しました: %s", e)
             return EvaluationResult.failed()
@@ -106,10 +110,33 @@ class LocalEvaluator(Evaluator):
         client = self._get_client()
         prompt = build_prompt(ctx)
 
+        # primary（組織別アダプタ等）→ 失敗したら fallback（ベースモデル）の順に試す。
+        models = [self._model]
+        if self._fallback_model and self._fallback_model != self._model:
+            models.append(self._fallback_model)
+
+        for i, model in enumerate(models):
+            result = self._attempt_model(client, prompt, model)
+            if result is not None:
+                return result
+            if i + 1 < len(models):
+                logger.warning(
+                    "モデル %s で評価に失敗。フォールバック %s で再試行します (Issue #83)。",
+                    model,
+                    models[i + 1],
+                )
+
+        logger.error("ローカル LLM 全リトライ失敗。デフォルト値を返します。")
+        return EvaluationResult.failed()
+
+    def _attempt_model(self, client: Any, prompt: str, model: str) -> EvaluationResult | None:
+        """1 モデルでリトライ込み評価。成功で EvaluationResult、全失敗で None。"""
+        from openai import APIError
+
         for attempt in range(self._max_retries):
             try:
                 response = client.chat.completions.create(
-                    model=self._model,
+                    model=model,
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=self._max_tokens,
                     temperature=0.0,
@@ -127,7 +154,8 @@ class LocalEvaluator(Evaluator):
                 return normalize_result(parsed)
             except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
                 logger.warning(
-                    "ローカル LLM 応答パース失敗 (attempt %d/%d): %s",
+                    "ローカル LLM 応答パース失敗 [%s] (attempt %d/%d): %s",
+                    model,
                     attempt + 1,
                     self._max_retries,
                     e,
@@ -135,7 +163,8 @@ class LocalEvaluator(Evaluator):
                 continue
             except APIError as e:
                 logger.error(
-                    "ローカル LLM API エラー (attempt %d/%d): %s",
+                    "ローカル LLM API エラー [%s] (attempt %d/%d): %s",
+                    model,
                     attempt + 1,
                     self._max_retries,
                     e,
@@ -143,16 +172,15 @@ class LocalEvaluator(Evaluator):
                 continue
             except Exception as e:
                 logger.error(
-                    "予期しないエラー (attempt %d/%d): %s: %s",
+                    "予期しないエラー [%s] (attempt %d/%d): %s: %s",
+                    model,
                     attempt + 1,
                     self._max_retries,
                     type(e).__name__,
                     e,
                 )
                 continue
-
-        logger.error("ローカル LLM 全リトライ失敗。デフォルト値を返します。")
-        return EvaluationResult.failed()
+        return None
 
 
 __all__ = ["DEFAULT_API_KEY_PLACEHOLDER", "LocalEvaluator"]

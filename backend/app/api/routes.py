@@ -2,24 +2,37 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import yaml
 from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel, ValidationError
 
 from app.aggregation.aggregator import build_meeting_summary
 from app.context_builder.builder import build_contexts
 from app.evaluators import create_evaluator
+from app.evaluators.adapter_resolver import (
+    KIND_ADAPTER,
+    KIND_WEIGHTS_PROFILE,
+    AdapterResolver,
+)
+from app.evaluators.lora_loader import ensure_lora_loaded
 from app.ingest.loader import load_meeting_from_dict, load_meeting_from_file
 from app.reporting.reporter import format_meeting_summary_for_ui
 from app.schemas.models import EvaluatedUtterance, MeetingInput, MeetingType
 from app.scoring.calculator import calculate_total_score
 from app.scoring.rule_corrections import apply_rule_corrections
-from app.scoring.weights import get_weights_for_type, max_total_score
+from app.scoring.weights import (
+    ScoringWeights,
+    _parse_scoring_weights,
+    get_weights_for_type,
+    max_total_score,
+)
 from app.store import repository
 from app.store.models import SavedMeeting
 
@@ -28,6 +41,24 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 JST = timezone(timedelta(hours=9))
+
+# 組織別 LoRA アダプタの resolver。registry.yaml を mtime でホットリロードするため
+# プロセスで 1 個共有する (Issue #83)。
+_adapter_resolver: AdapterResolver | None = None
+
+
+def _get_adapter_resolver(config) -> AdapterResolver:
+    global _adapter_resolver
+    if _adapter_resolver is None:
+        _adapter_resolver = AdapterResolver(base_model=config.llm_model)
+    return _adapter_resolver
+
+
+def _load_weights_profile(path: str) -> ScoringWeights:
+    """組織別重みプロファイル (#81 出力) を ScoringWeights に読む。"""
+    data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    return _parse_scoring_weights(data.get("weights", data))
+
 
 SAMPLE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_meetings"
 
@@ -61,7 +92,8 @@ async def analyze_meeting(request: Request):
         meeting_data = load_meeting_from_dict(body)
     except ValidationError as e:
         raise HTTPException(status_code=400, detail=f"入力データのバリデーションエラー: {e}") from e
-    return await _run_analysis(meeting_data, request)
+    org_id = body.get("org_id") if isinstance(body, dict) else None
+    return await _run_analysis(meeting_data, request, org_id=org_id)
 
 
 @router.post("/analyze/file")
@@ -190,10 +222,53 @@ async def retrain_weights(org_id: str = Query(...)):
 # ---------------------------------------------------------------------------
 
 
-async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
+async def _run_analysis(
+    meeting_data: MeetingInput, request: Request, org_id: str | None = None
+) -> dict:
     """共通の分析パイプライン"""
     config = request.app.state.config
     weights = get_weights_for_type(config, meeting_data.meeting_type)
+
+    # 組織別 LoRA アダプタ / 重みプロファイルのルーティング (Issue #83)。
+    # org_id はリクエストボディ or X-Org-Id ヘッダから。
+    if org_id is None:
+        org_id = request.headers.get("X-Org-Id")
+    model_override: str | None = None
+    fallback_model: str | None = None
+    if org_id:
+        choice = _get_adapter_resolver(config).resolve(org_id)
+        is_local = (config.llm_backend or "local").lower() == "local"
+        if choice.kind == KIND_ADAPTER and is_local:
+            # Case 1: 組織別アダプタ (local 推論専用)。
+            # 選択する前に vLLM へロードする。registry hot-reload 後でも確実に登録し、
+            # ロードできた場合のみ採用 (失敗時はベースモデルのまま継続)。
+            # ensure_lora_loaded は同期 (urllib) なので to_thread でイベントループを塞がない。
+            loaded = await asyncio.to_thread(
+                ensure_lora_loaded, config.llm_endpoint or "", choice.model, choice.adapter_path
+            )
+            if loaded:
+                model_override = choice.model
+                fallback_model = config.llm_model
+                logger.info("org=%s: アダプタ '%s' で評価", org_id, model_override)
+            else:
+                logger.warning(
+                    "org=%s: アダプタ '%s' のロードに失敗。ベースモデルで評価します。",
+                    org_id,
+                    choice.model,
+                )
+        if choice.kind == KIND_WEIGHTS_PROFILE and choice.weights_profile_path:
+            # Case 2: ベースモデル + 組織別重みプロファイル。
+            # 重みはスコアリング段階に効くためバックエンド (local/openai) 非依存で適用する。
+            try:
+                weights = _load_weights_profile(choice.weights_profile_path)
+                logger.info(
+                    "org=%s: 重みプロファイルを適用 (%s)", org_id, choice.weights_profile_path
+                )
+            except Exception:
+                logger.exception(
+                    "重みプロファイル読込失敗、既定重みで継続: %s", choice.weights_profile_path
+                )
+        # Case 3 (default): ベースモデル + デフォルト重みのまま
 
     # 文脈ウィンドウ生成
     contexts = build_contexts(
@@ -205,8 +280,10 @@ async def _run_analysis(meeting_data: MeetingInput, request: Request) -> dict:
     evaluated: list[EvaluatedUtterance] = []
     failed_count = 0
 
-    # config.llm_backend に応じて OpenAI / Local Evaluator を生成 (Issue #12)
-    evaluator = create_evaluator(config)
+    # config.llm_backend に応じて OpenAI / Local Evaluator を生成 (Issue #12, #83)
+    evaluator = create_evaluator(
+        config, model_override=model_override, fallback_model=fallback_model
+    )
 
     for ctx in contexts:
         target = ctx.target_utterance
