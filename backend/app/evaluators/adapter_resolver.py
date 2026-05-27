@@ -97,6 +97,21 @@ class AdapterResolver:
             return None
         return candidate
 
+    def _safe_profile_path(self, org_id: str) -> Path | None:
+        """weights_profile_dir 配下に収まる {org_id}.yaml を安全に解決する。
+
+        org_id はリクエスト由来のため、``../`` 等で dir 外の YAML を読めないよう
+        解決後パスが root 配下にあることを検証する (アダプタ側と同じ防止策)。
+        """
+        try:
+            root = self._weights_profile_dir.resolve()
+            candidate = (root / f"{org_id}.yaml").resolve()
+            candidate.relative_to(root)  # traversal 防止
+        except (ValueError, OSError):
+            logger.warning("不正な重みプロファイルパス: org_id=%s", org_id)
+            return None
+        return candidate
+
     def resolve(self, org_id: str) -> AdapterChoice:
         """org_id を AdapterChoice に解決する。"""
         self._load_registry()
@@ -120,8 +135,8 @@ class AdapterResolver:
                 version,
             )
 
-        profile = self._weights_profile_dir / f"{org_id}.yaml"
-        if profile.exists():
+        profile = self._safe_profile_path(org_id)
+        if profile is not None and profile.exists():
             return AdapterChoice(
                 org_id=org_id,
                 kind=KIND_WEIGHTS_PROFILE,

@@ -125,6 +125,18 @@ def test_path_traversal_rejected(tmp_path):
     assert choice.kind == KIND_DEFAULT  # 不正パスは adapter にしない
 
 
+def test_weights_profile_path_traversal_rejected(tmp_path):
+    """org_id に ../ を含めても weights_profile_dir 外の YAML は読まない (R0Q)。"""
+    # weights_profile_dir の外（兄弟ディレクトリ）に既存の YAML を置く
+    (tmp_path / "weights_profile").mkdir(parents=True)
+    (tmp_path / "outside.yaml").write_text("weights: {}", encoding="utf-8")
+    r = _resolver(tmp_path, {})
+    # ../outside で dir 外の outside.yaml を狙う
+    choice = r.resolve("../outside")
+    assert choice.kind == KIND_DEFAULT
+    assert choice.weights_profile_path is None
+
+
 # ---------- lora_modules 生成 ----------
 
 
