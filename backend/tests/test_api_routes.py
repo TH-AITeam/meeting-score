@@ -21,9 +21,7 @@ class _FakeEvaluator(Evaluator):
 def _patch_evaluator(monkeypatch, result: EvaluationResult) -> None:
     """routes.create_evaluator をモック化して固定 Evaluator を返す。"""
     # routes は org 別ルーティング用に model_override / fallback_model を渡す (Issue #83)
-    monkeypatch.setattr(
-        routes, "create_evaluator", lambda config, **kwargs: _FakeEvaluator(result)
-    )
+    monkeypatch.setattr(routes, "create_evaluator", lambda config, **kwargs: _FakeEvaluator(result))
 
 
 def _sample_payload() -> dict:
