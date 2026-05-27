@@ -53,7 +53,14 @@ def _assistant(total_hint: int) -> dict:
         "speech_type": "提案",
         "scores": scores,
         "penalties": {
-            k: 0 for k in ["duplication", "verbosity", "off_topic", "unsupported_assertion"]
+            k: 0
+            for k in [
+                "duplication",
+                "verbosity",
+                "off_topic",
+                "unsupported_assertion",
+                "override",
+            ]
         },
         "reason": "r",
     }
@@ -81,6 +88,12 @@ def test_normalize_winner():
 
 def test_total_score():
     assert total_score(_assistant(5)) == 5
+
+
+def test_total_score_includes_override_penalty():
+    assistant = _assistant(5)
+    assistant["penalties"]["override"] = -2
+    assert total_score(assistant) == 3
 
 
 def test_synthesize_pairs_picks_high_vs_low():
@@ -155,6 +168,10 @@ def test_build_dpo_records_no_symmetric_single_record():
 
 def test_eval_pairwise_metrics():
     import eval_pairwise as ep
+
+    assistant = _assistant(5)
+    assistant["penalties"]["override"] = -2
+    assert ep.total_of(assistant) == 3
 
     totals = {("m1", "1"): 7.0, ("m1", "2"): 2.0, ("m1", "3"): 5.0}
     pairs = [

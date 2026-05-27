@@ -40,7 +40,7 @@ SCORE_AXES = [
     "novelty",
     "summarization",
 ]
-PENALTY_AXES = ["duplication", "verbosity", "off_topic", "unsupported_assertion"]
+PENALTY_AXES = ["duplication", "verbosity", "off_topic", "unsupported_assertion", "override"]
 
 _WINNER_A = {"a", "a_better", "utt_a"}
 _WINNER_B = {"b", "b_better", "utt_b"}

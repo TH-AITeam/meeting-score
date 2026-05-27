@@ -74,12 +74,15 @@ from scripts.build_sft_dataset import (  # noqa: E402
 # winner ラベルの正規化: 値 -> 'a' | 'b' | 'tie'
 _WINNER_A = {"a", "a_better", "utt_a"}
 _WINNER_B = {"b", "b_better", "utt_b"}
+DPO_PENALTY_KEYS = (
+    PENALTY_KEYS if "override" in PENALTY_KEYS else [*PENALTY_KEYS, "override"]
+)
 
 
 def total_score(assistant: dict[str, Any]) -> int:
     """評価 JSON の合計点（scores 合計 + penalties 合計）。"""
     s = sum(assistant["scores"][k] for k in SCORE_KEYS)
-    p = sum(assistant["penalties"][k] for k in PENALTY_KEYS)
+    p = sum(assistant["penalties"][k] for k in DPO_PENALTY_KEYS)
     return s + p
 
 
