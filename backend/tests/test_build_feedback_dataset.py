@@ -2,7 +2,7 @@
 
 完了条件:
   - 2 組織のフィードバックが同一出力ファイルに混入しない（出力ディレクトリ分離）
-  - consent_to_train=false の組織からは何も出力されない
+  - consent_to_train=false の組織は既存出力が無効化される
   - PII（話者名）が匿名化されている
   - 全件 JSON Schema バリデーションが通る
 """
@@ -51,7 +51,7 @@ def _utt(uid: str, speaker: str, dp: int, ts: str) -> dict:
     }
 
 
-def _meeting(meeting_id: str, speakers: list[str]) -> MeetingEval:
+def _meeting(meeting_id: str, speakers: list[str], org_id: str | None = None) -> MeetingEval:
     utts = [_utt(f"u{i + 1}", spk, dp=(i % 4), ts=f"00:0{i}") for i, spk in enumerate(speakers)]
     return MeetingEval(
         meeting_id=meeting_id,
@@ -60,7 +60,12 @@ def _meeting(meeting_id: str, speakers: list[str]) -> MeetingEval:
         agenda=["A"],
         decision_points=["D"],
         utterances=utts,
+        org_id=org_id,
     )
+
+
+def _idx(*meetings: MeetingEval) -> dict[tuple[str | None, str], list[MeetingEval]]:
+    return {(m.org_id, m.meeting_id): [m] for m in meetings}
 
 
 # ---------- 純関数 ----------
@@ -89,7 +94,7 @@ def test_pairwise_to_normalized_winner_resolution():
 def test_axis_flags_overrated_makes_target_loser():
     # u3 が最高スコア(dp=3 相当), u1 低い。u3 を overrated とフラグ → u3 が loser になるペア
     meeting = _meeting("m1", ["X", "Y", "Z", "W"])  # u1..u4, dp=0,1,2,3
-    idx = {"m1": meeting}
+    idx = _idx(meeting)
     flags = [{"meeting_id": "m1", "utterance_id": "u4", "direction": "overrated"}]
     pairs = axis_flags_to_normalized(flags, idx, max_pairs=20)
     # u4 は全体最高なので「より高い発言」が無い → ペア 0
@@ -106,7 +111,7 @@ def test_axis_flags_overrated_makes_target_loser():
 
 def test_axis_flag_max_pairs_cap():
     meeting = _meeting("m1", [f"S{i}" for i in range(10)])  # u1..u10
-    idx = {"m1": meeting}
+    idx = _idx(meeting)
     flags = [{"meeting_id": "m1", "utterance_id": "u1", "direction": "underrated"}]
     pairs = axis_flags_to_normalized(flags, idx, max_pairs=3)
     assert len(pairs) <= 3
@@ -131,18 +136,28 @@ def _run(tmp_path, org_id, consent, pairwise_rows, axis_rows, meetings):
 
 
 def test_consent_false_writes_nothing(tmp_path):
-    meetings = {"m1": _meeting("m1", ["山田", "佐藤"])}
+    meetings = _idx(_meeting("m1", ["山田", "佐藤"]))
+    stale_dpo = tmp_path / "org_x" / "dpo" / "v1" / "train.jsonl"
+    stale_weights = tmp_path / "org_x" / "weights" / "v1" / "pairs.jsonl"
+    stale_dpo.parent.mkdir(parents=True)
+    stale_weights.parent.mkdir(parents=True)
+    stale_dpo.write_text('{"stale": true}\n', encoding="utf-8")
+    stale_weights.write_text('{"stale": true}\n', encoding="utf-8")
+    (tmp_path / "org_x" / "stats.md").write_text("stale\n", encoding="utf-8")
     rows = [
         {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u2", "winner": "A", "source": "manual_pair"}
     ]
     summary = _run(tmp_path, "org_x", False, rows, [], meetings)
     assert summary["skipped"] == "no_consent"
-    # 出力ディレクトリ自体が作られない
-    assert not (tmp_path / "org_x").exists()
+    # 既存成果物は削除され、無効マーカーだけが残る。
+    assert (tmp_path / "org_x" / "TRAINING_DISABLED.txt").exists()
+    assert not (tmp_path / "org_x" / "dpo").exists()
+    assert not (tmp_path / "org_x" / "weights").exists()
+    assert not (tmp_path / "org_x" / "stats.md").exists()
 
 
 def test_pii_speaker_anonymized(tmp_path):
-    meetings = {"m1": _meeting("m1", ["山田太郎", "佐藤花子"])}
+    meetings = _idx(_meeting("m1", ["山田太郎", "佐藤花子"]))
     rows = [
         {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u2", "winner": "A", "source": "manual_pair"}
     ]
@@ -155,7 +170,7 @@ def test_pii_speaker_anonymized(tmp_path):
 
 
 def test_all_records_schema_valid(tmp_path):
-    meetings = {"m1": _meeting("m1", ["A社", "B社", "C社"])}
+    meetings = _idx(_meeting("m1", ["A社", "B社", "C社"]))
     rows = [
         {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u3", "winner": "B", "source": "manual_pair"},
     ]
@@ -180,9 +195,26 @@ def test_all_records_schema_valid(tmp_path):
     assert "scores_a" in wrec and "scores_b" in wrec
 
 
+def test_dpo_prompt_contains_both_compared_utterances(tmp_path):
+    meetings = _idx(_meeting("m1", ["A社", "B社", "C社"]))
+    rows = [
+        {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u3", "winner": "A", "source": "manual_pair"},
+    ]
+    _run(tmp_path, "org_1", True, rows, [], meetings)
+
+    base = tmp_path / "org_1" / "dpo" / "v1"
+    text = (base / "train.jsonl").read_text(encoding="utf-8") + (base / "val.jsonl").read_text(
+        encoding="utf-8"
+    )
+    rec = json.loads(text.splitlines()[0])
+    assert "比較対象:" in rec["prompt"]
+    assert "発言u1の内容です" in rec["prompt"]
+    assert "発言u3の内容です" in rec["prompt"]
+
+
 def test_two_orgs_separate_dirs_no_mixing(tmp_path):
-    m1 = {"m1": _meeting("m1", ["P", "Q"])}
-    m2 = {"m2": _meeting("m2", ["R", "S"])}
+    m1 = _idx(_meeting("m1", ["P", "Q"]))
+    m2 = _idx(_meeting("m2", ["R", "S"]))
     rows1 = [
         {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u2", "winner": "A", "source": "manual_pair"}
     ]
@@ -202,6 +234,33 @@ def test_two_orgs_separate_dirs_no_mixing(tmp_path):
     assert "m1" in t1 and "m2" not in t1
     assert '"org_id": "org_1"' in t1 and '"org_id": "org_2"' not in t1
     assert "m2" in t2 and "m1" not in t2
+
+
+def test_same_meeting_id_uses_matching_org_only(tmp_path):
+    org1_meeting = _meeting("m1", ["P", "Q"], org_id="org_1")
+    org2_meeting = _meeting("m1", ["R", "S"], org_id="org_2")
+    org1_meeting.goal = "org1-only-goal"
+    org2_meeting.goal = "org2-only-goal"
+    rows = [
+        {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u2", "winner": "A", "source": "manual_pair"}
+    ]
+    _run(tmp_path, "org_1", True, rows, [], _idx(org1_meeting, org2_meeting))
+
+    text = (tmp_path / "org_1" / "dpo" / "v1" / "train.jsonl").read_text(encoding="utf-8") + (
+        tmp_path / "org_1" / "dpo" / "v1" / "val.jsonl"
+    ).read_text(encoding="utf-8")
+    assert "org1-only-goal" in text
+    assert "org2-only-goal" not in text
+
+
+def test_duplicate_orgless_meeting_id_is_skipped_as_ambiguous(tmp_path):
+    rows = [
+        {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u2", "winner": "A", "source": "manual_pair"}
+    ]
+    meetings = {(None, "m1"): [_meeting("m1", ["P", "Q"]), _meeting("m1", ["R", "S"])]}
+    summary = _run(tmp_path, "org_1", True, rows, [], meetings)
+    assert summary["dpo_train"] + summary["dpo_val"] == 0
+    assert summary["counts"].get("meeting_ambiguous") == 1
 
 
 def test_missing_meeting_skipped(tmp_path):

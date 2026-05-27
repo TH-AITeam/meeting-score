@@ -11,7 +11,7 @@
     data/feedback/{org_id}/stats.md                     # 統計サマリ
 
 設計上の要点:
-  - ``consent_to_train=false`` の組織は **早期 return** で何も出力しない。
+  - ``consent_to_train=false`` の組織は既存成果物を削除し、無効マーカーを残す。
   - PII: 話者名は会議内で匿名 ID (A/B/C...) に置換。自由記述コメント
     (axis_flag.comment) は学習データに **含めない**（Phase2 で NER 検討）。
   - ``feedback_topk`` の Top入り×入替のペア展開は、収集 API (#78) が保存時に
@@ -31,8 +31,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -47,7 +49,6 @@ from scripts.build_sft_dataset import validate_schema  # noqa: E402
 
 from app.evaluators.prompt import (  # noqa: E402
     _MEETING_TYPE_LABELS,
-    PROMPT_PATH,
     RESPONSE_SCHEMA,
 )
 
@@ -59,6 +60,10 @@ PENALTY_KEYS = list(RESPONSE_SCHEMA["properties"]["penalties"]["properties"])
 
 DEFAULT_MEETINGS_DIR = REPO_ROOT / "data" / "stored_meetings"
 DEFAULT_OUT_ROOT = REPO_ROOT / "data" / "feedback"
+DISABLED_MARKER = "TRAINING_DISABLED.txt"
+
+MeetingKey = tuple[str | None, str]
+MeetingIndex = dict[MeetingKey, list["MeetingEval"]]
 
 
 # ---------------------------------------------------------------------------
@@ -73,6 +78,7 @@ class MeetingEval:
     decision_points: list[str]
     # 出現順（timestamp 昇順）の発言。各要素は評価結果込み。
     utterances: list[dict[str, Any]]
+    org_id: str | None = None
 
     def by_id(self) -> dict[str, dict[str, Any]]:
         return {u["utterance_id"]: u for u in self.utterances}
@@ -97,6 +103,8 @@ def meeting_eval_from_saved(saved: dict[str, Any]) -> MeetingEval | None:
     # timestamp 昇順（無ければ入力順）で文脈を組めるように並べる。
     ordered = sorted(utts, key=lambda u: str(u.get("timestamp", "")))
     inp = saved.get("input", {})
+    meta = saved.get("meta", {}) if isinstance(saved.get("meta"), dict) else {}
+    org_id = saved.get("org_id") or result.get("org_id") or inp.get("org_id") or meta.get("org_id")
     return MeetingEval(
         meeting_id=meeting_id,
         goal=result.get("goal", "") or inp.get("goal", ""),
@@ -104,12 +112,13 @@ def meeting_eval_from_saved(saved: dict[str, Any]) -> MeetingEval | None:
         agenda=inp.get("agenda", []) or [],
         decision_points=inp.get("decision_points", []) or [],
         utterances=ordered,
+        org_id=str(org_id) if org_id else None,
     )
 
 
-def load_meeting_index(meetings_dir: Path) -> dict[str, MeetingEval]:
-    """stored_meetings ディレクトリを meeting_id でインデックス化する。"""
-    index: dict[str, MeetingEval] = {}
+def load_meeting_index(meetings_dir: Path) -> MeetingIndex:
+    """stored_meetings ディレクトリを (org_id, meeting_id) でインデックス化する。"""
+    index: MeetingIndex = {}
     if not meetings_dir.is_dir():
         return index
     for path in meetings_dir.glob("*.json"):
@@ -119,8 +128,48 @@ def load_meeting_index(meetings_dir: Path) -> dict[str, MeetingEval]:
             continue
         me = meeting_eval_from_saved(saved)
         if me is not None:
-            index[me.meeting_id] = me
+            index.setdefault((me.org_id, me.meeting_id), []).append(me)
     return index
+
+
+def _as_meeting_list(value: Any) -> list[MeetingEval]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def find_meeting(
+    meeting_index: Mapping[Any, Any],
+    org_id: str | None,
+    meeting_id: str,
+) -> tuple[MeetingEval | None, str | None]:
+    """org を優先して会議を検索し、曖昧な meeting_id は使わない。
+
+    旧テストや手元利用の ``{"m1": MeetingEval(...)}`` 形式も受け付ける。
+    """
+    exact = _as_meeting_list(meeting_index.get((org_id, meeting_id)))
+    if len(exact) == 1:
+        return exact[0], None
+    if len(exact) > 1:
+        return None, "meeting_ambiguous"
+
+    candidates: list[MeetingEval] = []
+    fallback = _as_meeting_list(meeting_index.get((None, meeting_id)))
+    candidates.extend(fallback)
+    candidates.extend(_as_meeting_list(meeting_index.get(meeting_id)))
+    for key, value in meeting_index.items():
+        if isinstance(key, tuple) and key[1] == meeting_id and key[0] not in {org_id, None}:
+            candidates.extend(_as_meeting_list(value))
+
+    # org 情報を持たない保存済み会議は、meeting_id が一意な場合だけ後方互換で使う。
+    usable = [m for m in candidates if m.org_id in {None, org_id}]
+    if len(usable) == 1 and len(candidates) == 1:
+        return usable[0], None
+    if candidates:
+        return None, "meeting_ambiguous"
+    return None, "meeting_not_found"
 
 
 # ---------------------------------------------------------------------------
@@ -183,6 +232,61 @@ def build_prompt(
     )
 
 
+def _fmt_pair_utterance(label: str, utt: dict[str, Any], anon: dict[str, str]) -> str:
+    speaker = anon.get(utt.get("speaker", ""), "?")
+    return f"{label}: [{utt.get('timestamp', '')}] {speaker}: {utt.get('text', '')}"
+
+
+def build_pair_prompt(
+    meeting: MeetingEval,
+    pair: NormalizedPair,
+    anon: dict[str, str],
+    context: int = 3,
+) -> str | None:
+    """DPO 用に、chosen/rejected が同じ入力へ答える比較プロンプトを作る。"""
+    by_id = meeting.by_id()
+    winner = by_id.get(pair.winner_id)
+    loser = by_id.get(pair.loser_id)
+    if winner is None or loser is None:
+        return None
+
+    id_to_idx = {u["utterance_id"]: i for i, u in enumerate(meeting.utterances)}
+    target_positions = [
+        id_to_idx[uid] for uid in (pair.winner_id, pair.loser_id) if uid in id_to_idx
+    ]
+    if not target_positions:
+        return None
+    start = max(0, min(target_positions) - context)
+    end = min(len(meeting.utterances), max(target_positions) + context + 1)
+    surrounding = [
+        u
+        for u in meeting.utterances[start:end]
+        if u["utterance_id"] not in {pair.winner_id, pair.loser_id}
+    ]
+    mt = meeting.meeting_type
+    return "\n".join(
+        [
+            "次の会議発言ペアを比較し、より会議を前進させる発言の評価JSONを返してください。",
+            "chosen/rejected は同じ入力に対する代替回答として扱います。",
+            "",
+            f"会議種別: {_MEETING_TYPE_LABELS.get(mt, mt) if mt else '(未指定)'}",
+            f"会議目的: {meeting.goal or '(なし)'}",
+            f"アジェンダ: {'、'.join(meeting.agenda) if meeting.agenda else '(なし)'}",
+            "決定事項: "
+            f"{'、'.join(meeting.decision_points) if meeting.decision_points else '(なし)'}",
+            "",
+            "周辺文脈:",
+            _fmt_context(surrounding, anon),
+            "",
+            "比較対象:",
+            _fmt_pair_utterance("発言A", winner, anon),
+            _fmt_pair_utterance("発言B", loser, anon),
+            "",
+            "返答は speech_type, scores, penalties, reason を持つJSONのみ。",
+        ]
+    )
+
+
 # ---------------------------------------------------------------------------
 # ペアの正規化（pairwise / axis_flag 合成）
 # ---------------------------------------------------------------------------
@@ -220,8 +324,9 @@ def pairwise_to_normalized(rows: list[dict[str, Any]]) -> list[NormalizedPair]:
 
 def axis_flags_to_normalized(
     flags: list[dict[str, Any]],
-    meeting_index: dict[str, MeetingEval],
+    meeting_index: Mapping[Any, Any],
     max_pairs: int,
+    org_id: str | None = None,
 ) -> list[NormalizedPair]:
     """axis_flag を同会議の上位/下位発言とのペアに合成する。
 
@@ -230,7 +335,7 @@ def axis_flags_to_normalized(
     """
     out: list[NormalizedPair] = []
     for f in flags:
-        meeting = meeting_index.get(f["meeting_id"])
+        meeting, _reason = find_meeting(meeting_index, org_id, f["meeting_id"])
         if meeting is None:
             continue
         by_id = meeting.by_id()
@@ -287,15 +392,14 @@ class BuildOutput:
 def build_records(
     org_id: str,
     pairs: list[NormalizedPair],
-    meeting_index: dict[str, MeetingEval],
-    template: Template,
+    meeting_index: Mapping[Any, Any],
 ) -> BuildOutput:
     """NormalizedPair から DPO レコードと重み回帰 pairs を作る（org_id 単一）。"""
     out = BuildOutput()
     for pair in pairs:
-        meeting = meeting_index.get(pair.meeting_id)
+        meeting, reason = find_meeting(meeting_index, org_id, pair.meeting_id)
         if meeting is None:
-            out.counts["meeting_not_found"] += 1
+            out.counts[reason or "meeting_not_found"] += 1
             continue
         by_id = meeting.by_id()
         win, lose = by_id.get(pair.winner_id), by_id.get(pair.loser_id)
@@ -304,7 +408,7 @@ def build_records(
             continue
 
         anon = meeting.anon_map()
-        prompt = build_prompt(meeting, pair.winner_id, anon, template)
+        prompt = build_pair_prompt(meeting, pair, anon)
         if prompt is None:
             out.counts["prompt_failed"] += 1
             continue
@@ -446,13 +550,31 @@ def load_feedback_from_db(
 # ---------------------------------------------------------------------------
 # オーケストレーション（org_id: str 単一。複数組織のループは設計上不可）
 # ---------------------------------------------------------------------------
+def invalidate_org_outputs(out_dir: Path) -> None:
+    """同意なし組織の古い学習成果物を削除し、無効状態を明示する。"""
+    for name in ("dpo", "weights"):
+        target = out_dir / name
+        if target.is_dir():
+            shutil.rmtree(target)
+        elif target.exists():
+            target.unlink()
+    stats = out_dir / "stats.md"
+    if stats.exists():
+        stats.unlink()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / DISABLED_MARKER).write_text(
+        "consent_to_train=false のため、この組織の学習データ出力は無効化されています。\n",
+        encoding="utf-8",
+    )
+
+
 def build_for_org(
     org_id: str,
     *,
     consent: bool,
     pairwise_rows: list[dict[str, Any]],
     axis_rows: list[dict[str, Any]],
-    meeting_index: dict[str, MeetingEval],
+    meeting_index: Mapping[Any, Any],
     out_root: Path,
     version: str,
     max_pairs_per_feedback: int,
@@ -465,7 +587,8 @@ def build_for_org(
     """
     out_dir = out_root / org_id
     if not consent:
-        # consent_to_train=false / 組織不在 → 何も出力しない（早期 return）。
+        # consent_to_train=false / 組織不在 → 過去成果物を学習入力から外す。
+        invalidate_org_outputs(out_dir)
         return {
             "org_id": org_id,
             "skipped": "no_consent",
@@ -474,11 +597,13 @@ def build_for_org(
             "weights": 0,
         }
 
-    template = Template(PROMPT_PATH.read_text(encoding="utf-8"))
+    marker = out_dir / DISABLED_MARKER
+    if marker.exists():
+        marker.unlink()
     pairs = pairwise_to_normalized(pairwise_rows)
-    pairs += axis_flags_to_normalized(axis_rows, meeting_index, max_pairs_per_feedback)
+    pairs += axis_flags_to_normalized(axis_rows, meeting_index, max_pairs_per_feedback, org_id)
 
-    out = build_records(org_id, pairs, meeting_index, template)
+    out = build_records(org_id, pairs, meeting_index)
     train, val = split_train_val(out.dpo, val_ratio, seed)
 
     write_jsonl(out_dir / "dpo" / version / "train.jsonl", train)
@@ -516,7 +641,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         seed=args.seed,
     )
     if summary.get("skipped"):
-        print(f"[{args.org_id}] consent_to_train=false または組織不在のため出力なし")
+        print(f"[{args.org_id}] consent_to_train=false または組織不在のため出力を無効化しました")
     else:
         print(
             f"[{args.org_id}] DPO train {summary['dpo_train']} / val {summary['dpo_val']} "
