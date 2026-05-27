@@ -21,6 +21,7 @@
     (``source='axis_flag_synthesized'``)。
   - chosen/rejected の評価 JSON は、保存済み会議 (data/stored_meetings) の
     過去評価ログを使う（Issue #80 が許容する経路。GPU 無しで回せる）。
+  - DPO の prompt は #15 と同じ本番単一発言評価 prompt を使う。
 
 使い方:
     python scripts/build_feedback_dataset.py --org-id org_001
@@ -49,6 +50,7 @@ from scripts.build_sft_dataset import validate_schema  # noqa: E402
 
 from app.evaluators.prompt import (  # noqa: E402
     _MEETING_TYPE_LABELS,
+    PROMPT_PATH,
     RESPONSE_SCHEMA,
 )
 
@@ -232,61 +234,6 @@ def build_prompt(
     )
 
 
-def _fmt_pair_utterance(label: str, utt: dict[str, Any], anon: dict[str, str]) -> str:
-    speaker = anon.get(utt.get("speaker", ""), "?")
-    return f"{label}: [{utt.get('timestamp', '')}] {speaker}: {utt.get('text', '')}"
-
-
-def build_pair_prompt(
-    meeting: MeetingEval,
-    pair: NormalizedPair,
-    anon: dict[str, str],
-    context: int = 3,
-) -> str | None:
-    """DPO 用に、chosen/rejected が同じ入力へ答える比較プロンプトを作る。"""
-    by_id = meeting.by_id()
-    winner = by_id.get(pair.winner_id)
-    loser = by_id.get(pair.loser_id)
-    if winner is None or loser is None:
-        return None
-
-    id_to_idx = {u["utterance_id"]: i for i, u in enumerate(meeting.utterances)}
-    target_positions = [
-        id_to_idx[uid] for uid in (pair.winner_id, pair.loser_id) if uid in id_to_idx
-    ]
-    if not target_positions:
-        return None
-    start = max(0, min(target_positions) - context)
-    end = min(len(meeting.utterances), max(target_positions) + context + 1)
-    surrounding = [
-        u
-        for u in meeting.utterances[start:end]
-        if u["utterance_id"] not in {pair.winner_id, pair.loser_id}
-    ]
-    mt = meeting.meeting_type
-    return "\n".join(
-        [
-            "次の会議発言ペアを比較し、より会議を前進させる発言の評価JSONを返してください。",
-            "chosen/rejected は同じ入力に対する代替回答として扱います。",
-            "",
-            f"会議種別: {_MEETING_TYPE_LABELS.get(mt, mt) if mt else '(未指定)'}",
-            f"会議目的: {meeting.goal or '(なし)'}",
-            f"アジェンダ: {'、'.join(meeting.agenda) if meeting.agenda else '(なし)'}",
-            "決定事項: "
-            f"{'、'.join(meeting.decision_points) if meeting.decision_points else '(なし)'}",
-            "",
-            "周辺文脈:",
-            _fmt_context(surrounding, anon),
-            "",
-            "比較対象:",
-            _fmt_pair_utterance("発言A", winner, anon),
-            _fmt_pair_utterance("発言B", loser, anon),
-            "",
-            "返答は speech_type, scores, penalties, reason を持つJSONのみ。",
-        ]
-    )
-
-
 # ---------------------------------------------------------------------------
 # ペアの正規化（pairwise / axis_flag 合成）
 # ---------------------------------------------------------------------------
@@ -393,6 +340,7 @@ def build_records(
     org_id: str,
     pairs: list[NormalizedPair],
     meeting_index: Mapping[Any, Any],
+    template: Template,
 ) -> BuildOutput:
     """NormalizedPair から DPO レコードと重み回帰 pairs を作る（org_id 単一）。"""
     out = BuildOutput()
@@ -408,32 +356,52 @@ def build_records(
             continue
 
         anon = meeting.anon_map()
-        prompt = build_pair_prompt(meeting, pair, anon)
-        if prompt is None:
+        winner_prompt = build_prompt(meeting, pair.winner_id, anon, template)
+        loser_prompt = build_prompt(meeting, pair.loser_id, anon, template)
+        if winner_prompt is None or loser_prompt is None:
             out.counts["prompt_failed"] += 1
             continue
 
-        chosen = eval_json_of(win)
-        rejected = eval_json_of(lose)
+        winner_json = eval_json_of(win)
+        loser_json = eval_json_of(lose)
         # スキーマ検証（不正は捨てる）
-        if not validate_schema(chosen, RESPONSE_SCHEMA) or not validate_schema(
-            rejected, RESPONSE_SCHEMA
+        if not validate_schema(winner_json, RESPONSE_SCHEMA) or not validate_schema(
+            loser_json, RESPONSE_SCHEMA
         ):
             out.counts["schema_violation"] += 1
             continue
 
-        dpo_rec = {
-            "prompt": prompt,
-            "chosen": json.dumps(chosen, ensure_ascii=False),
-            "rejected": json.dumps(rejected, ensure_ascii=False),
-            "meta": {
-                "org_id": org_id,
-                "source": pair.source,
-                "meeting_id": pair.meeting_id,
-                "created_at": pair.created_at,
-            },
+        meta_base = {
+            "org_id": org_id,
+            "source": pair.source,
+            "meeting_id": pair.meeting_id,
+            "created_at": pair.created_at,
         }
-        out.dpo.setdefault(pair.meeting_id, []).append(dpo_rec)
+        dpo_records = [
+            {
+                "prompt": winner_prompt,
+                "chosen": json.dumps(winner_json, ensure_ascii=False),
+                "rejected": json.dumps(loser_json, ensure_ascii=False),
+                "meta": {
+                    **meta_base,
+                    "prompt_target_id": pair.winner_id,
+                    "chosen_id": pair.winner_id,
+                    "rejected_id": pair.loser_id,
+                },
+            },
+            {
+                "prompt": loser_prompt,
+                "chosen": json.dumps(loser_json, ensure_ascii=False),
+                "rejected": json.dumps(winner_json, ensure_ascii=False),
+                "meta": {
+                    **meta_base,
+                    "prompt_target_id": pair.loser_id,
+                    "chosen_id": pair.loser_id,
+                    "rejected_id": pair.winner_id,
+                },
+            },
+        ]
+        out.dpo.setdefault(pair.meeting_id, []).extend(dpo_records)
 
         # 重み回帰 (#16 形式): 軸スコアベクトル + winner（A_better 固定: utt_a=winner）
         out.weights.append(
@@ -442,8 +410,8 @@ def build_records(
                 "utt_a": pair.winner_id,
                 "utt_b": pair.loser_id,
                 "winner": "A_better",
-                "scores_a": chosen["scores"],
-                "scores_b": rejected["scores"],
+                "scores_a": winner_json["scores"],
+                "scores_b": loser_json["scores"],
                 "source": pair.source,
             }
         )
@@ -600,10 +568,11 @@ def build_for_org(
     marker = out_dir / DISABLED_MARKER
     if marker.exists():
         marker.unlink()
+    template = Template(PROMPT_PATH.read_text(encoding="utf-8"))
     pairs = pairwise_to_normalized(pairwise_rows)
     pairs += axis_flags_to_normalized(axis_rows, meeting_index, max_pairs_per_feedback, org_id)
 
-    out = build_records(org_id, pairs, meeting_index)
+    out = build_records(org_id, pairs, meeting_index, template)
     train, val = split_train_val(out.dpo, val_ratio, seed)
 
     write_jsonl(out_dir / "dpo" / version / "train.jsonl", train)

@@ -195,7 +195,7 @@ def test_all_records_schema_valid(tmp_path):
     assert "scores_a" in wrec and "scores_b" in wrec
 
 
-def test_dpo_prompt_contains_both_compared_utterances(tmp_path):
+def test_dpo_prompt_uses_pr95_target_prompt_format(tmp_path):
     meetings = _idx(_meeting("m1", ["A社", "B社", "C社"]))
     rows = [
         {"meeting_id": "m1", "utt_a": "u1", "utt_b": "u3", "winner": "A", "source": "manual_pair"},
@@ -206,10 +206,19 @@ def test_dpo_prompt_contains_both_compared_utterances(tmp_path):
     text = (base / "train.jsonl").read_text(encoding="utf-8") + (base / "val.jsonl").read_text(
         encoding="utf-8"
     )
-    rec = json.loads(text.splitlines()[0])
-    assert "比較対象:" in rec["prompt"]
-    assert "発言u1の内容です" in rec["prompt"]
-    assert "発言u3の内容です" in rec["prompt"]
+    recs = [json.loads(line) for line in text.splitlines() if line.strip()]
+    assert len(recs) == 2
+
+    by_target = {rec["meta"]["prompt_target_id"]: rec for rec in recs}
+    assert set(by_target) == {"u1", "u3"}
+    assert "## 対象発言" in by_target["u1"]["prompt"]
+    assert "比較対象:" not in by_target["u1"]["prompt"]
+    assert "内容: 発言u1の内容です" in by_target["u1"]["prompt"]
+    assert "内容: 発言u3の内容です" in by_target["u3"]["prompt"]
+    assert by_target["u1"]["meta"]["chosen_id"] == "u1"
+    assert by_target["u1"]["meta"]["rejected_id"] == "u3"
+    assert json.loads(by_target["u1"]["chosen"])["scores"]["decision_progress"] == 0
+    assert json.loads(by_target["u3"]["chosen"])["scores"]["decision_progress"] == 2
 
 
 def test_two_orgs_separate_dirs_no_mixing(tmp_path):
