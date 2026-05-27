@@ -74,8 +74,42 @@ def _normalize_winner(winner: str) -> str | None:
     return None  # tie ほかは除外
 
 
-def load_pairs_with_scores(path: Path) -> list[tuple[list[int], list[int]]]:
-    """scores_a/scores_b 同梱のペア JSONL → (winner_vec, loser_vec) のリスト。"""
+def load_meeting_scores(meetings_dir: Path) -> dict[tuple[str, str], dict[str, Any]]:
+    """保存済み会議 (data/stored_meetings) から (meeting_id, utterance_id) -> scores を作る。
+
+    gold 形式 pairs.jsonl (scores 非同梱) のスコアベクトル解決に使う。
+    """
+    index: dict[tuple[str, str], dict[str, Any]] = {}
+    if not meetings_dir.is_dir():
+        return index
+    for path in meetings_dir.glob("*.json"):
+        try:
+            saved = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        result = saved.get("result", {})
+        mid = result.get("meeting_id") or saved.get("id")
+        if not mid:
+            continue
+        for u in result.get("evaluated_utterances", []):
+            uid = u.get("utterance_id")
+            if uid is not None:
+                index[(mid, str(uid))] = u.get("scores", {})
+    return index
+
+
+def load_pairs_with_scores(
+    path: Path,
+    score_index: dict[tuple[str, str], dict[str, Any]] | None = None,
+) -> list[tuple[list[int], list[int]]]:
+    """ペア JSONL → (winner_vec, loser_vec)。
+
+    各行のスコアベクトルは以下の順で解決する:
+      1. 行に scores_a / scores_b が同梱されていればそれを使う (#80 形式)。
+      2. 無ければ score_index から (meeting_id, utt_a/utt_b) で引く
+         (gold 形式 pairs.jsonl + 全発言スコアの組み合わせ)。
+    どちらでも解決できない行はスキップする。
+    """
     out: list[tuple[list[int], list[int]]] = []
     for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
@@ -83,9 +117,19 @@ def load_pairs_with_scores(path: Path) -> list[tuple[list[int], list[int]]]:
             continue
         r = json.loads(line)
         side = _normalize_winner(r.get("winner", ""))
-        if side is None or "scores_a" not in r or "scores_b" not in r:
+        if side is None:
             continue
-        va, vb = _scores_vec(r["scores_a"]), _scores_vec(r["scores_b"])
+        if "scores_a" in r and "scores_b" in r:
+            sa, sb = r["scores_a"], r["scores_b"]
+        elif score_index is not None:
+            mid = r.get("meeting_id")
+            sa = score_index.get((mid, str(r.get("utt_a"))))
+            sb = score_index.get((mid, str(r.get("utt_b"))))
+            if sa is None or sb is None:
+                continue
+        else:
+            continue
+        va, vb = _scores_vec(sa), _scores_vec(sb)
         out.append((va, vb) if side == "a" else (vb, va))
     return out
 
@@ -230,7 +274,9 @@ def render_report(
 # ---------------------------------------------------------------------------
 def run(args: argparse.Namespace) -> dict[str, Any]:
     if args.pairs:
-        pairs = load_pairs_with_scores(Path(args.pairs))
+        # gold 形式 (scores 非同梱) に備え、保存済み会議からスコア索引を用意する。
+        score_index = load_meeting_scores(Path(args.meetings_dir))
+        pairs = load_pairs_with_scores(Path(args.pairs), score_index)
         source = f"file:{args.pairs}"
     elif args.synthesize_from_labels:
         pairs = synthesize_pairs_from_labels(
@@ -248,9 +294,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     diffs_all = np.array([np.array(win) - np.array(lose) for win, lose in pairs], dtype=float)
 
     # 会議をまたぐ情報は持たないため単純シャッフルで train/val 分割。
+    # val が全件を飲み込み train が空 (n=0 で NaN) にならないよう、必ず 1 件以上 train に残す。
     rng = np.random.default_rng(args.seed)
     idx = rng.permutation(len(diffs_all))
     n_val = max(1, round(len(idx) * args.val_ratio)) if len(idx) > 1 else 0
+    n_val = min(n_val, len(idx) - 1)  # train を空にしない (>= 1 件)
     val_idx, train_idx = idx[:n_val], idx[n_val:]
     train, val = diffs_all[train_idx], diffs_all[val_idx]
 
@@ -290,7 +338,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     p.add_argument(
-        "--pairs", default=None, help="軸スコア同梱のペア JSONL (#80 weights/pairs.jsonl 等)"
+        "--pairs",
+        default=None,
+        help="ペア JSONL。scores_a/scores_b 同梱 (#80) または gold 形式 "
+        "(meeting_id/utt_a/utt_b/winner、スコアは --meetings-dir から解決)",
+    )
+    p.add_argument(
+        "--meetings-dir",
+        default=str(REPO_ROOT / "data" / "stored_meetings"),
+        help="gold 形式 pairs のスコア解決に使う保存済み会議ディレクトリ",
     )
     p.add_argument(
         "--synthesize-from-labels",

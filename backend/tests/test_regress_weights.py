@@ -17,6 +17,7 @@ from scripts.regress_weights import (  # noqa: E402
     build_arg_parser,
     default_weight_vector,
     fit_pairwise_logistic,
+    load_meeting_scores,
     load_pairs_with_scores,
     normalize_weights,
     pairwise_accuracy,
@@ -161,6 +162,85 @@ def test_run_no_input_returns_empty(tmp_path):
         ]
     )
     assert run(args) == {}
+
+
+# ---------- レビュー反映: 小データ + 高 val-ratio で train を空にしない ----------
+
+
+def test_run_high_val_ratio_keeps_training_pair(tmp_path):
+    """2 ペア + --val-ratio 1.0 でも train が空にならず NaN を出さない。"""
+    import math
+
+    pairs = tmp_path / "pairs.jsonl"
+    rows = [
+        {
+            "winner": "A_better",
+            "scores_a": _scores(decision_progress=3),
+            "scores_b": _scores(decision_progress=0),
+        },
+        {
+            "winner": "A_better",
+            "scores_a": _scores(novelty=3),
+            "scores_b": _scores(novelty=0),
+        },
+    ]
+    pairs.write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    args = build_arg_parser().parse_args(
+        [
+            "--pairs",
+            str(pairs),
+            "--out-weights",
+            str(tmp_path / "w.yaml"),
+            "--report",
+            str(tmp_path / "r.md"),
+            "--val-ratio",
+            "1.0",
+        ]
+    )
+    summary = run(args)
+    assert summary  # 空でない（train が確保され回帰が走る）
+    assert all(not math.isnan(v) for v in summary["weights"].values())
+    assert not math.isnan(summary["acc_fixed"])
+    assert not math.isnan(summary["acc_regressed"])
+
+
+# ---------- レビュー反映: gold 形式 pairs を全発言スコアから解決 ----------
+
+
+def test_load_pairs_resolves_scores_from_meetings(tmp_path):
+    meetings = tmp_path / "meetings"
+    meetings.mkdir()
+    (meetings / "m.json").write_text(
+        json.dumps(
+            {
+                "id": "analysis_1",
+                "result": {
+                    "meeting_id": "m1",
+                    "evaluated_utterances": [
+                        {"utterance_id": "u1", "scores": _scores(decision_progress=3)},
+                        {"utterance_id": "u2", "scores": _scores(decision_progress=0)},
+                    ],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    idx = load_meeting_scores(meetings)
+    assert ("m1", "u1") in idx
+
+    # gold 形式（scores 非同梱）
+    pairs = tmp_path / "pairs.jsonl"
+    pairs.write_text(
+        json.dumps({"meeting_id": "m1", "utt_a": "u1", "utt_b": "u2", "winner": "A_better"}),
+        encoding="utf-8",
+    )
+    resolved = load_pairs_with_scores(pairs, idx)
+    assert len(resolved) == 1
+    win, _lose = resolved[0]
+    assert win[SCORE_KEYS.index("decision_progress")] == 3
+
+    # 索引が無ければ gold 形式は解決できずスキップ（従来挙動）
+    assert load_pairs_with_scores(pairs, None) == []
 
 
 if __name__ == "__main__":
