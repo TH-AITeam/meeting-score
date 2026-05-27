@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -161,6 +162,27 @@ async def delete_meeting(meeting_id: str):
     deleted = repository.delete(meeting_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="保存済み会議が見つかりません")
+
+
+# ---------------------------------------------------------------------------
+# 管理: 組織別重みプロファイルの再学習トリガ (Issue #81)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/admin/retrain_weights")
+async def retrain_weights(org_id: str = Query(...)):
+    """指定組織の軸重みプロファイルを今すぐ再回帰する (cron の手動トリガ版)。
+
+    実体は scripts/update_weight_profiles.py の update_org_profile。閾値未満や
+    consent=false、回帰悪化 (rollback) の場合は書き出さず status で理由を返す。
+    """
+    repo_root = str(Path(__file__).resolve().parents[3])
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
+    # scripts/ は backend の mypy/パッケージ対象外。実行時に repo root 経由で解決する。
+    from scripts.update_weight_profiles import update_org_profile  # type: ignore[import-not-found]
+
+    return update_org_profile(org_id)
 
 
 # ---------------------------------------------------------------------------
