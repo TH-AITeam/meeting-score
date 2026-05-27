@@ -59,3 +59,7 @@ scripts/lora/.venv-lora/
 outputs/
 wandb/
 unsloth_compiled_cache/
+# 軸重み回帰 (Issue #16, scripts/regress_weights.py) の生成物。
+# データ依存・レビュー前提の出力のためコミットしない（実行で再生成）。
+config/weights_regressed.yaml
+docs/weight_regression_report.md
