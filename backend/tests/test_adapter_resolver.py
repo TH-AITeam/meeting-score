@@ -274,6 +274,73 @@ def test_ensure_lora_loaded_no_path():
     assert ensure_lora_loaded("http://x/v1", "o", None) is False
 
 
+def test_default_post_treats_httperror_already_loaded_as_success(monkeypatch):
+    """本番経路: urllib が 400 + 'already loaded' を HTTPError で投げても成功扱い (レビュー #1)。"""
+    import io
+    import urllib.request
+    from urllib.error import HTTPError
+
+    from app.evaluators import lora_loader
+
+    lora_loader.reset_loaded_cache()
+
+    def fake_urlopen(req, timeout=None):
+        raise HTTPError(req.full_url, 400, "Bad Request", {}, io.BytesIO(b"LoRA already loaded"))
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    # post を注入せず default 経路 (_default_post) を通す
+    assert lora_loader.ensure_lora_loaded("http://x/v1", "org_a", "/p/org_a/v1") is True
+
+
+def test_default_post_connection_error_returns_false(monkeypatch):
+    import urllib.request
+    from urllib.error import URLError
+
+    from app.evaluators import lora_loader
+
+    lora_loader.reset_loaded_cache()
+
+    def fake_urlopen(req, timeout=None):
+        raise URLError("connection refused")
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    assert lora_loader.ensure_lora_loaded("http://x/v1", "org_a", "/p/org_a/v1") is False
+
+
+def test_ttl_zero_reverifies_each_call():
+    """TTL=0 ならキャッシュヒットせず毎回ロードを試みる (LRU 退避の遅延回復、レビュー #2)。"""
+    from app.evaluators.lora_loader import ensure_lora_loaded, reset_loaded_cache
+
+    reset_loaded_cache()
+    calls = []
+
+    def post(url, payload, timeout):
+        calls.append(payload["lora_name"])
+        return 200, "ok"
+
+    ensure_lora_loaded("http://x/v1", "org_a", "/p", ttl=0, post=post)
+    ensure_lora_loaded("http://x/v1", "org_a", "/p", ttl=0, post=post)
+    assert len(calls) == 2  # TTL=0 なのでキャッシュされず 2 回 POST
+
+
+def test_invalidate_forces_reload():
+    from app.evaluators.lora_loader import ensure_lora_loaded, invalidate, reset_loaded_cache
+
+    reset_loaded_cache()
+    calls = []
+
+    def post(url, payload, timeout):
+        calls.append(payload["lora_name"])
+        return 200, "ok"
+
+    ensure_lora_loaded("http://x/v1", "org_a", "/p", post=post)
+    ensure_lora_loaded("http://x/v1", "org_a", "/p", post=post)  # キャッシュヒット
+    assert len(calls) == 1
+    invalidate("http://x/v1", "org_a", "/p")  # 無効化 → 次は再ロード
+    ensure_lora_loaded("http://x/v1", "org_a", "/p", post=post)
+    assert len(calls) == 2
+
+
 # ---------- /api/analyze ルーティング (Issue #83 P1/P2 のレビュー反映) ----------
 
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from datetime import datetime, timedelta, timezone
@@ -219,7 +220,11 @@ async def _run_analysis(
             # Case 1: 組織別アダプタ (local 推論専用)。
             # 選択する前に vLLM へロードする。registry hot-reload 後でも確実に登録し、
             # ロードできた場合のみ採用 (失敗時はベースモデルのまま継続)。
-            if ensure_lora_loaded(config.llm_endpoint or "", choice.model, choice.adapter_path):
+            # ensure_lora_loaded は同期 (urllib) なので to_thread でイベントループを塞がない。
+            loaded = await asyncio.to_thread(
+                ensure_lora_loaded, config.llm_endpoint or "", choice.model, choice.adapter_path
+            )
+            if loaded:
                 model_override = choice.model
                 fallback_model = config.llm_model
                 logger.info("org=%s: アダプタ '%s' で評価", org_id, model_override)
