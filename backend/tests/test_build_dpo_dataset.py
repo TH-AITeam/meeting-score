@@ -133,9 +133,10 @@ def test_build_dpo_records_winner_is_chosen():
     assert r0["prompt"] == "prompt-1"
     assert json.loads(r0["chosen"])["scores"]["decision_progress"] >= 0
     assert r0["meta"]["chosen_id"] == "1" and r0["meta"]["rejected_id"] == "2"
-    # 対称: loser(2) のプロンプト, chosen=loser評価
+    # 対称: loser(2) のプロンプトでも winner/loser の選好方向は維持する
     assert recs[1]["prompt"] == "prompt-2"
-    assert recs[1]["meta"]["chosen_id"] == "2"
+    assert recs[1]["meta"]["chosen_id"] == "1"
+    assert recs[1]["meta"]["rejected_id"] == "2"
     assert counts["pairs_used"] == 1
 
 
@@ -177,11 +178,13 @@ def test_eval_pairwise_metrics():
     pairs = [
         {"meeting_id": "m1", "utt_a": "1", "utt_b": "2", "winner": "A_better"},  # 正(7>2)
         {"meeting_id": "m1", "utt_a": "2", "utt_b": "3", "winner": "A_better"},  # 誤(2<5)
+        {"meeting_id": "m1", "utt_a": "1", "utt_b": "4", "winner": "A_better"},  # 同点は誤
         {"meeting_id": "m1", "utt_a": "1", "utt_b": "2", "winner": "tie"},  # 除外
     ]
+    totals[("m1", "4")] = 7.0
     acc, n = ep.pairwise_accuracy(pairs, totals)
-    assert n == 2
-    assert acc == 0.5
+    assert n == 3
+    assert acc == pytest.approx(1 / 3)
 
     assert ep.jaccard({"1", "2"}, {"1", "2"}) == 1.0
     assert ep.jaccard({"1", "2"}, {"3", "4"}) == 0.0

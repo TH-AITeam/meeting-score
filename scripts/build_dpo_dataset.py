@@ -210,12 +210,12 @@ def build_dpo_records(
             records.append(
                 {
                     "prompt": loser.user,
-                    "chosen": json.dumps(loser.assistant, ensure_ascii=False),
-                    "rejected": json.dumps(winner.assistant, ensure_ascii=False),
+                    "chosen": json.dumps(winner.assistant, ensure_ascii=False),
+                    "rejected": json.dumps(loser.assistant, ensure_ascii=False),
                     "meta": {
                         **meta_base,
-                        "chosen_id": loser.utterance_id,
-                        "rejected_id": winner.utterance_id,
+                        "chosen_id": winner.utterance_id,
+                        "rejected_id": loser.utterance_id,
                     },
                 }
             )

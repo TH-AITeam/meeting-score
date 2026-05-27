@@ -78,7 +78,7 @@ def pairwise_accuracy(
     """gold ペアに対する勝者予測の正答率を返す。
 
     totals: (meeting_id, utterance_id) -> モデルが付けた合計スコア。
-    タイは accuracy 計算から除外する。戻り値: (accuracy, 評価対象ペア数)。
+    モデル同点は不正解として分母に含める。戻り値: (accuracy, 評価対象ペア数)。
     """
     correct = 0
     n = 0
@@ -91,11 +91,11 @@ def pairwise_accuracy(
         if key_a not in totals or key_b not in totals:
             continue
         ta, tb = totals[key_a], totals[key_b]
+        n += 1
         if ta == tb:
-            continue  # モデルが同点 → 順位判定不能（不正解扱いにしないため除外）
+            continue
         pred = "a" if ta > tb else "b"
         correct += int(pred == side)
-        n += 1
     return (correct / n if n else float("nan"), n)
 
 
