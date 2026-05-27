@@ -59,9 +59,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 sys.path.insert(0, str(REPO_ROOT))
 
-# 本番プロンプト/スキーマ流用（#13 と同じ単一の真実）。
-from app.evaluators.prompt import PROMPT_PATH  # noqa: E402
-
 # #13 のローダ・正規化を再利用（重複実装を避ける）。
 from scripts.build_sft_dataset import (  # noqa: E402
     PENALTY_KEYS,
@@ -70,6 +67,9 @@ from scripts.build_sft_dataset import (  # noqa: E402
     Sample,
     load_tier,
 )
+
+# 本番プロンプト/スキーマ流用（#13 と同じ単一の真実）。
+from app.evaluators.prompt import PROMPT_PATH  # noqa: E402
 
 # winner ラベルの正規化: 値 -> 'a' | 'b' | 'tie'
 _WINNER_A = {"a", "a_better", "utt_a"}
@@ -210,12 +210,12 @@ def build_dpo_records(
             records.append(
                 {
                     "prompt": loser.user,
-                    "chosen": json.dumps(winner.assistant, ensure_ascii=False),
-                    "rejected": json.dumps(loser.assistant, ensure_ascii=False),
+                    "chosen": json.dumps(loser.assistant, ensure_ascii=False),
+                    "rejected": json.dumps(winner.assistant, ensure_ascii=False),
                     "meta": {
                         **meta_base,
-                        "chosen_id": winner.utterance_id,
-                        "rejected_id": loser.utterance_id,
+                        "chosen_id": loser.utterance_id,
+                        "rejected_id": winner.utterance_id,
                     },
                 }
             )

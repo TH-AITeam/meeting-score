@@ -131,12 +131,15 @@ def test_build_dpo_records_winner_is_chosen():
     # 1 件目: winner(1) のプロンプト, chosen=winner評価, rejected=loser評価
     r0 = recs[0]
     assert r0["prompt"] == "prompt-1"
-    assert json.loads(r0["chosen"])["scores"]["decision_progress"] >= 0
+    assert json.loads(r0["chosen"]) == index[("m1", "1")].assistant
+    assert json.loads(r0["rejected"]) == index[("m1", "2")].assistant
     assert r0["meta"]["chosen_id"] == "1" and r0["meta"]["rejected_id"] == "2"
-    # 対称: loser(2) のプロンプトでも winner/loser の選好方向は維持する
+    # 対称: loser(2) のプロンプトでは loser 本来の評価を chosen にして入力と揃える
     assert recs[1]["prompt"] == "prompt-2"
-    assert recs[1]["meta"]["chosen_id"] == "1"
-    assert recs[1]["meta"]["rejected_id"] == "2"
+    assert json.loads(recs[1]["chosen"]) == index[("m1", "2")].assistant
+    assert json.loads(recs[1]["rejected"]) == index[("m1", "1")].assistant
+    assert recs[1]["meta"]["chosen_id"] == "2"
+    assert recs[1]["meta"]["rejected_id"] == "1"
     assert counts["pairs_used"] == 1
 
 
