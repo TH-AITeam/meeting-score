@@ -12,7 +12,9 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from scripts.build_sft_dataset import (
+    PENALTY_KEYS,
     RESPONSE_SCHEMA,
+    SCORE_KEYS,
     BuildResult,
     build_arg_parser,
     classify_reject,
@@ -23,6 +25,21 @@ from scripts.build_sft_dataset import (
     split_meetings,
     validate_schema,
 )
+
+
+def test_axis_keys_match_schema():
+    """軸キーは RESPONSE_SCHEMA と一致し、スキーマ変更 (#91 override 等) に追従する。"""
+    assert list(RESPONSE_SCHEMA["properties"]["scores"]["properties"]) == SCORE_KEYS
+    assert list(RESPONSE_SCHEMA["properties"]["penalties"]["properties"]) == PENALTY_KEYS
+    # #91 で追加された override が penalties に含まれる
+    assert "override" in PENALTY_KEYS
+    # normalized_assistant の出力も override を含み、スキーマ検証を通る
+    assistant = normalized_assistant(
+        {"speech_type": "提案", "scores": {"decision_progress": 2}, "penalties": {}, "reason": "r"}
+    )
+    assert "override" in assistant["penalties"]
+    assert validate_schema(assistant, RESPONSE_SCHEMA)
+
 
 PROMPT_TEMPLATE = Template(
     "type=$meeting_type goal=$meeting_goal agenda=$agenda dp=$decision_points "
